@@ -1,0 +1,279 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Breakout Scenario Pack · AI Solution Architect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--paper:#F7F5EF;--paper2:#EFEDE6;--card:#FFFFFF;--ink:#14213D;--ink-soft:rgba(20,33,61,.62);
+--line:rgba(20,33,61,.14);--cobalt:#1B65F5;--amber:#F5A31B;--sage:#2E9E7B;--clay:#E5533D;
+--disp:'Space Grotesk',sans-serif;--body:'Inter',sans-serif;--mono:'Space Mono',monospace}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{display:grid;grid-template-columns:286px 1fr;gap:0;min-height:100vh;align-items:start}
+
+/* ---------- sidebar ---------- */
+#side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--ink);color:#EAF0FF;padding:26px 20px 30px}
+#side .brand{font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:8px}
+#side .brand .sq{width:12px;height:12px;border-radius:3px;background:var(--cobalt);flex:none}
+#side .dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;margin-top:16px;color:rgba(234,240,255,.5)}
+#side h1{font-family:var(--disp);font-size:19px;line-height:1.25;margin-top:5px;font-weight:700}
+#side .badge{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 9px;border-radius:6px;margin-top:13px}
+#side .badge.internal{background:rgba(229,83,61,.2);color:#FFB3A5;border:1px solid rgba(229,83,61,.5)}
+#side .badge.candidate{background:rgba(46,158,123,.2);color:#8FE3C6;border:1px solid rgba(46,158,123,.5)}
+#side .aud{font-size:11.5px;line-height:1.5;color:rgba(234,240,255,.66);margin-top:9px}
+#side nav{margin-top:22px;border-top:1px solid rgba(234,240,255,.15);padding-top:16px}
+#side nav a{display:block;font-size:12.5px;line-height:1.4;color:rgba(234,240,255,.72);text-decoration:none;padding:6px 9px;border-radius:7px;border-left:2px solid transparent;transition:.14s}
+#side nav a:hover{background:rgba(234,240,255,.07);color:#fff}
+#side nav a.lv3{padding-left:20px;font-size:11.5px;color:rgba(234,240,255,.5)}
+#side nav a.on{background:rgba(27,101,245,.26);color:#fff;border-left-color:var(--amber)}
+#side .pr{margin-top:20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid rgba(234,240,255,.3);color:rgba(234,240,255,.8);padding:8px 12px;border-radius:7px;cursor:pointer;width:100%}
+#side .pr:hover{background:rgba(234,240,255,.12);color:#fff}
+
+/* ---------- document ---------- */
+main{padding:46px 62px 110px;max-width:1000px}
+h1,h2,h3,h4{font-family:var(--disp);letter-spacing:-.01em;line-height:1.2}
+main>h1{font-size:34px;margin:0 0 6px;font-weight:700}
+main>h1+h2{margin-top:2px}
+h2{font-size:25px;font-weight:700;margin:40px 0 12px;padding-bottom:9px;border-bottom:2px solid var(--line)}
+h3{font-size:19px;font-weight:700;margin:28px 0 9px;color:var(--ink)}
+h4{font-size:15.5px;font-weight:700;margin:20px 0 7px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.07em;font-family:var(--mono)}
+p{margin:11px 0;font-size:15.5px}
+ul,ol{margin:11px 0 11px 23px}
+li{margin:6px 0;font-size:15.5px;line-height:1.55}
+li>ul,li>ol{margin:5px 0 5px 18px}
+strong{font-weight:600}
+em{font-style:italic;color:var(--ink-soft)}
+a{color:var(--cobalt)}
+hr{border:none;border-top:1px solid var(--line);margin:34px 0}
+code{font-family:var(--mono);font-size:.87em;background:var(--paper2);padding:2px 6px;border-radius:5px}
+
+/* tables */
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;background:var(--card);
+ border:1px solid var(--line);border-radius:11px;overflow:hidden}
+th{background:var(--ink);color:#EAF0FF;font-family:var(--disp);font-size:12.5px;font-weight:700;
+ text-align:left;padding:11px 13px;vertical-align:top}
+td{padding:11px 13px;border-top:1px solid var(--line);vertical-align:top;line-height:1.5}
+tbody tr:nth-child(even){background:var(--paper2)}
+td:empty::after{content:"";display:block;min-height:22px;border-bottom:1px dotted var(--line)}
+
+/* blockquote + guidance */
+blockquote{margin:16px 0;padding:14px 18px;background:rgba(27,101,245,.06);
+ border-left:4px solid var(--cobalt);border-radius:0 11px 11px 0}
+blockquote p{margin:7px 0;font-size:14.5px}
+blockquote.guidance{background:rgba(245,163,27,.1);border-left-color:var(--amber);position:relative}
+blockquote.guidance::before{content:"DELETE BEFORE SUBMITTING";position:absolute;top:-9px;left:16px;
+ font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.14em;background:var(--amber);
+ color:#fff;padding:3px 8px;border-radius:5px}
+blockquote.guidance{padding-top:19px}
+
+/* code / write-in */
+pre{background:#0E1730;color:#EAF0FF;padding:15px 17px;border-radius:11px;overflow-x:auto;margin:14px 0}
+pre code{background:none;padding:0;font-size:12.5px;line-height:1.6;color:inherit}
+pre.writein{background:var(--card);border:1px dashed var(--line);
+ background-image:repeating-linear-gradient(transparent,transparent 29px,var(--line) 29px,var(--line) 30px);
+ min-height:92px}
+pre.writein code{color:var(--ink-soft);font-family:var(--body);font-size:13px}
+
+/* checkboxes */
+li.task{list-style:none;margin-left:-23px;display:flex;gap:10px;align-items:flex-start}
+li.task input{margin-top:4px;width:15px;height:15px;accent-color:var(--sage);flex:none;cursor:pointer}
+li.task.done span{text-decoration:line-through;color:var(--ink-soft)}
+
+/* firewall divider */
+.firewall{margin:34px 0;padding:17px 22px;background:var(--ink);color:#EAF0FF;border-radius:13px;text-align:center}
+.firewall .fh{font-family:var(--disp);font-size:18px;font-weight:800;letter-spacing:.1em;color:var(--amber)}
+.firewall p{font-size:13px;color:rgba(234,240,255,.82);margin:7px 0 0}
+
+/* section banners */
+.secband{margin:30px 0 14px;padding:13px 19px;border-radius:12px;font-family:var(--disp);font-weight:800;font-size:17px}
+.secband.biz{background:rgba(46,158,123,.13);border-left:4px solid var(--sage);color:var(--ink)}
+
+@media (max-width:980px){.shell{grid-template-columns:1fr}#side{position:static;height:auto}main{padding:28px 22px 70px}}
+@media print{
+  #side{display:none}.shell{grid-template-columns:1fr}
+  main{padding:0;max-width:none}
+  body{background:#fff}
+  h2{page-break-after:avoid}table,pre,blockquote{page-break-inside:avoid}
+  blockquote.guidance{display:none}
+  pre.writein{min-height:120px}
+}
+</style></head><body>
+<div class="shell">
+<aside id="side">
+  <div class="brand"><span class="sq"></span> AI Solution Architect</div>
+  <div class="dt">Week 1 · Day 2 · Guided Lab</div>
+  <h1>Breakout Scenario Pack</h1>
+  <span class="badge candidate">For candidates</span>
+  <div class="aud">For candidates. Open this in your breakout room.</div>
+  <nav><a class="" href="#redpoint-field-services-week-1-guided-lab-part-1">Redpoint Field Services · Week 1, Guided Lab Part 1</a><a class="" href="#1-the-company">1. The company</a><a class="" href="#2-the-request-exactly-as-it-arrived">2. The request, exactly as it arrived</a><a class="" href="#3-operational-data">3. Operational data</a><a class="" href="#4-named-roles">4. Named roles</a><a class="" href="#5-governance-bodies">5. Governance bodies</a><a class="" href="#6-constraints-that-already-exist">6. Constraints that already exist</a><a class="" href="#7-what-your-ai-pod-produces">7. What your AI Pod produces</a><a class="" href="#8-three-things-that-will-cost-you-marks">8. Three things that will cost you marks</a><a class="" href="#9-when-you-come-back">9. When you come back</a></nav>
+  <button class="pr" onclick="window.print()">Print / Save as PDF</button>
+</aside>
+<main><h1>Breakout Scenario Pack</h1>
+<h2 id="redpoint-field-services-week-1-guided-lab-part-1">Redpoint Field Services · Week 1, Guided Lab Part 1</h2>
+<p><strong>Your pod has 35 minutes.</strong> Everything you need is in this pack. Nothing needs to be invented, and no figure here should be changed.</p>
+<blockquote>
+<p><strong>Suggested timing.</strong> 5 min read alone, no pod discussion · 12 min capability map · 8 min four lenses · 8 min the statement · 2 min pick who presents.</p>
+</blockquote>
+<hr />
+<h2 id="1-the-company">1. The company</h2>
+<p>Redpoint Field Services installs and maintains commercial heating, ventilation and cooling systems. Roughly <strong>600 field engineers</strong> covering about <strong>11,000 contracted sites</strong> - offices, hospitals, data centres and retail parks. Most revenue comes from annual maintenance contracts with service-level commitments attached.</p>
+<p>Redpoint acquired a competitor in 2024 and still runs <strong>two field-service systems</strong> while the merger completes.</p>
+<hr />
+<h2 id="2-the-request-exactly-as-it-arrived">2. The request, exactly as it arrived</h2>
+<p>An email to the Head of Architecture, copied to the IT Director:</p>
+<blockquote>
+<p>"Our engineers are completing too few jobs a day and the contract margins are going the wrong way. I want an <strong>AI scheduling optimiser</strong> this financial year. Uber can route thousands of drivers in real time - why can't we do the same for a van? Come back to me with what it would take."</p>
+<p><strong>- Chief Operating Officer</strong></p>
+</blockquote>
+<hr />
+<h2 id="3-operational-data">3. Operational data</h2>
+<p>All figures are from the last 12 months unless stated. Treat them as sourced.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Capability</th>
+<th>What it means</th>
+<th>The numbers</th>
+<th>Owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Schedule an Engineer</strong></td>
+<td>Assigning a job to an engineer and a time slot</td>
+<td><strong>91%</strong> of jobs scheduled inside the SLA window. Mean <strong>4 minutes</strong> to assign a job.</td>
+<td>Head of Field Operations</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Complete a First Visit</strong></td>
+<td>Fixing the fault on the first attendance</td>
+<td><strong>58%</strong> first-time fix rate. <strong>42%</strong> of jobs need a return visit.</td>
+<td>Head of Field Operations</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Stock the Right Part</strong></td>
+<td>Having the correct part on the van or at the site</td>
+<td><strong>34%</strong> of return visits happen because the engineer arrived without the right part. <strong>22%</strong> of parts records are missing the model-compatibility field.</td>
+<td>Parts &amp; Inventory Manager</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Quote a Repair</strong></td>
+<td>Pricing and issuing a quote for work outside the contract</td>
+<td>Mean <strong>3.4 working days</strong> to issue a quote. <strong>29%</strong> of quotes are never accepted.</td>
+<td>Commercial Manager</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Onboard a New Site</strong></td>
+<td>Taking a signed contract to a first scheduled maintenance visit</td>
+<td><strong>12 working days</strong>. The asset register for each new site is built <strong>manually</strong> from PDFs supplied by the customer.</td>
+<td>Head of Asset Data</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Close a Job</strong></td>
+<td>Completing the job sheet so the work can be billed</td>
+<td><strong>18%</strong> of job sheets come back incomplete. Billing is delayed a mean <strong>9 days</strong> on those.</td>
+<td>Finance Controller</td>
+</tr>
+</tbody>
+</table>
+<p><strong>One more data point, from the service desk log:</strong> of the customer complaints logged last year, the largest single category was <em>"engineer attended but could not complete the work"</em>.</p>
+<hr />
+<h2 id="4-named-roles">4. Named roles</h2>
+<p>Chief Operating Officer · IT Director · Head of Architecture · <strong>Head of Field Operations</strong> · <strong>Parts &amp; Inventory Manager</strong> · <strong>Head of Asset Data</strong> · <strong>Commercial Manager</strong> · <strong>Service Desk Manager</strong> · <strong>Finance Controller</strong></p>
+<hr />
+<h2 id="5-governance-bodies">5. Governance bodies</h2>
+<table>
+<thead>
+<tr>
+<th>Body</th>
+<th>Meets</th>
+<th>What it controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Health &amp; Safety Committee</strong></td>
+<td>Monthly</td>
+<td>Any change to the instructions an engineer follows on site. Nothing that changes a job instruction ships without its sign-off.</td>
+</tr>
+<tr>
+<td><strong>Data Governance Board</strong></td>
+<td>Fortnightly</td>
+<td>Ownership and definition of the asset register and the parts catalogue.</td>
+</tr>
+<tr>
+<td><strong>Commercial Review</strong></td>
+<td>Weekly</td>
+<td>Quote approval thresholds and contract pricing.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-constraints-that-already-exist">6. Constraints that already exist</h2>
+<table>
+<thead>
+<tr>
+<th>Constraint</th>
+<th>Where it comes from</th>
+<th>What it rules out</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Two field-service systems</strong> following the 2024 acquisition; consolidation runs into 2027</td>
+<td>Post-acquisition integration</td>
+<td>Anything that assumes one authoritative job or asset record today</td>
+</tr>
+<tr>
+<td><strong>Engineer handhelds lose connectivity</strong> in plant rooms and basements, which is where much of the work happens</td>
+<td>Physical reality of the sites</td>
+<td>Any design that assumes a live connection at the moment of work</td>
+</tr>
+<tr>
+<td><strong>Union agreement on job allocation</strong> - material changes to how work is allocated to engineers require consultation before they take effect</td>
+<td>Collective agreement</td>
+<td>Anything that changes allocation rules unilaterally or at short notice</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-what-your-ai-pod-produces">7. What your AI Pod produces</h2>
+<p>Write these four things. One person in the pod shares their screen and types; <strong>everyone keeps their own copy</strong>, because this is Parts 2 to 5 of your own Lab Kit, not just a pod exercise.</p>
+<p><strong>1. The capability map.</strong> Four to six capabilities from the table above. For each, mark <strong>where cost, friction or inefficiency concentrates</strong> and quote the number. Then say which are <strong>hot</strong> and which are <strong>genuinely fine</strong> - naming at least one healthy capability is required.</p>
+<p><strong>2. All four lenses on your hottest capability.</strong> Cost · Risk · Time-to-value · Adoption. Each tied to a <strong>named role</strong> from section 4, never "the business". Then run the swap test: cover the labels, shuffle the rows, do they still make sense? If yes, rewrite.</p>
+<p><strong>3. One Validated Problem Statement.</strong> A capability, a number from this pack, the consequence, a named role who carries it, and <strong>zero technology words</strong>. One sentence.</p>
+<p><strong>4. One line on context.</strong> Which named governance body or constraint from sections 5 and 6 most shapes what Redpoint can actually do here, and why.</p>
+<hr />
+<h2 id="8-three-things-that-will-cost-you-marks">8. Three things that will cost you marks</h2>
+<ol>
+<li><strong>Agreeing with the COO.</strong> He has given you a prescription. Check the data before you accept the diagnosis - and notice which capability his request actually points at.</li>
+<li><strong>Listing activities instead of capabilities.</strong> "Send the reminder email" is an activity. "Collect a Payment" is a capability. The rubric caps this at 25 out of 100.</li>
+<li><strong>A technology word in your statement.</strong> Strike every one out before you present. Two separate scored lines depend on technology being absent from this part of your work.</li>
+</ol>
+<hr />
+<h2 id="9-when-you-come-back">9. When you come back</h2>
+<p>One person per pod presents, in about <strong>two minutes</strong>:</p>
+<ul>
+<li>Which capability you picked as hot, and the number behind it</li>
+<li>Which one you found was genuinely fine</li>
+<li>Your problem statement, read out loud, word for word</li>
+</ul>
+<p>Then we open the model answer together. <strong>Nobody is marked today</strong> - this is a rehearsal for the work you finish and submit on Wednesday.</p></main>
+</div>
+<script>
+const ids=[...document.querySelectorAll('main h2[id],main h3[id]')];
+const links=new Map([...document.querySelectorAll('#side nav a')].map(a=>[a.getAttribute('href').slice(1),a]));
+function spy(){let cur=null;for(const el of ids){if(el.getBoundingClientRect().top<140)cur=el;}
+ links.forEach(a=>a.classList.remove('on'));
+ if(cur&&links.has(cur.id))links.get(cur.id).classList.add('on');}
+document.addEventListener('scroll',spy,{passive:true});spy();
+document.querySelectorAll('li.task input').forEach(cb=>cb.addEventListener('change',e=>{
+ e.target.closest('li').classList.toggle('done',e.target.checked);}));
+</script></body></html>

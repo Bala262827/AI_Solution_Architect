@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Week 1 Pre-Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#F7F5EF;--card:#FFF;--ink:#14213D;--soft:rgba(20,33,61,.62);--line:rgba(20,33,61,.14);
+--cobalt:#1B65F5;--amber:#F5A31B;--sage:#2E9E7B;--clay:#E5533D;--disp:'Space Grotesk',sans-serif;--body:'Inter',sans-serif;--mono:'Space Mono',monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#11141C;--card:#171B25;--ink:#EAF0FF;--soft:rgba(234,240,255,.62);--line:rgba(234,240,255,.14)}}
+:root[data-theme="dark"]{--paper:#11141C;--card:#171B25;--ink:#EAF0FF;--soft:rgba(234,240,255,.62);--line:rgba(234,240,255,.14)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);line-height:1.55}
+.wrap{max-width:860px;margin:0 auto;padding:40px 16px 80px}
+h1{font-family:var(--disp);font-size:30px;margin:0 0 6px}
+.eye{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt);margin-bottom:10px}
+.sub{color:var(--soft);margin:0 0 26px;font-size:15px}
+#drop{border:2px dashed var(--line);border-radius:16px;background:var(--card);padding:46px 24px;text-align:center;cursor:pointer;transition:.18s}
+#drop:hover,#drop.over{border-color:var(--cobalt);background:color-mix(in srgb,var(--cobalt) 5%,var(--card))}
+#drop b{font-family:var(--disp);font-size:18px;display:block;margin-bottom:4px}
+#drop span{color:var(--soft);font-size:14px}
+#out{margin-top:26px}
+.verdict{border-radius:14px;padding:20px 22px;margin-bottom:18px;border:1px solid var(--line);background:var(--card)}
+.verdict.pass{border-left:5px solid var(--sage)}
+.verdict.fail{border-left:5px solid var(--clay)}
+.verdict h2{font-family:var(--disp);margin:0 0 4px;font-size:21px}
+.verdict p{margin:0;color:var(--soft);font-size:14px}
+.grp{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:14px}
+.grp h3{font-family:var(--disp);font-size:14px;margin:0 0 10px;letter-spacing:.02em}
+.grp h3 .n{font-family:var(--mono);font-size:11px;color:#fff;background:var(--clay);border-radius:20px;padding:2px 9px;margin-left:7px}
+.grp.warn h3 .n{background:var(--amber);color:#2a1d00}
+ol{margin:0;padding-left:20px}
+li{margin-bottom:9px;font-size:14px}
+li code{font-family:var(--mono);font-size:12.5px;background:color-mix(in srgb,var(--ink) 7%,transparent);padding:1px 5px;border-radius:4px}
+.fix{display:block;color:var(--soft);font-size:13px;margin-top:2px}
+.ok{color:var(--sage);font-weight:600}
+footer{margin-top:30px;color:var(--soft);font-size:13px;text-align:center}
+</style></head><body>
+<div class="wrap">
+<div class="eye">AI Solution Architect &middot; Week 1</div>
+<h1>Submission pre-check</h1>
+<p class="sub">Drop your filled template below. Nothing is uploaded anywhere: the check runs inside this page, on your machine. Fix everything it lists, run it again, and submit only when it says READY.</p>
+<div id="drop"><b>Drop your .docx here</b><span>or click to choose a file</span>
+<input type="file" id="fi" accept=".docx" hidden></div>
+<div id="out"></div>
+<footer>Runs offline once loaded. Your document never leaves this browser.</footer>
+</div>
+<script>
+const CFG = {
+"fields": [
+{
+"sec": 1,
+"label": "1.1 Quote the original request, word for word:",
+"kind": "text",
+"side": "business",
+"exempt": true
+},
+{
+"sec": 1,
+"label": "1.2 Who said it, and what is their role:",
+"kind": "role",
+"side": "business",
+"exempt": true
+},
+{
+"sec": 3,
+"label": "3.1 Cost lens:",
+"kind": "text",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 3,
+"label": "3.2 Risk lens:",
+"kind": "text",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 3,
+"label": "3.3 Time-to-value lens:",
+"kind": "text",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 3,
+"label": "3.4 Adoption lens:",
+"kind": "text",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 4,
+"label": "4.1 The technology-shaped request, in one line:",
+"kind": "text",
+"side": "business",
+"exempt": true
+},
+{
+"sec": 4,
+"label": "4.2 The business capability gap it actually points to:",
+"kind": "text",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 4,
+"label": "4.3 The evidence in the brief that supports this reframing:",
+"kind": "num",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 5,
+"label": "5.1 Problem statement, one sentence:",
+"kind": "text",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 5,
+"label": "5.2 The specific cost, risk or friction this names:",
+"kind": "num",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 5,
+"label": "5.3 The non-technical role who would recognise it:",
+"kind": "role",
+"side": "business",
+"exempt": false
+},
+{
+"sec": 6,
+"label": "6.1 We chose:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 6,
+"label": "6.2 Over:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 6,
+"label": "6.3 The requirement that decided it:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 6,
+"label": "6.4 What we gave up by choosing this:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 6,
+"label": "6.5 Who would disagree, and on what grounds:",
+"kind": "role",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 7,
+"label": "7.1 Guarantee A metric:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 7,
+"label": "7.2 Guarantee A threshold:",
+"kind": "num",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 7,
+"label": "7.3 Guarantee A how measured:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 7,
+"label": "7.4 Guarantee A what happens on breach:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 7,
+"label": "7.5 Guarantee B metric:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 7,
+"label": "7.6 Guarantee B threshold:",
+"kind": "num",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 7,
+"label": "7.7 Guarantee B how measured:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 7,
+"label": "7.8 Guarantee B what happens on breach:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 8,
+"label": "8.1 Option A considered:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 8,
+"label": "8.2 Option B considered:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 8,
+"label": "8.3 Chosen:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 8,
+"label": "8.4 The requirement that decided it:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 8,
+"label": "8.5 What would have to change for the other option to win:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 9,
+"label": "9.1 Governance body consulted:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 9,
+"label": "9.2 The constraint it imposes:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 9,
+"label": "9.3 Second governance body:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 9,
+"label": "9.4 The constraint it imposes:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 9,
+"label": "9.5 Which stakeholder lens this changes, and how:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 9,
+"label": "9.6 Another capability in this organisation the same pattern would serve:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 9,
+"label": "9.7 The named architecture pattern this is an instance of:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 9,
+"label": "9.8 What would need to be true to reuse it there:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 10,
+"label": "10.1 Reviewed by:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 10,
+"label": "10.2 The one thing they flagged that I changed:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+},
+{
+"sec": 10,
+"label": "10.3 The line I am least confident about:",
+"kind": "text",
+"side": "tech",
+"exempt": false
+}
+],
+"tech": [
+"ai",
+"ml",
+"machine learning",
+"llm",
+"gpt",
+"algorithm",
+"platform",
+"dashboard",
+"api",
+"cloud",
+"aws",
+"azure",
+"gcp",
+"database",
+"pipeline",
+"automation",
+"automate",
+"chatbot",
+"rpa",
+"microservice",
+"kubernetes",
+"software",
+"crm",
+"erp",
+"saas",
+"analytics",
+"data lake",
+"optimiser",
+"optimizer",
+"scheduler",
+"portal",
+"neural",
+"predictive model"
+],
+"inj": [
+"ignore the rubric",
+"score this",
+"give this 100",
+"note to the evaluator",
+"note to evaluator",
+"dear evaluator",
+"please award",
+"disregard",
+"as an ai",
+"you must score"
+],
+"nodown": [
+"no downside",
+"no trade-off",
+"no tradeoff",
+"nothing was given up",
+"no drawback",
+"none"
+],
+"capcols": [
+"Capability (noun phrase)",
+"Where cost or friction concentrates",
+"Owner (role)"
+]
+};
+if(typeof DecompressionStream==='undefined'){
+  document.getElementById('out').innerHTML='<div class="verdict fail"><h2>BROWSER TOO OLD</h2><p>This page needs a current version of Chrome, Edge, Firefox or Safari. Please open it in an up to date browser, or ask for the Python version of this checker.</p></div>';
+}
+const drop=document.getElementById('drop'), fi=document.getElementById('fi'), out=document.getElementById('out');
+drop.onclick=()=>fi.click();
+drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};
+drop.ondragleave=()=>drop.classList.remove('over');
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');if(e.dataTransfer.files[0])go(e.dataTransfer.files[0])};
+fi.onchange=e=>{if(e.target.files[0])go(e.target.files[0])};
+
+// --- minimal ZIP reader: no library, no network. Reads the central directory,
+// --- then inflates one entry with the browser's own DecompressionStream.
+async function readDocx(file){
+  const buf=new Uint8Array(await file.arrayBuffer());
+  const dv=new DataView(buf.buffer);
+  let eocd=-1;
+  for(let i=buf.length-22;i>=Math.max(0,buf.length-66000);i--){
+    if(dv.getUint32(i,true)===0x06054b50){eocd=i;break}
+  }
+  if(eocd<0) throw new Error('not a zip');
+  const nEnt=dv.getUint16(eocd+10,true), cdOff=dv.getUint32(eocd+16,true);
+  let q=cdOff, target=null;
+  for(let k=0;k<nEnt;k++){
+    if(dv.getUint32(q,true)!==0x02014b50) break;
+    const method=dv.getUint16(q+10,true), compSize=dv.getUint32(q+20,true),
+          nameLen=dv.getUint16(q+28,true), extraLen=dv.getUint16(q+30,true),
+          cmtLen=dv.getUint16(q+32,true), lho=dv.getUint32(q+42,true);
+    const name=new TextDecoder().decode(buf.subarray(q+46,q+46+nameLen));
+    if(name==='word/document.xml') target={method,compSize,lho};
+    q+=46+nameLen+extraLen+cmtLen;
+  }
+  if(!target) throw new Error('word/document.xml not found');
+  const lnm=dv.getUint16(target.lho+26,true), lex=dv.getUint16(target.lho+28,true);
+  const start=target.lho+30+lnm+lex;
+  const data=buf.subarray(start,start+target.compSize);
+  if(target.method===0) return new TextDecoder().decode(data);
+  if(target.method!==8) throw new Error('unsupported compression');
+  const ds=new DecompressionStream('deflate-raw');
+  const stream=new Blob([data]).stream().pipeThrough(ds);
+  return await new Response(stream).text();
+}
+function textOf(chunk){
+  const m=[...chunk.matchAll(/<w:t(?:\s[^>]*)?>([\s\S]*?)<\/w:t>/g)].map(x=>x[1]);
+  if(!m.length) return '';
+  const d=document.createElement('textarea'); d.innerHTML=m.join('');
+  return d.value.replace(/[ \t ]+/g,' ').trim();
+}
+function parse(xml){
+  const paras=xml.split('</w:p>').map(textOf).filter(Boolean);
+  const rows=[...xml.matchAll(/<w:tr[ >][\s\S]*?<\/w:tr>/g)].map(t=>
+    [...t[0].matchAll(/<w:tc[ >][\s\S]*?<\/w:tc>/g)].map(c=>textOf(c[0])));
+  return {paras,rows};
+}
+const HINTS=["Paste the sponsor","e.g.","4 to 6 rows","What this costs","What goes wrong","How long before","Who has to change","Strip it to","Name the capability","Quote the number","No technology named","Must carry","Name the option","Point at a specific","Name a real loss","Name the role and","What is measured","A number with","The system or report","The action and who","Name it.","Name a genuinely","A or B.","Tie it to","If nothing would","Name it from","What it stops","Point back to","Give it its proper","The precondition","The podmate","If nothing was flagged","Name one of the nine"];
+const isHint=t=>HINTS.some(h=>t.startsWith(h));
+const LBL=new Set(CFG.fields.map(f=>f.label));
+
+function answers(paras){
+  const a={}; let i=0;
+  while(i<paras.length){
+    const t=paras[i];
+    if(LBL.has(t)){
+      const buf=[]; let j=i+1;
+      while(j<paras.length){
+        const n=paras[j];
+        if(LBL.has(n)||n.startsWith('SECTION ')||n==='TECHNOLOGY FIREWALL'||n.startsWith('2.T CAPABILITY')) break;
+        if(!isHint(n)&&!/^[_ ]+$/.test(n)) buf.push(n);
+        j++;
+      }
+      a[t]=buf.join(' ').trim(); i=j;
+    } else i++;
+  }
+  CFG.fields.forEach(f=>{ if(a[f.label]===undefined) a[f.label]=''; });
+  return a;
+}
+const filled=(s,m)=>{s=(s||'').trim();return s.length>=(m||3)&&!['n/a','na','none','-','tbd','.'].includes(s.toLowerCase())};
+const hasNum=s=>/\d/.test(s||'');
+function techIn(s){const t=(s||'').toLowerCase();return CFG.tech.filter(w=>new RegExp('(?<![a-z])'+w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![a-z])').test(t))}
+
+async function go(file){
+  out.innerHTML='<p class="sub">Checking…</p>';
+  const blockers=[], warns=[];
+  const name=file.name.replace(/\.docx$/i,'');
+  if(!/^[A-Za-z0-9_-]+$/.test(name))
+    blockers.push(["Your file name is not your UID.",
+      "Rename the file to just your UID from the participant list, for example <code>A2041.docx</code>. No spaces, no 'final', no 'v3', no brackets."]);
+  let xml;
+  try{ xml=await readDocx(file); }
+  catch(e){ render([["This file could not be opened as a Word document.","Make sure you saved it as .docx, not .doc or .pdf, and that it is not password protected. ("+e.message+")"]],[],false); return; }
+  const {paras,rows}=parse(xml), a=answers(paras), flat=paras.join('\n'), low=flat.toLowerCase();
+
+  if(!flat.includes('TECHNOLOGY FIREWALL'))
+    blockers.push(["The technology firewall heading is missing.","You have edited or deleted part of the template. Start again from a clean copy and paste your answers in."]);
+
+  const missing=CFG.fields.filter(f=>!LBL.has(f.label)||!flat.includes(f.label));
+  if(missing.length) blockers.push([`${missing.length} field label(s) are missing from your document.`,
+    "You have renamed or deleted them. Start from a clean template. First missing: <code>"+missing[0].label+"</code>"]);
+
+  const empty=CFG.fields.filter(f=>flat.includes(f.label)&&!filled(a[f.label], f.label.startsWith('8.3')?1:3));
+  if(empty.length) blockers.push([`${empty.length} field(s) are empty.`,
+    "Every empty field scores zero on its rubric line, not a partial mark. Empty: <code>"+empty.slice(0,6).map(f=>f.label.split(' ')[0]).join('</code> <code>')+"</code>"+(empty.length>6?" and "+(empty.length-6)+" more":"")]);
+
+  let caps=[]; const hi=rows.findIndex(r=>r.length===3&&r[0].startsWith('Capability (noun'));
+  if(hi<0) blockers.push(["The capability table is missing.","Start from a clean template."]);
+  else { caps=rows.slice(hi+1,hi+9).filter(r=>r.length===3&&r.some(c=>c.trim())); }
+  const full=caps.filter(r=>r.every(c=>c.trim()));
+  if(hi>=0&&full.length<4) blockers.push([`Your capability table has ${full.length} complete row(s). You need 4 to 6.`,
+    "Every row needs all three cells: the capability, where cost or friction concentrates, and the owner."]);
+  if(full.length>6) warns.push([`Your capability table has ${full.length} rows. The rubric rewards 4 to 6.`,"Rows beyond six will not earn more."]);
+  const VERBS=["run","manage","click","scan","submit","enter","update","check","send","handle","process","review","open","close","type","upload","download","print","file","log","operate"];
+  const acts=caps.filter(r=>r[0]&&VERBS.includes(r[0].trim().split(/\s+/)[0].toLowerCase().replace(/:$/,'')));
+  if(acts.length) warns.push([`${acts.length} row(s) read as an activity, not a capability.`,
+    "A capability is a noun phrase the business would recognise, like <code>Settle a Warranty Claim</code>. Yours: <code>"+acts.map(r=>r[0]).slice(0,3).join('</code> <code>')+"</code>"]);
+
+  const breaches=[];
+  CFG.fields.forEach(f=>{ if(f.side!=='business'||f.exempt) return;
+    const h=techIn(a[f.label]); if(h.length) breaches.push([f.label,h]); });
+  if(breaches.length) blockers.push([`${breaches.length} field(s) above the firewall name technology.`,
+    "Sections 2 to 5 must be business only, or Problem Statement and Vision Clarity are capped. Found: "+
+    breaches.slice(0,4).map(b=>"<code>"+b[0].split(' ')[0]+"</code> ("+b[1].join(', ')+")").join(', ')]);
+
+  [["7.2 Guarantee A threshold:","A"],["7.6 Guarantee B threshold:","B"]].forEach(([k,g])=>{
+    if(filled(a[k])&&!hasNum(a[k])) blockers.push([`Guarantee ${g} has no number in its threshold.`,
+      "A threshold must be measurable, for example <code>95% within 2 quarters</code>, not <code>high reliability</code>."]);
+  });
+  if(filled(a["5.2 The specific cost, risk or friction this names:"])&&!hasNum(a["5.2 The specific cost, risk or friction this names:"]))
+    warns.push(["Field 5.2 names no quantity.","A cost a sponsor recognises usually has a number on it. Without one this line is capped at 50."]);
+  if(filled(a["4.3 The evidence in the brief that supports this reframing:"])&&!hasNum(a["4.3 The evidence in the brief that supports this reframing:"]))
+    warns.push(["Field 4.3 quotes no number from the brief.","Vision Clarity is this week's primary line. Quote the figure you are relying on."]);
+
+  const gave=(a["6.4 What we gave up by choosing this:"]||'').toLowerCase();
+  if(gave&&CFG.nodown.some(p=>p.length>5&&gave.includes(p)))
+    blockers.push(["Field 6.4 says nothing was given up.","Claiming a choice has no downside scores zero on Edge Judgment. Name a real loss."]);
+
+  const inj=CFG.inj.filter(m=>low.includes(m));
+  if(inj.length) blockers.push(["Your document contains text addressed to the evaluator.",
+    "This is recorded as a flag and cannot raise your score. Remove it. Found: <code>"+inj.join('</code> <code>')+"</code>"]);
+
+  render(blockers,warns,true);
+}
+
+function render(blockers,warns,parsed){
+  const ready=parsed&&!blockers.length;
+  let h=`<div class="verdict ${ready?'pass':'fail'}"><h2>${ready?'READY TO SUBMIT':'NOT READY'}</h2><p>`;
+  h+= ready
+    ? (warns.length? `No blocking problems. ${warns.length} thing(s) below would score better if you fixed them, but you may submit as is.`
+                   : 'Everything checks out. Save and send it in.')
+    : `${blockers.length} thing(s) must be fixed before you submit. Fix them, save, and drop the file here again.`;
+  h+='</p></div>';
+  if(blockers.length){ h+=`<div class="grp"><h3>Must fix<span class="n">${blockers.length}</span></h3><ol>`;
+    blockers.forEach(b=>h+=`<li>${b[0]}<span class="fix">${b[1]}</span></li>`); h+='</ol></div>'; }
+  if(warns.length){ h+=`<div class="grp warn"><h3>Would score better<span class="n">${warns.length}</span></h3><ol>`;
+    warns.forEach(b=>h+=`<li>${b[0]}<span class="fix">${b[1]}</span></li>`); h+='</ol></div>'; }
+  if(ready&&!warns.length) h+='<div class="grp"><h3>Checked</h3><ol><li class="ok">All 41 fields present and filled</li><li class="ok">Capability table has 4 to 6 complete rows</li><li class="ok">No technology above the firewall</li><li class="ok">Both guarantees carry a number</li><li class="ok">File name is your UID</li></ol></div>';
+  out.innerHTML=h;
+}
+</script></body></html>

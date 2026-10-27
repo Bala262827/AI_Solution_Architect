@@ -1,0 +1,505 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab 1: Halden Mutual · AI Solution Architect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--paper:#F7F5EF;--paper2:#EFEDE6;--card:#FFFFFF;--ink:#14213D;--ink-soft:rgba(20,33,61,.62);
+--line:rgba(20,33,61,.14);--cobalt:#1B65F5;--amber:#F5A31B;--sage:#2E9E7B;--clay:#E5533D;
+--disp:'Space Grotesk',sans-serif;--body:'Inter',sans-serif;--mono:'Space Mono',monospace}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{display:grid;grid-template-columns:286px 1fr;gap:0;min-height:100vh;align-items:start}
+
+/* ---------- sidebar ---------- */
+#side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--ink);color:#EAF0FF;padding:26px 20px 30px}
+#side .brand{font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:8px}
+#side .brand .sq{width:12px;height:12px;border-radius:3px;background:var(--cobalt);flex:none}
+#side .dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;margin-top:16px;color:rgba(234,240,255,.5)}
+#side h1{font-family:var(--disp);font-size:19px;line-height:1.25;margin-top:5px;font-weight:700}
+#side .badge{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 9px;border-radius:6px;margin-top:13px}
+#side .badge.internal{background:rgba(229,83,61,.2);color:#FFB3A5;border:1px solid rgba(229,83,61,.5)}
+#side .badge.candidate{background:rgba(46,158,123,.2);color:#8FE3C6;border:1px solid rgba(46,158,123,.5)}
+#side .aud{font-size:11.5px;line-height:1.5;color:rgba(234,240,255,.66);margin-top:9px}
+#side nav{margin-top:22px;border-top:1px solid rgba(234,240,255,.15);padding-top:16px}
+#side nav a{display:block;font-size:12.5px;line-height:1.4;color:rgba(234,240,255,.72);text-decoration:none;padding:6px 9px;border-radius:7px;border-left:2px solid transparent;transition:.14s}
+#side nav a:hover{background:rgba(234,240,255,.07);color:#fff}
+#side nav a.lv3{padding-left:20px;font-size:11.5px;color:rgba(234,240,255,.5)}
+#side nav a.on{background:rgba(27,101,245,.26);color:#fff;border-left-color:var(--amber)}
+#side .pr{margin-top:20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid rgba(234,240,255,.3);color:rgba(234,240,255,.8);padding:8px 12px;border-radius:7px;cursor:pointer;width:100%}
+#side .pr:hover{background:rgba(234,240,255,.12);color:#fff}
+
+/* ---------- document ---------- */
+main{padding:46px 62px 110px;max-width:1000px}
+h1,h2,h3,h4{font-family:var(--disp);letter-spacing:-.01em;line-height:1.2}
+main>h1{font-size:34px;margin:0 0 6px;font-weight:700}
+main>h1+h2{margin-top:2px}
+h2{font-size:25px;font-weight:700;margin:40px 0 12px;padding-bottom:9px;border-bottom:2px solid var(--line)}
+h3{font-size:19px;font-weight:700;margin:28px 0 9px;color:var(--ink)}
+h4{font-size:15.5px;font-weight:700;margin:20px 0 7px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.07em;font-family:var(--mono)}
+p{margin:11px 0;font-size:15.5px}
+ul,ol{margin:11px 0 11px 23px}
+li{margin:6px 0;font-size:15.5px;line-height:1.55}
+li>ul,li>ol{margin:5px 0 5px 18px}
+strong{font-weight:600}
+em{font-style:italic;color:var(--ink-soft)}
+a{color:var(--cobalt)}
+hr{border:none;border-top:1px solid var(--line);margin:34px 0}
+code{font-family:var(--mono);font-size:.87em;background:var(--paper2);padding:2px 6px;border-radius:5px}
+
+/* tables */
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;background:var(--card);
+ border:1px solid var(--line);border-radius:11px;overflow:hidden}
+th{background:var(--ink);color:#EAF0FF;font-family:var(--disp);font-size:12.5px;font-weight:700;
+ text-align:left;padding:11px 13px;vertical-align:top}
+td{padding:11px 13px;border-top:1px solid var(--line);vertical-align:top;line-height:1.5}
+tbody tr:nth-child(even){background:var(--paper2)}
+td:empty::after{content:"";display:block;min-height:22px;border-bottom:1px dotted var(--line)}
+
+/* blockquote + guidance */
+blockquote{margin:16px 0;padding:14px 18px;background:rgba(27,101,245,.06);
+ border-left:4px solid var(--cobalt);border-radius:0 11px 11px 0}
+blockquote p{margin:7px 0;font-size:14.5px}
+blockquote.guidance{background:rgba(245,163,27,.1);border-left-color:var(--amber);position:relative}
+blockquote.guidance::before{content:"DELETE BEFORE SUBMITTING";position:absolute;top:-9px;left:16px;
+ font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.14em;background:var(--amber);
+ color:#fff;padding:3px 8px;border-radius:5px}
+blockquote.guidance{padding-top:19px}
+
+/* code / write-in */
+pre{background:#0E1730;color:#EAF0FF;padding:15px 17px;border-radius:11px;overflow-x:auto;margin:14px 0}
+pre code{background:none;padding:0;font-size:12.5px;line-height:1.6;color:inherit}
+pre.writein{background:var(--card);border:1px dashed var(--line);
+ background-image:repeating-linear-gradient(transparent,transparent 29px,var(--line) 29px,var(--line) 30px);
+ min-height:92px}
+pre.writein code{color:var(--ink-soft);font-family:var(--body);font-size:13px}
+
+/* checkboxes */
+li.task{list-style:none;margin-left:-23px;display:flex;gap:10px;align-items:flex-start}
+li.task input{margin-top:4px;width:15px;height:15px;accent-color:var(--sage);flex:none;cursor:pointer}
+li.task.done span{text-decoration:line-through;color:var(--ink-soft)}
+
+/* firewall divider */
+.firewall{margin:34px 0;padding:17px 22px;background:var(--ink);color:#EAF0FF;border-radius:13px;text-align:center}
+.firewall .fh{font-family:var(--disp);font-size:18px;font-weight:800;letter-spacing:.1em;color:var(--amber)}
+.firewall p{font-size:13px;color:rgba(234,240,255,.82);margin:7px 0 0}
+
+/* section banners */
+.secband{margin:30px 0 14px;padding:13px 19px;border-radius:12px;font-family:var(--disp);font-weight:800;font-size:17px}
+.secband.biz{background:rgba(46,158,123,.13);border-left:4px solid var(--sage);color:var(--ink)}
+
+@media (max-width:980px){.shell{grid-template-columns:1fr}#side{position:static;height:auto}main{padding:28px 22px 70px}}
+@media print{
+  #side{display:none}.shell{grid-template-columns:1fr}
+  main{padding:0;max-width:none}
+  body{background:#fff}
+  h2{page-break-after:avoid}table,pre,blockquote{page-break-inside:avoid}
+  blockquote.guidance{display:none}
+  pre.writein{min-height:120px}
+}
+</style></head><body>
+<div class="shell">
+<aside id="side">
+  <div class="brand"><span class="sq"></span> AI Solution Architect</div>
+  <div class="dt">Week 1 · Lab 1</div>
+  <h1>Lab 1: Halden Mutual</h1>
+  <span class="badge candidates">For candidates</span>
+  <div class="aud">Read this before you start. What to build, what costs marks, how to submit.</div>
+  <nav><a class="" href="#what-lab-1-is">What Lab 1 is</a><a class="lv3" href="#the-two-scenarios-side-by-side">The two scenarios, side by side</a><a class="" href="#the-timeline">The timeline</a><a class="" href="#what-you-produce">What you produce</a><a class="" href="#the-technology-firewall">The technology firewall</a><a class="" href="#peer-review-and-why-it-is-not-optional">Peer review, and why it is not optional</a><a class="" href="#before-you-submit-run-the-pre-check">Before you submit: run the pre-check</a><a class="" href="#naming-and-sending">Naming and sending</a><a class="" href="#how-it-is-scored">How it is scored</a><a class="" href="#things-that-cost-marks">Things that cost marks</a><a class="" href="#what-comes-back-and-when">What comes back, and when</a><a class="" href="#questions">Questions</a></nav>
+  <button class="pr" onclick="window.print()">Print / Save as PDF</button>
+</aside>
+<main><h2 id="what-lab-1-is">What Lab 1 is</h2>
+<p><strong>Lab 1: Halden Mutual</strong> is your Week 1 work product. It is <strong>one document</strong>, built by you alone, that turns the Halden Mutual brief into a business pain map and a validated problem statement.</p>
+<blockquote>
+<p><strong>This is not the scenario you work in class.</strong> In the Day 2 and Day 3 breakouts your pod works <strong>Redpoint Field Services</strong> together. That is practice. Nothing from the breakouts is submitted.</p>
+<p><strong>Lab 1 is Halden Mutual, and you do it on your own.</strong> Same method, different company. The method is what Week 1 is teaching, and the only way to show you have it is to apply it to something your pod did not solve for you.</p>
+</blockquote>
+<p><strong>One file. One person. One submission.</strong></p>
+<h3 id="the-two-scenarios-side-by-side">The two scenarios, side by side</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Redpoint Field Services</th>
+<th>Halden Mutual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Where</td>
+<td>Day 2 and Day 3 breakouts, in class</td>
+<td>Your own time</td>
+</tr>
+<tr>
+<td>Who</td>
+<td>Your pod, together</td>
+<td>You, alone</td>
+</tr>
+<tr>
+<td>Purpose</td>
+<td>Learn the method, argue it out loud, review each other</td>
+<td>Show you can do it</td>
+</tr>
+<tr>
+<td>Submitted?</td>
+<td><strong>No. Never collected</strong></td>
+<td><strong>Yes. This is Lab 1</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-timeline">The timeline</h2>
+<table>
+<thead>
+<tr>
+<th>When</th>
+<th>What happens</th>
+<th>Scenario</th>
+<th>Submitted?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Day 2, breakout (35 min)</strong></td>
+<td>Pod builds a capability map, four lenses and a problem statement together. <strong>Peer review inside the pod</strong> before presenting</td>
+<td>Redpoint</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Day 2, presentations</strong></td>
+<td>One representative per pod, <strong>2 minutes each</strong>, every pod</td>
+<td>Redpoint</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Day 2, your own time</strong></td>
+<td>Open the Halden pack. Write <strong>sections 1 to 5</strong> of your own document</td>
+<td><strong>Halden</strong></td>
+<td>Working</td>
+</tr>
+<tr>
+<td><strong>Day 3, hour 1</strong></td>
+<td>The technology firewall lifts. You learn E, T, O and R</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Day 3, breakout (35 min)</strong></td>
+<td>Pod works E, T, O and R together. <strong>Peer review inside the pod</strong> before presenting</td>
+<td>Redpoint</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Day 3, presentations</strong></td>
+<td>One representative per pod, <strong>2 minutes each</strong>, every pod</td>
+<td>Redpoint</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Day 3, your own time</strong></td>
+<td>Write <strong>sections 6 to 9</strong> of your Halden document, and section 10</td>
+<td><strong>Halden</strong></td>
+<td>Working</td>
+</tr>
+<tr>
+<td><strong>End of Day 3</strong></td>
+<td>Run the pre-check. Send to the moderator</td>
+<td><strong>Halden</strong></td>
+<td><strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>You have until the end of Day 3 to submit.</strong> That is deliberate: it gives you the evening to apply what Day 3 taught you, rather than handing in something written before you learned it.</p>
+<hr />
+<h2 id="what-you-produce">What you produce</h2>
+<p>Open <code>ASA_Week1_Submission_Template.docx</code> and <strong>rename it to your UID</strong>, for example <code>A2041.docx</code>. That renamed file is your submission. There is no second document.</p>
+<p>Work it against the <strong>Halden Mutual</strong> pack, not Redpoint.</p>
+<table>
+<thead>
+<tr>
+<th>Sections</th>
+<th>What they cover</th>
+<th>Written when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>The request as it was given to you</td>
+<td>Day 2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Business capability map, 4 to 6 rows</td>
+<td>Day 2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>The four stakeholder lenses</td>
+<td>Day 2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>The reframing</td>
+<td>Day 2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Validated problem statement</td>
+<td>Day 2</td>
+</tr>
+<tr>
+<td><strong>Firewall</strong></td>
+<td><strong>Technology becomes allowed from here</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Edge judgment: the trade-off</td>
+<td>Day 3</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Trust architecture: testable guarantees</td>
+<td>Day 3</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Orchestration: platform and pattern</td>
+<td>Day 3</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Context and range</td>
+<td>Day 3</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Self assessment and peer review</td>
+<td>Day 3</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="the-technology-firewall">The technology firewall</h2>
+<p>This is the single rule that costs the most marks.</p>
+<p><strong>Sections 1 to 5 must name no technology.</strong> No AI, no platform, no dashboard, no API, no cloud, no automation, no named product.</p>
+<p><strong>Section 1 is the exception.</strong> It quotes the sponsor's request word for word, and that request names technology. That is expected and is not penalised.</p>
+<p>From section 6 onward, naming technology is <strong>required</strong>, not merely allowed.</p>
+<blockquote>
+<p><strong>Do not go back and edit sections 1 to 5 after the firewall lifts.</strong> The order of the document is the evidence. Two rubric lines are scored on whether your business framing came <em>before</em> any architecture talk, and editing backwards destroys exactly the thing being measured.</p>
+</blockquote>
+<hr />
+<h2 id="peer-review-and-why-it-is-not-optional">Peer review, and why it is not optional</h2>
+<p>You will review someone else's work twice, and have yours reviewed twice.</p>
+<p>Both reviews happen <strong>inside the 35-minute breakout</strong>, on the Redpoint work, before any pod presents.</p>
+<table>
+<thead>
+<tr>
+<th>When</th>
+<th>What you do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Day 2 breakout, inside the 35 min</strong></td>
+<td>Swap drafts inside your pod. Name <strong>one thing</strong> in a podmate's map, lenses or statement</td>
+</tr>
+<tr>
+<td><strong>Day 3 breakout, inside the 35 min</strong></td>
+<td>Swap again. Name <strong>one thing</strong> in a podmate's trade-off, guarantees, platform choice or pattern</td>
+</tr>
+</tbody>
+</table>
+<p>The point is not to mark each other. It is to learn what a reader notices, so you catch the same thing in your own Halden document before you submit it.</p>
+<p>A reviewer who finds nothing has not read closely enough. Useful things to catch:</p>
+<ul>
+<li>a row that is an <strong>activity</strong>, not a capability</li>
+<li>a number with <strong>no source</strong> named</li>
+<li>a <strong>technology word</strong> above the firewall</li>
+<li>a lens that ends in "the business" rather than a <strong>named role</strong></li>
+<li>a guarantee with <strong>no number</strong> in it</li>
+</ul>
+<p>Record in <strong>section 10</strong> who reviewed you in the breakout, and the one thing you then <strong>changed in your own Halden document</strong> as a result. If nothing useful was flagged, write "nothing flagged". Write what is true.</p>
+<hr />
+<h2 id="before-you-submit-run-the-pre-check">Before you submit: run the pre-check</h2>
+<p>Open <code>ASA_Week1_PreCheck.html</code> in any browser. Drag your <code>.docx</code> onto it.</p>
+<table>
+<thead>
+<tr>
+<th>It says</th>
+<th>You do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>READY TO SUBMIT</strong></td>
+<td>Send it</td>
+</tr>
+<tr>
+<td><strong>NOT READY</strong></td>
+<td>Fix every numbered item, save, drop it on again</td>
+</tr>
+<tr>
+<td><strong>Would score better</strong></td>
+<td>Not blocking. Fix if you have time</td>
+</tr>
+</tbody>
+</table>
+<p>Nothing is uploaded anywhere. The check runs inside the page, on your machine. Your document never leaves your browser.</p>
+<p><strong>Submit only on READY.</strong> A submission that fails the pre-check will come back to you, and it costs you one of your three attempts.</p>
+<hr />
+<h2 id="naming-and-sending">Naming and sending</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>File name</td>
+<td>Your UID from the participant list, and nothing else. <code>A2041.docx</code></td>
+</tr>
+<tr>
+<td>Not acceptable</td>
+<td><code>week1 final v3.docx</code>, <code>A2041 (2).docx</code>, <code>Redpoint_Hardik.docx</code></td>
+</tr>
+<tr>
+<td>Format</td>
+<td><code>.docx</code> only. Not PDF, not Google Docs link, not <code>.doc</code></td>
+</tr>
+<tr>
+<td>Send to</td>
+<td><strong>The programme moderator</strong></td>
+</tr>
+<tr>
+<td>Deadline</td>
+<td><strong>End of Day 3</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The file name is how your work is identified. If it is not a clean ID, it cannot be matched to you.</p>
+<hr />
+<h2 id="how-it-is-scored">How it is scored</h2>
+<p>Nine lines. Every line lands on exactly one of <strong>0, 25, 50, 75, 100</strong>. Nothing in between.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Lines</th>
+<th>Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core Skills</td>
+<td>Capability Mapping, Multi-Lens Analysis, Problem Statement</td>
+<td><strong>60%</strong></td>
+</tr>
+<tr>
+<td>VECTOR</td>
+<td>V, E, C, T, O, R</td>
+<td><strong>40%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>V is this week's primary letter.</strong> Vision Clarity carries the most weight, and it is scored on whether you reframed the technology-shaped request into a real business capability gap before any architecture talk.</p>
+<table>
+<thead>
+<tr>
+<th>Band</th>
+<th>What it means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100</td>
+<td>Top band, fully evidenced</td>
+</tr>
+<tr>
+<td>75</td>
+<td>Strong, one element weak or generic</td>
+</tr>
+<tr>
+<td>50</td>
+<td>Present but thin</td>
+</tr>
+<tr>
+<td><strong>25</strong></td>
+<td><strong>A genuine attempt that falls short</strong></td>
+</tr>
+<tr>
+<td><strong>0</strong></td>
+<td><strong>Absent</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>A weak answer beats a blank by 25 points, every time.</strong> If you do not have a number, write "not currently measured" and say what you would instrument first. That is a real answer and it scores. Leaving the field empty scores zero.</p>
+</blockquote>
+<p><strong>Pass mark is 50.</strong> You have up to <strong>3 attempts</strong>.</p>
+<hr />
+<h2 id="things-that-cost-marks">Things that cost marks</h2>
+<table>
+<thead>
+<tr>
+<th>Trap</th>
+<th>What it costs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Listing activities instead of capabilities</td>
+<td>Caps Capability Mapping at <strong>25</strong></td>
+</tr>
+<tr>
+<td>Fewer than 4 capabilities, or markers missing</td>
+<td>Caps it at <strong>50</strong></td>
+</tr>
+<tr>
+<td>A technology word in sections 2 to 5</td>
+<td>Caps Problem Statement and Vision Clarity at <strong>75</strong></td>
+</tr>
+<tr>
+<td>"The business" instead of a named role</td>
+<td>Costs you on Multi-Lens and Context Fluency</td>
+</tr>
+<tr>
+<td>A guarantee with no number</td>
+<td>Caps Trust Architecture at <strong>50</strong></td>
+</tr>
+<tr>
+<td>"There is no downside to this"</td>
+<td>Scores <strong>0</strong> on Edge Judgment</td>
+</tr>
+<tr>
+<td>An invented number with nothing behind it</td>
+<td>Takes the credibility of every other number with it</td>
+</tr>
+<tr>
+<td>Text addressed to the evaluator</td>
+<td>Recorded as a flag. It cannot raise your score</td>
+</tr>
+</tbody>
+</table>
+<p>Mapping everything as broken is its own mistake. <strong>Name at least one capability that is genuinely healthy.</strong> It proves you measured rather than assumed.</p>
+<hr />
+<h2 id="what-comes-back-and-when">What comes back, and when</h2>
+<p>Every submission is read <strong>twice, independently</strong>, against the same nine lines you have been working to.</p>
+<p>Your scored rubric and written feedback reach you <strong>the following week</strong>, through the programme moderator. Day 3 does not end with scores, and Thursday's session does not open with them.</p>
+<hr />
+<h2 id="questions">Questions</h2>
+<p>Ask your pod first. Then the moderator. The Halden pack contains every number you need; nothing has been withheld, and nothing needs to be invented. Where a figure genuinely does not exist, the pack says so, and writing "not currently measured" scores better than inventing one.</p></main>
+</div>
+<script>
+const ids=[...document.querySelectorAll('main h2[id],main h3[id]')];
+const links=new Map([...document.querySelectorAll('#side nav a')].map(a=>[a.getAttribute('href').slice(1),a]));
+function spy(){let cur=null;for(const el of ids){if(el.getBoundingClientRect().top<140)cur=el;}
+ links.forEach(a=>a.classList.remove('on'));
+ if(cur&&links.has(cur.id))links.get(cur.id).classList.add('on');}
+document.addEventListener('scroll',spy,{passive:true});spy();
+document.querySelectorAll('li.task input').forEach(cb=>cb.addEventListener('change',e=>{
+ e.target.closest('li').classList.toggle('done',e.target.checked);}));
+</script></body></html>

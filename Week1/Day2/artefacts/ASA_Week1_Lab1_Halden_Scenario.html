@@ -1,0 +1,491 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Halden Mutual · AI Solution Architect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--paper:#F7F5EF;--paper2:#EFEDE6;--card:#FFFFFF;--ink:#14213D;--ink-soft:rgba(20,33,61,.62);
+--line:rgba(20,33,61,.14);--cobalt:#1B65F5;--amber:#F5A31B;--sage:#2E9E7B;--clay:#E5533D;
+--disp:'Space Grotesk',sans-serif;--body:'Inter',sans-serif;--mono:'Space Mono',monospace}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+.shell{display:grid;grid-template-columns:286px 1fr;gap:0;min-height:100vh;align-items:start}
+
+/* ---------- sidebar ---------- */
+#side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--ink);color:#EAF0FF;padding:26px 20px 30px}
+#side .brand{font-family:var(--disp);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);display:flex;align-items:center;gap:8px}
+#side .brand .sq{width:12px;height:12px;border-radius:3px;background:var(--cobalt);flex:none}
+#side .dt{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;margin-top:16px;color:rgba(234,240,255,.5)}
+#side h1{font-family:var(--disp);font-size:19px;line-height:1.25;margin-top:5px;font-weight:700}
+#side .badge{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 9px;border-radius:6px;margin-top:13px}
+#side .badge.internal{background:rgba(229,83,61,.2);color:#FFB3A5;border:1px solid rgba(229,83,61,.5)}
+#side .badge.candidate{background:rgba(46,158,123,.2);color:#8FE3C6;border:1px solid rgba(46,158,123,.5)}
+#side .aud{font-size:11.5px;line-height:1.5;color:rgba(234,240,255,.66);margin-top:9px}
+#side nav{margin-top:22px;border-top:1px solid rgba(234,240,255,.15);padding-top:16px}
+#side nav a{display:block;font-size:12.5px;line-height:1.4;color:rgba(234,240,255,.72);text-decoration:none;padding:6px 9px;border-radius:7px;border-left:2px solid transparent;transition:.14s}
+#side nav a:hover{background:rgba(234,240,255,.07);color:#fff}
+#side nav a.lv3{padding-left:20px;font-size:11.5px;color:rgba(234,240,255,.5)}
+#side nav a.on{background:rgba(27,101,245,.26);color:#fff;border-left-color:var(--amber)}
+#side .pr{margin-top:20px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:transparent;border:1px solid rgba(234,240,255,.3);color:rgba(234,240,255,.8);padding:8px 12px;border-radius:7px;cursor:pointer;width:100%}
+#side .pr:hover{background:rgba(234,240,255,.12);color:#fff}
+
+/* ---------- document ---------- */
+main{padding:46px 62px 110px;max-width:1000px}
+h1,h2,h3,h4{font-family:var(--disp);letter-spacing:-.01em;line-height:1.2}
+main>h1{font-size:34px;margin:0 0 6px;font-weight:700}
+main>h1+h2{margin-top:2px}
+h2{font-size:25px;font-weight:700;margin:40px 0 12px;padding-bottom:9px;border-bottom:2px solid var(--line)}
+h3{font-size:19px;font-weight:700;margin:28px 0 9px;color:var(--ink)}
+h4{font-size:15.5px;font-weight:700;margin:20px 0 7px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.07em;font-family:var(--mono)}
+p{margin:11px 0;font-size:15.5px}
+ul,ol{margin:11px 0 11px 23px}
+li{margin:6px 0;font-size:15.5px;line-height:1.55}
+li>ul,li>ol{margin:5px 0 5px 18px}
+strong{font-weight:600}
+em{font-style:italic;color:var(--ink-soft)}
+a{color:var(--cobalt)}
+hr{border:none;border-top:1px solid var(--line);margin:34px 0}
+code{font-family:var(--mono);font-size:.87em;background:var(--paper2);padding:2px 6px;border-radius:5px}
+
+/* tables */
+table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;background:var(--card);
+ border:1px solid var(--line);border-radius:11px;overflow:hidden}
+th{background:var(--ink);color:#EAF0FF;font-family:var(--disp);font-size:12.5px;font-weight:700;
+ text-align:left;padding:11px 13px;vertical-align:top}
+td{padding:11px 13px;border-top:1px solid var(--line);vertical-align:top;line-height:1.5}
+tbody tr:nth-child(even){background:var(--paper2)}
+td:empty::after{content:"";display:block;min-height:22px;border-bottom:1px dotted var(--line)}
+
+/* blockquote + guidance */
+blockquote{margin:16px 0;padding:14px 18px;background:rgba(27,101,245,.06);
+ border-left:4px solid var(--cobalt);border-radius:0 11px 11px 0}
+blockquote p{margin:7px 0;font-size:14.5px}
+blockquote.guidance{background:rgba(245,163,27,.1);border-left-color:var(--amber);position:relative}
+blockquote.guidance::before{content:"DELETE BEFORE SUBMITTING";position:absolute;top:-9px;left:16px;
+ font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:.14em;background:var(--amber);
+ color:#fff;padding:3px 8px;border-radius:5px}
+blockquote.guidance{padding-top:19px}
+
+/* code / write-in */
+pre{background:#0E1730;color:#EAF0FF;padding:15px 17px;border-radius:11px;overflow-x:auto;margin:14px 0}
+pre code{background:none;padding:0;font-size:12.5px;line-height:1.6;color:inherit}
+pre.writein{background:var(--card);border:1px dashed var(--line);
+ background-image:repeating-linear-gradient(transparent,transparent 29px,var(--line) 29px,var(--line) 30px);
+ min-height:92px}
+pre.writein code{color:var(--ink-soft);font-family:var(--body);font-size:13px}
+
+/* checkboxes */
+li.task{list-style:none;margin-left:-23px;display:flex;gap:10px;align-items:flex-start}
+li.task input{margin-top:4px;width:15px;height:15px;accent-color:var(--sage);flex:none;cursor:pointer}
+li.task.done span{text-decoration:line-through;color:var(--ink-soft)}
+
+/* firewall divider */
+.firewall{margin:34px 0;padding:17px 22px;background:var(--ink);color:#EAF0FF;border-radius:13px;text-align:center}
+.firewall .fh{font-family:var(--disp);font-size:18px;font-weight:800;letter-spacing:.1em;color:var(--amber)}
+.firewall p{font-size:13px;color:rgba(234,240,255,.82);margin:7px 0 0}
+
+/* section banners */
+.secband{margin:30px 0 14px;padding:13px 19px;border-radius:12px;font-family:var(--disp);font-weight:800;font-size:17px}
+.secband.biz{background:rgba(46,158,123,.13);border-left:4px solid var(--sage);color:var(--ink)}
+
+@media (max-width:980px){.shell{grid-template-columns:1fr}#side{position:static;height:auto}main{padding:28px 22px 70px}}
+@media print{
+  #side{display:none}.shell{grid-template-columns:1fr}
+  main{padding:0;max-width:none}
+  body{background:#fff}
+  h2{page-break-after:avoid}table,pre,blockquote{page-break-inside:avoid}
+  blockquote.guidance{display:none}
+  pre.writein{min-height:120px}
+}
+</style></head><body>
+<div class="shell">
+<aside id="side">
+  <div class="brand"><span class="sq"></span> AI Solution Architect</div>
+  <div class="dt">Week 1 · Lab 1 · Scenario</div>
+  <h1>Halden Mutual</h1>
+  <span class="badge candidates">For candidates</span>
+  <div class="aud">Your take-home scenario. Not the one worked in class. Everything you need is in here.</div>
+  <nav><a class="" href="#before-you-read-this">Before you read this</a><a class="" href="#the-company">The company</a><a class="" href="#the-request-on-your-desk">The request on your desk</a><a class="" href="#the-claims-operation-capability-by-capability">The claims operation, capability by capability</a><a class="lv3" href="#1-register-a-claim">1. Register a Claim</a><a class="lv3" href="#2-validate-cover">2. Validate Cover</a><a class="lv3" href="#3-assign-an-adjuster">3. Assign an Adjuster</a><a class="lv3" href="#4-settle-a-claim">4. Settle a Claim</a><a class="lv3" href="#5-recover-from-a-third-party">5. Recover from a Third Party</a><a class="lv3" href="#6-detect-a-fraudulent-claim">6. Detect a Fraudulent Claim</a><a class="" href="#governance">Governance</a><a class="" href="#constraints">Constraints</a><a class="" href="#what-you-are-producing">What you are producing</a><a class="" href="#six-questions-worth-answering-before-you-write">Six questions worth answering before you write</a><a class="" href="#two-traps">Two traps</a><a class="" href="#what-counts-as-a-good-number">What counts as a good number</a></nav>
+  <button class="pr" onclick="window.print()">Print / Save as PDF</button>
+</aside>
+<main><h2 id="before-you-read-this">Before you read this</h2>
+<p>This is <strong>not</strong> the Redpoint scenario. Redpoint was the exercise you worked through together in class. <strong>Halden is yours alone.</strong></p>
+<p>You work the same method on different material. That is the point: the method is what Week 1 is teaching, and the only way to show you have it is to apply it to something your pod did not solve for you.</p>
+<blockquote>
+<p>Everything you need is in this pack. No figure has been withheld, and nothing needs to be invented. Where a number does not exist, that absence is stated plainly, and saying so in your submission scores better than making one up.</p>
+</blockquote>
+<hr />
+<h2 id="the-company">The company</h2>
+<p><strong>Halden Mutual</strong> underwrites commercial property insurance for mid-sized businesses: warehouses, light industrial units, retail parks and small manufacturing sites. It is a mutual, so its policyholders are its members, and it has no external shareholders pressing for growth.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Policies in force</td>
+<td>61,000</td>
+</tr>
+<tr>
+<td>Claims notified per year</td>
+<td>14,800</td>
+</tr>
+<tr>
+<td>Claims staff</td>
+<td>240, of whom 84 are licensed adjusters</td>
+</tr>
+<tr>
+<td>Offices</td>
+<td>Three, plus a remote adjuster network</td>
+</tr>
+<tr>
+<td>Regulated by</td>
+<td>A national financial conduct regulator</td>
+</tr>
+</tbody>
+</table>
+<p>In <strong>2023 Halden acquired a competitor's book</strong> of 19,000 policies. Those policies, and their documents, still sit in the acquired company's policy system. The two systems will run in parallel <strong>until at least 2027</strong>. Nobody disputes that this is a problem; the integration budget has been deferred twice.</p>
+<hr />
+<h2 id="the-request-on-your-desk">The request on your desk</h2>
+<p>An email, forwarded to you this morning by the <strong>Chief Operating Officer</strong>, with no additional comment:</p>
+<blockquote>
+<p><em>"I have been reading about what the insurtechs are doing with AI claims handling. Several of them now auto-settle low-value claims in under an hour with no human involvement at all. Our members wait weeks. I want us to build an AI claims engine that auto-settles anything under 25,000, and I want a plan for it before the next board meeting. This feels like exactly the kind of thing we should have done two years ago."</em></p>
+</blockquote>
+<p>That is a prescription. Your job this week is to produce the diagnosis.</p>
+<hr />
+<h2 id="the-claims-operation-capability-by-capability">The claims operation, capability by capability</h2>
+<p>Six capabilities. The figures come from the claims system, the complaints log and the quarterly operations pack.</p>
+<h3 id="1-register-a-claim">1. Register a Claim</h3>
+<p>A member reports a loss. The claim is logged, given a reference and routed.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Logged within one working day</td>
+<td><strong>94%</strong></td>
+</tr>
+<tr>
+<td>Mean time to log</td>
+<td>4 hours</td>
+</tr>
+<tr>
+<td>Member complaints about this step, last 12 months</td>
+<td>11</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td><strong>Head of Claims Operations</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-validate-cover">2. Validate Cover</h3>
+<p>Establishing whether the policy actually covers the loss, at the date it happened, for the amount claimed.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean time to validate</td>
+<td><strong>11 working days</strong></td>
+</tr>
+<tr>
+<td>Of that delay, traced to missing or unobtainable policy documentation</td>
+<td><strong>38%</strong></td>
+</tr>
+<tr>
+<td>Claims on the <strong>acquired</strong> book where documents sit in the other system</td>
+<td><strong>31%</strong></td>
+</tr>
+<tr>
+<td>Time from document request to document received</td>
+<td><strong>Not currently measured</strong></td>
+</tr>
+<tr>
+<td>Owner</td>
+<td><strong>Head of Underwriting Services</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-assign-an-adjuster">3. Assign an Adjuster</h3>
+<p>Matching a validated claim to an adjuster with the right licence, location and capacity.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean time to assign</td>
+<td>2 working days</td>
+</tr>
+<tr>
+<td>Claims <strong>reassigned at least once</strong></td>
+<td><strong>31%</strong></td>
+</tr>
+<tr>
+<td>Most common reassignment reason</td>
+<td>Adjuster lacked the specialist licence the loss type required</td>
+</tr>
+<tr>
+<td>Licensed adjusters available</td>
+<td>84, against 14,800 claims a year</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td><strong>Head of Adjusting</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-settle-a-claim">4. Settle a Claim</h3>
+<p>Agreeing the figure and paying it.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean time from notification to settlement</td>
+<td><strong>47 days</strong></td>
+</tr>
+<tr>
+<td>Industry benchmark for this class</td>
+<td><strong>29 days</strong></td>
+</tr>
+<tr>
+<td>Claims settled under 25,000</td>
+<td>71% of volume, 19% of value</td>
+</tr>
+<tr>
+<td>Settlements later revised upward after member challenge</td>
+<td>9%</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td><strong>Head of Claims Operations</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-recover-from-a-third-party">5. Recover from a Third Party</h3>
+<p>Where someone else caused the loss, pursuing them for the money. Known in the trade as subrogation.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claims where recovery was legally available</td>
+<td>2,900 per year</td>
+</tr>
+<tr>
+<td>Recoveries actually pursued</td>
+<td><strong>22%</strong></td>
+</tr>
+<tr>
+<td>Estimated value not pursued</td>
+<td><strong>4.1 million a year</strong></td>
+</tr>
+<tr>
+<td>Reason given by the team</td>
+<td>No capacity; recovery work loses to settlement work every time</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td><strong>Head of Recoveries</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-detect-a-fraudulent-claim">6. Detect a Fraudulent Claim</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claims flagged by the current rules</td>
+<td><strong>3.2%</strong></td>
+</tr>
+<tr>
+<td>Flags <strong>overturned</strong> on human review</td>
+<td><strong>61%</strong></td>
+</tr>
+<tr>
+<td>Mean delay added to a claim that is flagged</td>
+<td>9 days</td>
+</tr>
+<tr>
+<td>Confirmed fraud recovered last year</td>
+<td>1.8 million</td>
+</tr>
+<tr>
+<td>Owner</td>
+<td><strong>Head of Financial Crime</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="governance">Governance</h2>
+<p>Three bodies have standing authority over claims. Name them exactly as written if you refer to them.</p>
+<table>
+<thead>
+<tr>
+<th>Body</th>
+<th>What it controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claims Governance Committee</strong></td>
+<td>Any change to claims handling procedure or settlement authority limits</td>
+</tr>
+<tr>
+<td><strong>Conduct Risk Committee</strong></td>
+<td>Anything affecting fair treatment of members, including automated decisions</td>
+</tr>
+<tr>
+<td><strong>Reserving Committee</strong></td>
+<td>The actuarial reserves held against open claims, and anything that changes settlement timing</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="constraints">Constraints</h2>
+<p>These are facts about Halden, not opinions. Any answer that ignores them is answering a different question.</p>
+<table>
+<thead>
+<tr>
+<th>Constraint</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Regulatory explainability</strong></td>
+<td>The regulator requires that any automated decision affecting a member outcome can be <strong>explained to that member</strong> and <strong>appealed</strong>. This is not negotiable and is actively supervised</td>
+</tr>
+<tr>
+<td><strong>Two policy systems</strong></td>
+<td>The acquired book stays in a separate system until at least 2027. Any solution must work across both or explicitly scope itself to one</td>
+</tr>
+<tr>
+<td><strong>Scarce licensed adjusters</strong></td>
+<td>84 licensed adjusters is the binding capacity constraint. Hiring takes 9 to 14 months including licensing</td>
+</tr>
+<tr>
+<td><strong>Mutual, not a growth business</strong></td>
+<td>There is no shareholder mandate for speed. Member outcomes and reserve stability are what the board is measured on</td>
+</tr>
+<tr>
+<td><strong>Deferred integration budget</strong></td>
+<td>The system integration has been deferred twice. Proposing it as a precondition without saying what happens if it is deferred again is not a plan</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="what-you-are-producing">What you are producing</h2>
+<p>Open <code>ASA_Week1_Submission_Template.docx</code>, rename it to your candidate ID, and work through it in order.</p>
+<table>
+<thead>
+<tr>
+<th>Sections</th>
+<th>Written after</th>
+<th>Covering</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 to 5</td>
+<td>Day 2</td>
+<td>The business half. <strong>No technology named</strong></td>
+</tr>
+<tr>
+<td>6 to 9</td>
+<td>Day 3</td>
+<td>The trade-off, your guarantees, platform and pattern, context and range</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Day 3</td>
+<td>Who reviewed you, and what you changed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The firewall is the rule that costs most marks.</strong> Sections 2 to 5 must name no technology. Section 1 is the exception: it quotes the COO's email, which names technology, and that is expected.</p>
+<hr />
+<h2 id="six-questions-worth-answering-before-you-write">Six questions worth answering before you write</h2>
+<p>These are not submission fields. They are the questions a good consultant would ask before touching the template.</p>
+<ol>
+<li>The COO wants to auto-settle claims under 25,000. Those are <strong>71% of volume but 19% of value</strong>. What does that tell you about where the money actually is?</li>
+<li>Settlement takes 47 days against a benchmark of 29. <strong>Which capability is consuming the difference?</strong> It is not the settling.</li>
+<li>If you auto-settled a claim before cover was validated, what exactly would you be paying for?</li>
+<li><strong>Which capability is genuinely healthy?</strong> There is at least one. Naming it is what proves you measured rather than assumed.</li>
+<li>61% of fraud flags are overturned, and each flag adds 9 days. What is the current fraud rule actually costing, and who pays it?</li>
+<li>Recoveries leave an estimated 4.1 million a year on the table and the team says it is capacity. Is that a capability problem or a priority problem, and how would you tell the difference?</li>
+</ol>
+<hr />
+<h2 id="two-traps">Two traps</h2>
+<p><strong>The first trap is agreeing with the COO.</strong> Auto-settlement is a real technique and it works in some businesses. The question is whether it addresses where Halden's cost and delay actually concentrate. The data answers that. Follow the data, not the seniority.</p>
+<p><strong>The second trap is a map where everything is broken.</strong> One capability here is performing well. A map that marks all six as problems tells your reader you did not look. Say which is fine, and say why you are confident.</p>
+<hr />
+<h2 id="what-counts-as-a-good-number">What counts as a good number</h2>
+<p>From Day 2, unchanged:</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Example</th>
+<th>How it scores</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Sourced</strong></td>
+<td>"31% of acquired-book claims, from the claims system"</td>
+<td>Best. A reviewer can check it</td>
+</tr>
+<tr>
+<td><strong>Flagged</strong></td>
+<td>"Roughly a third, assumption to confirm against the document log"</td>
+<td>Honest, and it scores</td>
+</tr>
+<tr>
+<td><strong>Invented</strong></td>
+<td>A confident figure with nothing behind it</td>
+<td>Fatal. It takes every other number with it</td>
+</tr>
+</tbody>
+</table>
+<p>One figure in this pack is explicitly <strong>not currently measured</strong>. Writing "not currently measured, and I would instrument it first" is a strong answer, not a weak one.</p></main>
+</div>
+<script>
+const ids=[...document.querySelectorAll('main h2[id],main h3[id]')];
+const links=new Map([...document.querySelectorAll('#side nav a')].map(a=>[a.getAttribute('href').slice(1),a]));
+function spy(){let cur=null;for(const el of ids){if(el.getBoundingClientRect().top<140)cur=el;}
+ links.forEach(a=>a.classList.remove('on'));
+ if(cur&&links.has(cur.id))links.get(cur.id).classList.add('on');}
+document.addEventListener('scroll',spy,{passive:true});spy();
+document.querySelectorAll('li.task input').forEach(cb=>cb.addEventListener('change',e=>{
+ e.target.closest('li').classList.toggle('done',e.target.checked);}));
+</script></body></html>
