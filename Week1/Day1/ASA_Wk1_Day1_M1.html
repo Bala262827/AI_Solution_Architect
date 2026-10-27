@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Solution Architect · Week 1 · Masterclass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F5EF; --ink:#14213D; --cobalt:#1B65F5; --amber:#F5A31B;
+  --sage:#2E9E7B; --clay:#E5533D; --line:rgba(20,33,61,.14);
+  --ink-soft:rgba(20,33,61,.62); --card:#FFFFFF;
+  --disp:'Space Grotesk',sans-serif; --body:'Inter',sans-serif; --mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--body);background:var(--ink);color:var(--ink);overflow:hidden}
+
+/* ---------- slide framework ---------- */
+.stage{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;
+  padding:60px 72px 58px;background:var(--paper);overflow:hidden}
+.slide.active{display:flex;animation:slideIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px) scale(.997)}to{opacity:1;transform:none}}
+.slide::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:38px 38px;mask-image:radial-gradient(circle at 30% 20%,#000,transparent 78%)}
+.slide.dark{background:#0E1730;color:#EAF0FF}
+.slide.dark::before{background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)}
+.slide>*{position:relative;z-index:2}
+
+.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--cobalt);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.55}}
+h1{font-family:var(--disp);font-weight:700;font-size:58px;line-height:1.02;letter-spacing:-.02em}
+h2{font-family:var(--disp);font-weight:700;font-size:39px;line-height:1.05;letter-spacing:-.015em;margin-bottom:8px}
+h3{font-family:var(--disp);font-weight:600;font-size:22px;line-height:1.15}
+p{font-size:18px;line-height:1.5;color:var(--ink-soft)}
+.sub{font-size:20px;color:var(--ink-soft);line-height:1.5;max-width:1000px}
+.big{font-size:22px}
+strong{color:var(--ink);font-weight:600}
+.slide.dark strong{color:#fff}
+.mono{font-family:var(--mono)}
+.grow{flex:1}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.hl{background:linear-gradient(transparent 62%,rgba(245,163,27,.45) 0);padding:0 2px}
+.cobalt{color:var(--cobalt)} .amber{color:var(--amber)} .sage{color:var(--sage)} .clay{color:var(--clay)}
+.shimmer{background:linear-gradient(100deg,var(--ink) 30%,var(--cobalt) 50%,var(--ink) 70%);
+  background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shim 5s linear infinite}
+@keyframes shim{to{background-position:-200% center}}
+
+/* staged reveals */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.reveal.show{opacity:1;transform:none}
+
+/* ---------- chrome ---------- */
+.daytag{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:39;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-soft);pointer-events:none}
+.markbrand{position:fixed;top:14px;left:20px;z-index:40;font-family:var(--disp);font-weight:700;font-size:13px;
+  letter-spacing:.02em;color:var(--ink);display:flex;align-items:center;gap:9px}
+.markbrand .sq{width:15px;height:15px;border-radius:4px;background:var(--cobalt);box-shadow:5px 0 0 var(--amber),10px 0 0 var(--sage)}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--cobalt);z-index:41;transition:width .4s ease}
+.pageno{position:fixed;bottom:12px;right:18px;font-family:var(--mono);font-size:12px;color:var(--ink-soft);z-index:39}
+
+/* discreet control launcher (facilitator only; keyboard shortcuts still work) */
+.tools{position:fixed;bottom:12px;left:16px;z-index:60}
+.toolstrigger{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.55);
+  color:var(--ink-soft);cursor:pointer;font-size:15px;line-height:1;opacity:.28;transition:.2s;letter-spacing:1px}
+.toolstrigger:hover{opacity:1;background:#fff}
+.toolsmenu{position:absolute;bottom:38px;left:0;background:var(--ink);border-radius:12px;padding:7px;display:none;
+  flex-direction:column;gap:4px;box-shadow:0 12px 34px rgba(0,0,0,.3);min-width:150px}
+.toolsmenu.on{display:flex}
+.toolsmenu .legtitle{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.45);font-weight:700;padding:4px 12px 6px}
+.toolsmenu button{background:transparent;border:none;color:#EAF0FF;text-align:left;font-family:var(--body);
+  font-size:13.5px;padding:8px 12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.toolsmenu button:hover{background:rgba(255,255,255,.12)}
+.toolsmenu button .k{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:700;color:#0E1730;
+  background:var(--amber);border-radius:5px;padding:2px 7px;min-width:22px;text-align:center}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;
+  box-shadow:0 2px 0 var(--line);flex:1;min-width:220px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(20,33,61,.1)}
+.card h3{margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;padding:5px 11px;border-radius:999px;background:rgba(27,101,245,.1);color:var(--cobalt)}
+.chip.amber{background:rgba(245,163,27,.16);color:#a56a00}
+.chip.sage{background:rgba(46,158,123,.14);color:#1c7c5d}
+.chip.clay{background:rgba(229,83,61,.14);color:#c23b25}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+
+/* tap-to-reveal */
+.tapcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+  cursor:pointer;position:relative;overflow:hidden;transition:.2s;min-height:236px;display:flex}
+.tapcard:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(20,33,61,.13)}
+.tapcard .front{display:flex;flex-direction:column;height:100%;width:100%}
+.tapcard .co{font-family:var(--disp);font-weight:700;font-size:20px;line-height:1.1}
+.tapcard .teaser{font-size:14px;color:var(--ink-soft);margin-top:8px;line-height:1.4}
+.tapcard .prompt{margin-top:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--cobalt);padding-top:10px}
+.tapcard .back{position:absolute;inset:0;background:var(--ink);color:#EAF0FF;padding:18px 20px;
+  transform:translateY(101%);transition:transform .4s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.tapcard.open .back{transform:none}
+.tapcard .back .co{color:var(--amber);font-size:18px}
+.tapcard .back p{color:rgba(234,240,255,.88);font-size:14px;line-height:1.45}
+.tapcard .src{margin-top:auto;font-family:var(--mono);font-size:9.5px;color:rgba(234,240,255,.5);padding-top:8px}
+
+/* analogy / example */
+.analogy{margin-top:18px;border-left:4px solid var(--amber);background:rgba(245,163,27,.09);
+  padding:15px 22px;border-radius:0 14px 14px 0}
+.analogy .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a56a00;font-weight:700}
+.analogy p{color:var(--ink);font-size:18px;margin-top:6px}
+.example{margin-top:18px;border-left:4px solid var(--cobalt);background:rgba(27,101,245,.07);
+  padding:15px 22px;border-radius:0 14px 14px 0}
+.example .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cobalt);font-weight:700}
+.example p{color:var(--ink);font-size:16.5px;margin-top:6px;line-height:1.5}
+.example b{font-weight:600}
+.exlist{list-style:none;margin-top:6px;display:flex;flex-direction:column;gap:7px}
+.exlist li{font-size:16.5px;color:var(--ink);padding-left:22px;position:relative;line-height:1.4}
+.exlist li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:2px;background:var(--cobalt);transform:rotate(45deg)}
+.exlist li b{color:var(--ink);font-weight:600}
+
+/* ---------- quiz ---------- */
+.quiz{margin-top:14px;max-width:940px}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.qopt{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:15px 18px;
+  cursor:pointer;font-size:16.5px;transition:.15s;display:flex;gap:12px;align-items:center}
+.qopt:hover{border-color:var(--cobalt);transform:translateY(-2px)}
+.qopt .k{font-family:var(--mono);font-weight:700;color:var(--cobalt);font-size:14px}
+.qopt.correct{background:rgba(46,158,123,.14);border-color:var(--sage)}
+.qopt.wrong{background:rgba(229,83,61,.12);border-color:var(--clay);opacity:.85}
+.qopt.correct::after{content:"\2713";margin-left:auto;font-weight:700;color:var(--sage);font-size:22px;line-height:1}
+.qopt.wrong::after{content:"\2717";margin-left:auto;font-weight:700;color:var(--clay);font-size:20px;line-height:1}
+.qfb{margin-top:14px;font-size:16px;min-height:24px;color:var(--ink-soft)}
+.qfb b{color:var(--ink)}
+
+/* ---------- ice-breaker ---------- */
+.ib{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;max-width:1040px}
+.ibcard{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px 20px;cursor:pointer;
+  transition:.18s;position:relative;overflow:hidden;min-height:96px}
+.ibcard:hover{border-color:var(--cobalt);transform:translateY(-2px)}
+.ibcard .q{font-size:17.5px;color:var(--ink);font-weight:500}
+.ibcard .a{font-size:15px;color:var(--sage);margin-top:10px;max-height:0;opacity:0;transition:.35s;font-weight:500}
+.ibcard.open{background:rgba(46,158,123,.06);border-color:var(--sage)}
+.ibcard.open .a{max-height:120px;opacity:1}
+
+/* ---------- capability heat map ---------- */
+.heatwrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;max-width:960px}
+.heat{border:1.5px solid var(--line);border-radius:14px;padding:16px;background:var(--card);cursor:pointer;transition:.18s;user-select:none}
+.heat:hover{transform:translateY(-2px)}
+.heat .cn{font-family:var(--disp);font-weight:600;font-size:17px}
+.heat .cd{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+.heat .lv{margin-top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.heat[data-l="1"]{background:rgba(46,158,123,.12);border-color:var(--sage)} .heat[data-l="1"] .lv{color:#1c7c5d}
+.heat[data-l="2"]{background:rgba(245,163,27,.16);border-color:var(--amber)} .heat[data-l="2"] .lv{color:#a56a00}
+.heat[data-l="3"]{background:rgba(229,83,61,.16);border-color:var(--clay)} .heat[data-l="3"] .lv{color:#c23b25}
+.heatread{margin-top:14px;font-size:17px;color:var(--ink)}
+
+/* ---------- four lens ---------- */
+.lenstabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.ltab{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:9px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;transition:.15s}
+.ltab:hover{transform:translateY(-2px)} .ltab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lenspanel{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;min-height:150px;animation:slideIn .35s ease}
+.lenspanel h3{margin-bottom:8px}
+.lenspanel .verdict{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-top:12px}
+
+/* ---------- sort game ---------- */
+.sortarea{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:14px}
+.bin{border:2px dashed var(--line);border-radius:16px;padding:14px;min-height:200px;background:rgba(255,255,255,.5)}
+.bin h3{font-size:18px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.bin.consult{border-color:var(--cobalt)} .bin.order{border-color:var(--clay)}
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px;max-width:1000px}
+.qchip{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:9px 13px;font-size:14.5px;cursor:pointer;transition:.15s}
+.qchip:hover{border-color:var(--cobalt)}
+.qchip.sel{border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,163,27,.25)}
+.qchip.placed{opacity:.55;cursor:default}
+.qchip.ok{border-color:var(--sage);background:rgba(46,158,123,.1)}
+.qchip.no{border-color:var(--clay);background:rgba(229,83,61,.1)}
+.qchip.ok::after{content:" \2713";color:var(--sage);font-weight:700}
+.qchip.no::after{content:" \2717";color:var(--clay);font-weight:700}
+.binitems{display:flex;flex-direction:column;gap:8px}
+
+/* ---------- fix statement ---------- */
+.fixbox{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:980px}
+.fixbox .stmt{font-size:20px;line-height:1.5}
+.tech{cursor:pointer;border-bottom:2px dashed var(--clay);color:var(--clay);font-weight:600;transition:.15s}
+.tech.struck{text-decoration:line-through;color:var(--ink-soft);border-bottom:none;opacity:.6}
+.fixgood{margin-top:16px;padding:16px 18px;border-radius:12px;background:rgba(46,158,123,.1);border:1px solid var(--sage);font-size:18px;color:var(--ink);display:none}
+.fixgood.show{display:block;animation:slideIn .4s ease}
+
+/* ---------- jeopardy ---------- */
+.jboard{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.jcol{display:flex;flex-direction:column;gap:12px}
+.jhead{font-family:var(--disp);font-weight:700;font-size:15px;text-align:center;background:var(--ink);color:#fff;
+  padding:12px 6px;border-radius:10px;min-height:58px;display:flex;align-items:center;justify-content:center}
+.jtile{background:var(--cobalt);color:#fff;font-family:var(--disp);font-weight:700;font-size:24px;border-radius:10px;
+  height:62px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.jtile:hover{background:var(--ink);transform:scale(1.03)}
+.jtile.done{background:rgba(20,33,61,.12);color:var(--ink-soft);cursor:default;transform:none}
+.jmodal{position:fixed;inset:0;background:rgba(14,23,48,.8);z-index:70;display:none;align-items:center;justify-content:center;padding:40px}
+.jmodal.open{display:flex;animation:slideIn .3s ease}
+.jcardm{background:var(--paper);border-radius:20px;padding:40px;max-width:760px;width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.jcardm .jq{font-family:var(--disp);font-size:29px;font-weight:600;line-height:1.2}
+.jcardm .ja{margin-top:20px;font-size:22px;color:var(--sage);font-weight:600;display:none}
+.jcardm .ja.show{display:block;animation:slideIn .3s ease}
+.jbtns{margin-top:26px;display:flex;gap:12px;justify-content:center}
+.jbtn{font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:11px 20px;border-radius:10px;border:none;cursor:pointer}
+.jbtn.rev{background:var(--amber);color:#3a2600} .jbtn.close{background:var(--ink);color:#fff}
+
+/* poll */
+.poll{margin-top:14px;max-width:860px;display:flex;flex-direction:column;gap:12px}
+.prow{cursor:pointer}
+.prow .ptop{display:flex;justify-content:space-between;font-size:16px;margin-bottom:5px}
+.ptrack{height:26px;background:rgba(20,33,61,.08);border-radius:8px;overflow:hidden}
+.pfill{height:100%;width:0;background:var(--cobalt);border-radius:8px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.prow .why{font-size:13.5px;color:var(--ink-soft);margin-top:5px;display:none}
+.prow.open .why{display:block}
+
+/* ---------- whiteboard ---------- */
+#wb{position:fixed;inset:0;z-index:75;display:none;background:rgba(247,245,239,.96)}
+#wb.on{display:block}
+#wbc{position:absolute;inset:0;cursor:crosshair;touch-action:none}
+.wbbar{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:76;display:none;gap:8px;background:var(--ink);padding:9px 12px;border-radius:14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.wbbar.on{display:flex}
+.wbbar button{background:rgba(255,255,255,.12);border:none;color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 10px;border-radius:8px;cursor:pointer;letter-spacing:.05em}
+.wbbar button:hover{background:rgba(255,255,255,.28)}
+.wbbar .sw{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.35);cursor:pointer;padding:0}
+.wbbar .sw.on{border-color:#fff;transform:scale(1.15)}
+
+/* ---------- scoreboard ---------- */
+#sb{position:fixed;top:0;right:0;bottom:0;width:340px;background:#0E1730;color:#fff;z-index:66;transform:translateX(100%);transition:transform .3s ease;padding:60px 20px 20px;overflow-y:auto;box-shadow:-10px 0 40px rgba(0,0,0,.3)}
+#sb.on{transform:none}
+#sb h3{font-family:var(--disp);font-size:20px;margin-bottom:4px}
+#sb .hint{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:16px}
+.team{background:rgba(255,255,255,.07);border-radius:12px;padding:12px;margin-bottom:10px}
+.team.lead{box-shadow:0 0 0 2px var(--amber)}
+.team .tt{display:flex;justify-content:space-between;align-items:center}
+.team .nm{font-family:var(--disp);font-weight:600;font-size:16px;background:none;border:none;color:#fff;width:60%;outline:none}
+.team .sc{font-family:var(--disp);font-weight:700;font-size:26px;color:var(--amber)}
+.team .btns{display:flex;gap:6px;margin-top:9px}
+.team .btns button{flex:1;background:rgba(255,255,255,.1);border:none;color:#fff;font-family:var(--mono);font-weight:700;padding:7px;border-radius:8px;cursor:pointer;font-size:13px}
+.team .btns button:hover{background:rgba(255,255,255,.24)}
+.team.active-team{background:rgba(27,101,245,.25)}
+.sbctl{display:flex;gap:8px;margin-top:8px}
+.sbctl button{flex:1;background:var(--cobalt);border:none;color:#fff;font-family:var(--mono);font-weight:700;padding:9px;border-radius:8px;cursor:pointer;font-size:12px}
+.sbctl button.rm{background:rgba(255,255,255,.12)}
+.activehint{font-size:11px;color:rgba(255,255,255,.5);margin:6px 0 2px}
+
+/* ---------- timer ---------- */
+#tm{position:fixed;bottom:20px;left:60px;z-index:67;background:var(--ink);color:#fff;border-radius:16px;padding:14px 16px;display:none;box-shadow:0 10px 30px rgba(0,0,0,.3);min-width:220px}
+#tm.on{display:block}
+#tm .disp{font-family:var(--disp);font-weight:700;font-size:40px;text-align:center;letter-spacing:.02em}
+#tm.warn .disp{color:var(--amber)} #tm.done .disp{color:var(--clay)}
+#tm .adj{display:flex;gap:6px;margin-top:6px;justify-content:center}
+#tm .adj button{background:rgba(255,255,255,.12);border:none;color:#fff;font-family:var(--mono);font-weight:700;padding:6px 0;border-radius:8px;cursor:pointer;font-size:12px;flex:1}
+#tm .row{display:flex;gap:6px;margin-top:6px}
+#tm .row button{flex:1;background:rgba(255,255,255,.12);border:none;color:#fff;font-family:var(--mono);font-weight:700;padding:8px;border-radius:8px;cursor:pointer;font-size:12px}
+#tm .row button.go{background:var(--cobalt)}
+#tm .presets{display:flex;gap:6px;margin-top:6px}
+#tm .presets button{flex:1;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.8);font-family:var(--mono);font-weight:700;padding:5px 0;border-radius:8px;cursor:pointer;font-size:11px}
+
+/* ---------- grid nav ---------- */
+.gtitle{color:#fff;font-family:var(--disp);font-size:22px;margin-bottom:20px;text-align:center}
+.gwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;max-width:1200px;margin:0 auto}
+.gcell{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:14px;cursor:pointer;transition:.15s;min-height:80px;color:#EAF0FF}
+.gcell:hover{background:var(--cobalt);border-color:var(--cobalt)}
+.gcell .gn{font-family:var(--mono);font-size:11px;color:var(--amber);font-weight:700}
+.gcell .gt{font-family:var(--disp);font-size:14px;margin-top:6px;line-height:1.2}
+
+#toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-30px);z-index:90;background:var(--sage);color:#fff;font-family:var(--disp);font-weight:700;font-size:18px;padding:12px 22px;border-radius:12px;opacity:0;transition:.3s;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;inset:0;z-index:85;pointer-events:none;display:none}
+#confetti.on{display:block}
+
+.hintline{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:12px}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--ink-soft);font-weight:700}
+ul.clean{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:11px}
+ul.clean li{font-size:17.5px;color:var(--ink-soft);padding-left:26px;position:relative;line-height:1.4}
+ul.clean li::before{content:"";position:absolute;left:0;top:9px;width:11px;height:11px;border-radius:3px;background:var(--cobalt);transform:rotate(45deg)}
+ul.clean li b{color:var(--ink)}
+
+/* ---------- animated cover ---------- */
+.cover{position:absolute;inset:0;display:flex;align-items:center;padding:0 72px;gap:40px}
+.cover .left{flex:1;max-width:620px}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;z-index:1;animation:floaty 9s ease-in-out infinite}
+.blob.b1{width:360px;height:360px;background:rgba(27,101,245,.28);top:-80px;right:120px}
+.blob.b2{width:300px;height:300px;background:rgba(245,163,27,.26);bottom:-70px;right:340px;animation-delay:-3s}
+.blob.b3{width:240px;height:240px;background:rgba(46,158,123,.22);top:180px;right:-40px;animation-delay:-5s}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-26px)}}
+.driftchip{position:absolute;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink-soft);
+  background:rgba(255,255,255,.7);border:1px solid var(--line);border-radius:999px;padding:7px 13px;z-index:2;
+  animation:drift 7s ease-in-out infinite;box-shadow:0 4px 16px rgba(20,33,61,.06)}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-16px) rotate(2deg)}}
+.strike{text-decoration:line-through;opacity:.55}
+/* notecard */
+.notecard{width:420px;background:#FFFDF7;border:1px solid var(--line);border-radius:16px;padding:26px 26px 30px;
+  position:relative;z-index:3;box-shadow:0 24px 60px rgba(20,33,61,.16);transform:rotate(1.6deg);
+  animation:noteIn 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes noteIn{from{opacity:0;transform:rotate(6deg) translateY(30px) scale(.94)}to{opacity:1;transform:rotate(1.6deg)}}
+.notecard::before{content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:120px;height:20px;
+  background:rgba(245,163,27,.5);border-radius:3px;box-shadow:0 3px 8px rgba(20,33,61,.12)}
+.notelbl{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);font-weight:700}
+.noteline{font-family:var(--disp);font-size:19px;color:var(--ink);margin-top:14px;line-height:1.35}
+.noteline .lead{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);display:block;margin-bottom:3px}
+.caret{display:inline-block;width:2px;background:var(--cobalt);margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.notestamp{position:absolute;bottom:-16px;right:-10px;font-family:var(--disp);font-weight:700;font-size:14px;
+  color:#fff;background:var(--sage);padding:8px 14px;border-radius:10px;transform:rotate(-5deg);box-shadow:0 8px 20px rgba(46,158,123,.35)}
+.riseUp{animation:riseUp .7s cubic-bezier(.2,.8,.2,1) both}
+.riseUp.d1{animation-delay:.08s}.riseUp.d2{animation-delay:.18s}.riseUp.d3{animation-delay:.3s}.riseUp.d4{animation-delay:.42s}
+@keyframes riseUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+@media (max-width:900px){
+  .slide{padding:56px 22px 50px} h1{font-size:36px} h2{font-size:27px}
+  .qopts,.grid2,.grid3,.grid4,.heatwrap,.sortarea,.ib{grid-template-columns:1fr}
+  .cover{flex-direction:column;justify-content:center;padding:60px 22px;gap:24px}
+  .notecard{width:100%;transform:none} #sb{width:100%}
+}
+
+/* flip cards */
+.flipgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.flip{height:210px;perspective:1200px;cursor:pointer}
+.flipinner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.flip.flip-on .flipinner{transform:rotateY(180deg)}
+.flipface{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:16px;padding:20px 22px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;box-shadow:0 2px 0 var(--line)}
+.flipfront{background:var(--card)}
+.flipfront .fh{font-family:var(--disp);font-weight:700;font-size:20px}
+.flipfront .fsub{font-size:14px;color:var(--ink-soft);margin-top:8px}
+.flipfront .fhint{margin-top:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt);padding-top:12px}
+.flipback{background:var(--ink);color:#EAF0FF;transform:rotateY(180deg)}
+.flipback p{color:rgba(234,240,255,.9);font-size:14.5px;line-height:1.45}
+.flipback .fh{color:var(--amber);font-family:var(--disp);font-weight:700;font-size:16px;margin-bottom:6px}
+/* checklist */
+.chklist{margin-top:14px;max-width:880px}
+.chk{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:9px;cursor:pointer;font-size:16.5px;transition:.15s}
+.chk:hover{border-color:var(--cobalt)}
+.chk .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px}
+.chk.done{background:rgba(46,158,123,.1);border-color:var(--sage)}
+.chk.done .box{background:var(--sage);border-color:var(--sage)}
+.chk.done .box::after{content:"\2713"}
+.chkbar{height:8px;background:rgba(20,33,61,.08);border-radius:6px;overflow:hidden;margin-top:6px}
+.chkfill{height:100%;width:0;background:var(--sage);transition:width .4s}
+.chkread{margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+/* score-it */
+.scoreit{margin-top:14px;max-width:960px}
+.scq{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin-bottom:8px}
+.scsub{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--cobalt);border-radius:12px;padding:18px 20px;font-size:17px;color:var(--ink);line-height:1.5}
+.scbtns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.scbtn{font-family:var(--disp);font-weight:700;font-size:20px;padding:11px 20px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;transition:.15s}
+.scbtn:hover{border-color:var(--cobalt);transform:translateY(-2px)}
+.scbtn.correct{background:rgba(46,158,123,.14);border-color:var(--sage)}
+.scfb{margin-top:14px;font-size:16px;color:var(--ink-soft);line-height:1.5;min-height:20px}
+.scfb b{color:var(--ink)}
+.scnext{margin-left:10px;font-family:var(--mono);font-weight:700;font-size:12px;background:var(--ink);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+
+<div class="markbrand"><span class="sq"></span> AI SOLUTION ARCHITECT</div>
+<div class="daytag" id="daytag">WEEK 1 · MASTERCLASS · MODULE M1</div>
+<div class="progress" id="prog"></div>
+<div class="pageno" id="pageno">01</div>
+
+<!-- discreet control launcher -->
+<div class="tools">
+  <button class="toolstrigger" onclick="toggleTools()" title="controls">•••</button>
+  <div class="toolsmenu" id="toolsmenu">
+    <div class="legtitle">Facilitator controls · keyboard shortcut</div>
+    <button onclick="toggleSB();toggleTools()">Teams &amp; scores<span class="k">S</span></button>
+    <button onclick="toggleWB();toggleTools()">Whiteboard / draw<span class="k">W</span></button>
+    <button onclick="toggleTM();toggleTools()">Countdown timer<span class="k">T</span></button>
+    <button onclick="toggleFull();toggleTools()">Fullscreen<span class="k">F</span></button>
+  </div>
+</div>
+
+<!-- whiteboard -->
+<div id="wb"><canvas id="wbc"></canvas></div>
+<div class="wbbar" id="wbbar">
+  <button onclick="wbMode('pen')" id="wbpen">PEN</button>
+  <button onclick="wbMode('erase')" id="wberase">ERASE</button>
+  <span class="sw on" style="background:#14213D" data-c="#14213D" onclick="wbColor(this)"></span>
+  <span class="sw" style="background:#1B65F5" data-c="#1B65F5" onclick="wbColor(this)"></span>
+  <span class="sw" style="background:#E5533D" data-c="#E5533D" onclick="wbColor(this)"></span>
+  <span class="sw" style="background:#2E9E7B" data-c="#2E9E7B" onclick="wbColor(this)"></span>
+  <span class="sw" style="background:#F5A31B" data-c="#F5A31B" onclick="wbColor(this)"></span>
+  <button onclick="wbSize(3)">S</button><button onclick="wbSize(7)">M</button><button onclick="wbSize(14)">L</button>
+  <button onclick="wbClear()">CLEAR</button><button onclick="toggleWB()">CLOSE</button>
+</div>
+
+<!-- scoreboard -->
+<div id="sb">
+  <h3>Teams</h3>
+  <div class="hint">Click a team to make it active; game points land there. Names are editable.</div>
+  <div id="teams"></div>
+  <div class="sbctl"><button onclick="addTeam()">+ TEAM</button><button class="rm" onclick="removeTeam()">- TEAM</button></div>
+  <div class="sbctl"><button class="rm" onclick="resetScores()">RESET SCORES</button></div>
+</div>
+
+<!-- timer -->
+<div id="tm">
+  <div class="disp" id="tmdisp">10:00</div>
+  <div class="adj"><button onclick="tmAdjust(-5)">-5</button><button onclick="tmAdjust(-1)">-1</button>
+    <button onclick="tmAdjust(1)">+1</button><button onclick="tmAdjust(5)">+5</button></div>
+  <div class="row"><button class="go" onclick="tmToggle()" id="tmbtn">START</button><button onclick="tmReset()">RESET</button></div>
+  <div class="presets"><button onclick="tmSetSec(10)">10s</button><button onclick="tmSet(1)">1m</button>
+    <button onclick="tmSet(5)">5m</button><button onclick="tmSet(15)">15m</button></div>
+</div>
+
+<!-- jeopardy modal -->
+<div class="jmodal" id="jmodal"><div class="jcardm">
+  <div class="jq" id="jq"></div><div class="ja" id="ja"></div>
+  <div class="jbtns"><button class="jbtn rev" onclick="jReveal()">REVEAL</button><button class="jbtn close" onclick="jClose()">NEXT</button></div>
+</div></div>
+
+<div id="toast"></div>
+<canvas id="confetti"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+/* ============================================================= SLIDE DATA */
+const SLIDES = [
+/* 0 COVER */
+`<div class="cover">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="driftchip" style="top:15%;right:31%">"we need a chatbot"</div>
+  <div class="driftchip" style="top:69%;right:24%;animation-delay:-2s">"can we just add AI?"</div>
+  <div class="driftchip" style="top:43%;right:7%;animation-delay:-4s">"which model should we buy?"</div>
+  <div class="left">
+    <div class="eyebrow riseUp"><span class="dot"></span> MODULE M1 · CONSULTATIVE &amp; ENTERPRISE THINKING</div>
+    <h1 class="riseUp d1"><span class="shimmer">Start with the business.</span><br>The technology comes later.</h1>
+    <p class="sub riseUp d2" style="margin-top:18px">Most failed AI projects were not built badly. They were built for a problem nobody had checked. Today you learn to hear the real problem standing underneath the request.</p>
+    <div class="riseUp d3" style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap">
+      <span class="pill">Masterclass · Module M1</span>
+      <span class="pill">Real cases, real frameworks</span>
+      <span class="pill" style="border-color:var(--sage);color:var(--sage)">You will write a problem statement</span>
+    </div>
+    <p class="hintline riseUp d4">Press the right arrow to begin.</p>
+  </div>
+  <div class="notecard">
+    <div class="notelbl">Sponsor email · Monday 8:02</div>
+    <p class="noteline"><span class="lead">The ask</span><span class="strike">"Please build us an AI assistant by Q3."</span></p>
+    <p class="noteline"><span class="lead">The only question that matters</span><span id="typed" data-text='"what is this costing the business today?"'></span><span class="caret" id="caret">&nbsp;</span></p>
+    <div class="notestamp">start here</div>
+  </div>
+</div>`,
+
+/* 1 PRE QUIZ */
+`<div class="slidewrap" data-quiz="pre"></div>`,
+
+/* 2 ICE BREAKER */
+`<div class="eyebrow reveal"><span class="dot"></span> WARM-UP · TAP A QUESTION, ANSWER OUT LOUD, THEN READ THE LINE</div>
+<h2 class="reveal">Four questions before we start</h2>
+<div class="ib reveal">
+  <div class="ibcard" onclick="this.classList.toggle('open')"><div class="q">A VP says "we need an AI for that." What is the first thing you say?</div><div class="a">"What happens today that makes you want it?" Ask before you answer.</div></div>
+  <div class="ibcard" onclick="this.classList.toggle('open')"><div class="q">Think of the last tool your team bought. What was it supposed to fix?</div><div class="a">If that takes more than one sentence to answer, the problem was never written down.</div></div>
+  <div class="ibcard" onclick="this.classList.toggle('open')"><div class="q">Name a project that shipped on time and that nobody used.</div><div class="a">On time is a delivery measure. Used is a business measure. Today is about the second.</div></div>
+  <div class="ibcard" onclick="this.classList.toggle('open')"><div class="q">Delete every technology word from your last project brief. What is left?</div><div class="a">Whatever is left is the real problem. If nothing is left, that is your finding.</div></div>
+</div>`,
+
+/* 3 TODAY */
+`<div class="eyebrow reveal"><span class="dot"></span> WHAT YOU LEAVE WITH · THREE THINGS</div>
+<h2 class="reveal">Hear it. See it. Say it.</h2>
+<p class="sub reveal">An AI Solution Architect's first job is not choosing a model. It is turning a technology-shaped request into the business problem underneath it, before any design begins.</p>
+<div class="grid3 reveal" style="margin-top:18px">
+  <div class="card" style="border-left:4px solid var(--cobalt)"><div class="chip">Hear it</div>
+    <h3 style="margin-top:10px;font-size:20px">Name the trap</h3>
+    <p style="margin-top:8px;font-size:15px">Spot the Stack-First Instinct in other people's requests, and in your own first draft.</p></div>
+  <div class="card" style="border-left:4px solid var(--amber)"><div class="chip amber">See it</div>
+    <h3 style="margin-top:10px;font-size:20px">Map the business</h3>
+    <p style="margin-top:8px;font-size:15px">List the capabilities, find where cost and friction concentrate, then read the problem through four lenses.</p></div>
+  <div class="card" style="border-left:4px solid var(--sage)"><div class="chip sage">Say it</div>
+    <h3 style="margin-top:10px;font-size:20px">Write the statement</h3>
+    <p style="margin-top:8px;font-size:15px">One validated problem statement that a non-technical sponsor would recognise, with no technology in it.</p></div>
+</div>`,
+
+/* 4 THE TRAP */
+`<div class="eyebrow reveal"><span class="dot"></span> THE TRAP · THE STACK-FIRST INSTINCT</div>
+<h2 class="reveal">Reaching for the tool before understanding the problem</h2>
+<p class="sub reveal">It sounds like ambition. "We need an AI agent." "Let us move to a platform." "Which model should we pick?" Every one of those names a solution. None of them names a loss.</p>
+<div class="analogy reveal"><div class="label">Think of it this way</div><p>A doctor who writes the prescription before the examination. The prescription may even be a good one. Nobody can tell, including the doctor.</p></div>
+<div class="example reveal"><div class="label">Three tells that it is happening</div>
+  <ul class="exlist">
+    <li><b>A technology noun is the subject</b> of the sentence: "we need an AI..."</li>
+    <li><b>No number appears anywhere.</b> Nobody has said what the current state costs.</li>
+    <li><b>Nobody can say what stops</b> if the project never happens.</li>
+  </ul></div>`,
+
+/* 5 SIX CASES */
+`<div class="eyebrow reveal"><span class="dot"></span> REAL CASES · TAP EACH</div>
+<h2 class="reveal">Six times the tool arrived before the problem</h2>
+<div class="grid3 reveal" style="margin-top:12px">
+  <div class="tapcard" onclick="tapOpen(this)"><div class="front"><div class="co">Juicero</div><div class="teaser">A Wi-Fi juicing press, first priced near $700.</div><div class="prompt">Tap to reveal</div></div>
+    <div class="back"><div class="co">Juicero · 2017</div><p>Raised about $120 million for a connected juicing press. Bloomberg reporters found the packs gave about as much juice when squeezed by hand. The company shut down in September 2017. The engineering was real. The need it served had not been tested.</p><div class="src">Bloomberg, Apr 2017 · company closure, Sep 2017</div></div></div>
+  <div class="tapcard" onclick="tapOpen(this)"><div class="front"><div class="co">MD Anderson and Watson</div><div class="teaser">A cancer-centre AI advisor that never reached clinical use.</div><div class="prompt">Tap to reveal</div></div>
+    <div class="back"><div class="co">MD Anderson · 2013 to 2016</div><p>A University of Texas audit found the centre had paid over $62 million to IBM and a consultancy for an Oncology Expert Advisor. By late 2016 it was not in clinical use and had not been piloted outside the centre. Most related contracts skipped competitive bidding.</p><div class="src">University of Texas System audit, Jan 2017</div></div></div>
+  <div class="tapcard" onclick="tapOpen(this)"><div class="front"><div class="co">McDonald's drive-thru</div><div class="teaser">Voice AI taking orders at the speaker.</div><div class="prompt">Tap to reveal</div></div>
+    <div class="back"><div class="co">McDonald's · 2024</div><p>A test of AI voice ordering with IBM ran at more than 100 US restaurants and was ended in June 2024 after viral videos of wrong orders. Whatever seconds it saved, an order the customer never placed is a failure of the capability itself.</p><div class="src">Fortune and trade press, Jun 2024</div></div></div>
+  <div class="tapcard" onclick="tapOpen(this)"><div class="front"><div class="co">NHS National Programme for IT</div><div class="teaser">One national platform for thousands of local ways of working.</div><div class="prompt">Tap to reveal</div></div>
+    <div class="back"><div class="co">England · 2002 to 2011</div><p>The National Audit Office put the estimated final cost at £9.8 billion and reported that, for three of its programmes, 98 percent of estimated benefits were still unrealised. The programme was effectively ended in 2011.</p><div class="src">National Audit Office briefing to the Public Accounts Committee, 2013</div></div></div>
+  <div class="tapcard" onclick="tapOpen(this)"><div class="front"><div class="co">Zillow Offers</div><div class="teaser">A pricing model trusted with real inventory.</div><div class="prompt">Tap to reveal</div></div>
+    <div class="back"><div class="co">Zillow · 2021</div><p>In November 2021 Zillow announced it would wind down its home-buying business and cut about a quarter of its staff after heavy losses on homes it had bought. The model was real. How much market risk the business could carry on a forecast had not been framed first.</p><div class="src">Zillow Group filings, Nov 2021</div></div></div>
+  <div class="tapcard" onclick="tapOpen(this)"><div class="front"><div class="co">Google Glass</div><div class="teaser">A device that went looking for a job.</div><div class="prompt">Tap to reveal</div></div>
+    <div class="back"><div class="co">Google · 2013 to 2017</div><p>Glass launched to consumers in 2013 and was withdrawn from the consumer market in January 2015. It returned in 2017 as an enterprise edition for settings like factories and logistics, where hands-free access to instructions had a cost attached. Same technology, found its capability once someone started from a work task.</p><div class="src">Public reporting, 2013 to 2017</div></div></div>
+</div>
+<p class="hintline reveal">Figures as publicly reported. Check the source before you quote a number outside this room.</p>`,
+
+/* 6 WHAT THEY SHARE */
+`<div class="eyebrow reveal"><span class="dot"></span> THE PATTERN ACROSS ALL SIX</div>
+<h2 class="reveal">None of these teams were foolish</h2>
+<p class="sub reveal">Each had a plausible technology, real ambition and money behind it. What was missing was one sentence about a business loss.</p>
+<div class="grid3 reveal" style="margin-top:18px">
+  <div class="card" style="border-left:4px solid var(--clay)"><div class="chip clay">Tell 1</div>
+    <p style="margin-top:10px;font-size:16px"><b>The first noun in the brief was a technology.</b> Press, advisor, voice agent, platform, model, device.</p></div>
+  <div class="card" style="border-left:4px solid var(--amber)"><div class="chip amber">Tell 2</div>
+    <p style="margin-top:10px;font-size:16px"><b>Success meant "it works".</b> Not "the cost went down" or "the delay went away".</p></div>
+  <div class="card" style="border-left:4px solid var(--cobalt)"><div class="chip">Tell 3</div>
+    <p style="margin-top:10px;font-size:16px"><b>Nobody could name what stops</b> if the project did not exist.</p></div>
+</div>
+<div class="analogy reveal"><div class="label">The test you can run in a minute</div><p>Take any request you receive this month and underline the first noun. If it is a technology, you are being handed a prescription. Ask for the symptoms.</p></div>
+<div class="fixbox reveal" style="max-width:1020px;margin-top:16px"><div class="mono" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt);font-weight:700;margin-bottom:8px">Try it right now - sixty seconds</div>
+  <p style="font-size:18px;color:var(--ink);line-height:1.5">Your head of support forwards you this line, no other context: <br><b>"We want an AI-powered helpdesk assistant that can resolve tickets automatically."</b></p>
+  <p style="font-size:15px;color:var(--ink-soft);margin-top:10px">Underline the first noun in your head. Then write, in one line, the question you would actually ask back.</p>
+  <button class="jbtn rev" style="margin-top:14px" onclick="document.getElementById('tryans').classList.toggle('show')">Show a model answer</button>
+  <div id="tryans" class="fixgood" style="margin-top:14px"><b>First noun: "assistant."</b> That is the prescription. The question to ask back: <i>"When a ticket does not get resolved today, what happens next, and what does that cost us this month?"</i> Notice it does not mention the assistant at all.</div>
+</div>`,
+
+/* 7 CONSULTATIVE QUESTIONING */
+`<div class="eyebrow reveal"><span class="dot"></span> THE SHIFT · EXECUTOR TO CONSULTANT</div>
+<h2 class="reveal">Ask about the work, not the tool</h2>
+<div class="grid2 reveal" style="margin-top:12px">
+  <div>
+    <div class="card" style="border-left:4px solid var(--clay);margin-bottom:14px"><div class="chip clay">The executor</div>
+      <p style="margin-top:8px;font-size:15.5px">Hears "we need a chatbot", asks how many users and which vendor, estimates it, builds it. Fast, polite, and often wrong.</p></div>
+    <div class="card" style="border-left:4px solid var(--sage)"><div class="chip sage">The consultant</div>
+      <p style="margin-top:8px;font-size:15.5px">Hears the same sentence and asks what happens today, how often it goes wrong and what one failure costs. Slower for ten minutes, right for a year.</p></div>
+  </div>
+  <div class="example" style="margin-top:0"><div class="label">Five questions that reframe almost any request</div>
+    <ul class="exlist">
+      <li><b>What happens today,</b> step by step, from start to finish?</li>
+      <li><b>Where does it go wrong,</b> and how often?</li>
+      <li><b>What does one failure cost</b> in money, time or risk?</li>
+      <li><b>Who feels it first,</b> and who pays for it?</li>
+      <li><b>What happens if we do nothing</b> for twelve months?</li>
+    </ul></div>
+</div>`,
+
+/* 8 SORT GAME */
+`<div class="eyebrow reveal"><span class="dot"></span> GAME · TAP A QUESTION, THEN TAP A BIN</div>
+<h2 class="reveal">Which kind of question is it?</h2>
+<div class="chips reveal" id="qchips"></div>
+<div class="sortarea reveal">
+  <div class="bin consult"><h3>Consultative question</h3><div class="binitems"></div></div>
+  <div class="bin order"><h3>Executor question</h3><div class="binitems"></div></div>
+</div>`,
+
+/* 9 CAPABILITY VOCABULARY */
+`<div class="eyebrow reveal"><span class="dot"></span> THE VOCABULARY · BUSINESS CAPABILITY MODELLING</div>
+<h2 class="reveal">A capability is what the business does. Not how, and not who.</h2>
+<div class="grid3 reveal" style="margin-top:12px">
+  <div class="card" style="border-left:4px solid var(--cobalt)"><div class="chip">Capability · the WHAT</div>
+    <h3 style="margin-top:8px;font-size:19px">Process a Claim</h3>
+    <p style="margin-top:6px;font-size:14.5px">Stable for decades. A verb plus an object. This is what you map.</p></div>
+  <div class="card" style="border-left:4px solid var(--amber)"><div class="chip amber">Process · the HOW</div>
+    <h3 style="margin-top:8px;font-size:19px">The nine steps from first notice to payout</h3>
+    <p style="margin-top:6px;font-size:14.5px">Changes whenever tools or rules change. Do not map this.</p></div>
+  <div class="card" style="border-left:4px solid var(--sage)"><div class="chip sage">Function · the WHO</div>
+    <h3 style="margin-top:8px;font-size:19px">The Claims department</h3>
+    <p style="margin-top:6px;font-size:14.5px">Changes whenever the org chart does. Do not map this either.</p></div>
+</div>
+<div class="grid3 reveal" style="margin-top:14px">
+  <div class="card"><div class="chip">Level 1</div><p style="margin-top:8px;font-size:14.5px"><b>Manage Claims.</b> Too broad. Everything is "important" at this level.</p></div>
+  <div class="card" style="box-shadow:0 0 0 2px var(--amber)"><div class="chip amber">Level 2 · map here</div><p style="margin-top:8px;font-size:14.5px"><b>Process a Claim.</b> Four to six of these fit on one page and each can carry a number.</p></div>
+  <div class="card"><div class="chip sage">Level 3</div><p style="margin-top:8px;font-size:14.5px"><b>Verify Coverage.</b> Useful for zooming into a hot spot once you have found one.</p></div>
+</div>
+<p class="hintline reveal">Approach grounded in TOGAF business capability modelling (The Open Group).</p>`,
+
+/* 10 HEAT MAP */
+`<div class="eyebrow reveal"><span class="dot"></span> TAP A TILE TO RE-MARK · FIND WHERE THE PAIN CONCENTRATES</div>
+<h2 class="reveal">Kestrel Logistics: the CEO asked for an AI route optimiser</h2>
+<p class="sub reveal">A fictional freight forwarder with illustrative numbers. Six capabilities, as the operations team described them. Mark the ones that bleed.</p>
+<div class="heatwrap reveal" id="heatmap">
+  <div class="heat" data-l="1" onclick="heatCycle(this)"><div class="cn">Quote a Shipment</div><div class="cd">92% of requests quoted the same day</div><div class="lv">low pain</div></div>
+  <div class="heat" data-l="2" onclick="heatCycle(this)"><div class="cn">Book a Shipment</div><div class="cd">14% of bookings re-keyed between two systems</div><div class="lv">medium pain</div></div>
+  <div class="heat" data-l="3" onclick="heatCycle(this)"><div class="cn">Clear Customs</div><div class="cd">31% of consignments held for missing documents, about 2.4 days each</div><div class="lv">high pain</div></div>
+  <div class="heat" data-l="1" onclick="heatCycle(this)"><div class="cn">Plan a Route</div><div class="cd">Drivers accept 94% of route plans as issued</div><div class="lv">low pain</div></div>
+  <div class="heat" data-l="1" onclick="heatCycle(this)"><div class="cn">Deliver a Shipment</div><div class="cd">96% delivered on time</div><div class="lv">low pain</div></div>
+  <div class="heat" data-l="3" onclick="heatCycle(this)"><div class="cn">Invoice a Customer</div><div class="cd">22% of invoices disputed, 38 days on average to collect</div><div class="lv">high pain</div></div>
+</div>
+<div class="heatread reveal" id="heatread"></div>
+<div class="analogy reveal"><div class="label">Read what the map just told you</div><p>Route planning is already working. The tool the CEO asked for serves the one capability that is not in trouble.</p></div>`,
+
+/* 11 STAKEHOLDERS */
+`<div class="eyebrow reveal"><span class="dot"></span> BEFORE THE LENSES · WHO IS MEASURED ON WHAT</div>
+<h2 class="reveal">Every hot capability has people attached</h2>
+<p class="sub reveal">A lens is only as good as the person you hold it up to. Name a role, never "the business". Kestrel's customs problem touches six of them.</p>
+<div class="grid3 reveal" style="margin-top:14px">
+  <div class="card"><div class="chip">CEO</div><p style="margin-top:8px;font-size:14.5px"><b>Measured on</b> growth and margin.<br><b>Will ask:</b> what does this do to the number I report?</p></div>
+  <div class="card"><div class="chip">COO</div><p style="margin-top:8px;font-size:14.5px"><b>Measured on</b> on-time delivery and cost per shipment.<br><b>Will ask:</b> does this add steps for my teams?</p></div>
+  <div class="card"><div class="chip amber">Head of Customs Compliance</div><p style="margin-top:8px;font-size:14.5px"><b>Measured on</b> penalties and audit findings.<br><b>Will ask:</b> who is accountable if a declaration is wrong?</p></div>
+  <div class="card"><div class="chip amber">Finance Controller</div><p style="margin-top:8px;font-size:14.5px"><b>Measured on</b> days to collect and write-offs.<br><b>Will ask:</b> what does disputed revenue cost us each quarter?</p></div>
+  <div class="card"><div class="chip sage">Customer logistics manager</div><p style="margin-top:8px;font-size:14.5px"><b>Measured on</b> stock arriving on time.<br><b>Will ask:</b> will my shipment stop being held?</p></div>
+  <div class="card" style="box-shadow:0 0 0 2px var(--clay)"><div class="chip clay">Customs desk team · the one people skip</div><p style="margin-top:8px;font-size:14.5px"><b>Measured on</b> consignments cleared per day.<br><b>Will ask:</b> does this shorten my day or hand me a new screen to check?</p></div>
+</div>`,
+
+/* 12 FOUR LENSES */
+`<div class="eyebrow reveal"><span class="dot"></span> FOUR LENSES · TAP EACH ONE</div>
+<h2 class="reveal">One capability, four different questions</h2>
+<p class="sub reveal">The capability under the lens is Clear Customs. Notice that each lens gives a different answer. If they all say "save money", you wrote cost four times.</p>
+<div class="lenstabs reveal" style="margin-top:12px">
+  <div class="ltab on" onclick="lensPick(this,0)">Cost</div>
+  <div class="ltab" onclick="lensPick(this,1)">Risk</div>
+  <div class="ltab" onclick="lensPick(this,2)">Time to value</div>
+  <div class="ltab" onclick="lensPick(this,3)">Adoption</div>
+</div>
+<div class="lenspanel reveal" id="lenspanel"></div>`,
+
+/* 13 BREAK */
+`<div class="grow center" style="align-items:center;text-align:center">
+  <div class="eyebrow reveal" style="justify-content:center"><span class="dot"></span> QUICK BREAK</div>
+  <h1 class="reveal">Break</h1>
+  <div id="breakclock" style="font-family:var(--disp);font-weight:700;font-size:76px;color:var(--cobalt);margin:16px 0">10:00</div>
+  <div class="reveal" style="display:flex;gap:8px;justify-content:center;margin-bottom:10px">
+    <button class="jbtn" style="background:rgba(20,33,61,.1);color:var(--ink);padding:9px 13px;font-size:12px" onclick="breakAdjust(-5)">-5</button>
+    <button class="jbtn" style="background:rgba(20,33,61,.1);color:var(--ink);padding:9px 13px;font-size:12px" onclick="breakAdjust(-1)">-1</button>
+    <button class="jbtn" style="background:rgba(20,33,61,.1);color:var(--ink);padding:9px 13px;font-size:12px" onclick="breakAdjust(1)">+1</button>
+    <button class="jbtn" style="background:rgba(20,33,61,.1);color:var(--ink);padding:9px 13px;font-size:12px" onclick="breakAdjust(5)">+5</button>
+  </div>
+  <div class="reveal" style="display:flex;gap:10px;justify-content:center;margin-bottom:14px">
+    <button class="jbtn rev" id="breakbtn" onclick="breakToggle()">START</button>
+    <button class="jbtn close" onclick="breakStop()">STOP</button>
+    <button class="jbtn" style="background:rgba(20,33,61,.1);color:var(--ink)" onclick="breakReset()">RESET</button>
+  </div>
+  <p class="sub reveal" style="max-width:560px">After the break: how to write the problem statement, how to tell a validated one from a guess, and exactly how this week's work is scored.</p>
+</div>`,
+
+/* 14 ANATOMY OF A STATEMENT */
+`<div class="eyebrow reveal"><span class="dot"></span> THE OUTPUT · A VALIDATED PROBLEM STATEMENT</div>
+<h2 class="reveal">Five ingredients of a strong statement, not five problems</h2>
+<p class="sub reveal">Every validated statement is built from these five pieces. None is a flaw to fix - they are what you check your own statement contains before you submit it. Each has its own color below. Find the same color underlined in the statement.</p>
+<div class="fixbox reveal" style="max-width:1100px;margin-top:14px"><div class="mono" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage);font-weight:700;margin-bottom:8px">A model statement for Kestrel</div>
+  <div class="stmt" style="font-size:19px">Kestrel <span style="color:var(--cobalt);font-weight:700;text-decoration:underline;text-decoration-color:var(--cobalt);text-underline-offset:4px">clears customs</span> slowly. About <span style="color:#a56a00;font-weight:700;text-decoration:underline;text-decoration-color:var(--amber);text-underline-offset:4px">31% of consignments</span> are <span style="color:var(--clay);font-weight:700;text-decoration:underline;text-decoration-color:var(--clay);text-underline-offset:4px">held for missing documents</span>, adding roughly <span style="color:#a56a00;font-weight:700;text-decoration:underline;text-decoration-color:var(--amber);text-underline-offset:4px">2.4 days</span> each (estimate from the operations team, to be confirmed against last quarter's hold log). Every held day adds <span style="color:var(--clay);font-weight:700;text-decoration:underline;text-decoration-color:var(--clay);text-underline-offset:4px">storage and re-handling cost</span> and puts the <span style="color:#1c7c5d;font-weight:700;text-decoration:underline;text-decoration-color:var(--sage);text-underline-offset:4px">Head of Customs Compliance's</span> audit record at risk. The problem grows with every new trade lane.</div>
+  <div style="margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--ink-soft);display:flex;align-items:center;gap:8px"><span style="color:var(--ink);font-weight:700">&#10003;</span> Checked: zero technology, vendor or product words anywhere in this statement.</div>
+</div>
+<div class="grid4 reveal" style="margin-top:14px;grid-template-columns:repeat(5,1fr)">
+  <div class="card" style="min-width:0;border-left:4px solid var(--cobalt)"><div class="chip">1 · capability</div><p style="margin-top:8px;font-size:13.5px">What the business does. One phrase, matching the capability map.</p></div>
+  <div class="card" style="min-width:0;border-left:4px solid var(--amber)"><div class="chip amber">2 · number</div><p style="margin-top:8px;font-size:13.5px">Sourced, or openly flagged as an assumption to confirm.</p></div>
+  <div class="card" style="min-width:0;border-left:4px solid var(--clay)"><div class="chip clay">3 · consequence</div><p style="margin-top:8px;font-size:13.5px">Cost, risk or friction. What the business is actually losing.</p></div>
+  <div class="card" style="min-width:0;border-left:4px solid var(--sage)"><div class="chip sage">4 · named role</div><p style="margin-top:8px;font-size:13.5px">A real person or title. Never "the business" or "users".</p></div>
+  <div class="card" style="min-width:0;border-left:4px solid var(--ink)"><div class="chip" style="background:rgba(20,33,61,.1);color:var(--ink)">5 · no technology</div><p style="margin-top:8px;font-size:13.5px">A rule, not a phrase. Nothing to underline - that is the point.</p></div>
+</div>`,
+
+/* 15 FIX THE STATEMENT */
+`<div class="eyebrow reveal"><span class="dot"></span> GAME · TAP EVERY TECHNOLOGY WORD TO STRIKE IT OUT</div>
+<h2 class="reveal">Find the stack hiding in the statement</h2>
+<div class="fixbox reveal">
+  <div class="stmt">Kestrel needs an <span class="tech" onclick="strike(this)">AI-powered</span> <span class="tech" onclick="strike(this)">document platform</span> that uses <span class="tech" onclick="strike(this)">machine learning</span> to <span class="tech" onclick="strike(this)">automate</span> customs clearance and gives its customs desk a <span class="tech" onclick="strike(this)">chatbot</span> for status questions.</div>
+  <div class="fixgood" id="fixgood"><b>Now it is a problem, not a prescription.</b> Kestrel clears customs slowly: 31% of consignments are held for missing documents, about 2.4 days each (to be confirmed against the hold log). The Head of Customs Compliance carries the audit risk and the Finance Controller carries the storage cost.</div>
+</div>
+<p class="hintline reveal">Notice that "automate" counts. A verb that names the solution is still a technology word.</p>`,
+
+/* 16 WHAT MAKES IT VALIDATED */
+`<div class="eyebrow reveal"><span class="dot"></span> WHY IT IS CALLED VALIDATED · THREE TESTS</div>
+<h2 class="reveal">A statement is validated when it survives three tests</h2>
+<div class="grid3 reveal" style="margin-top:14px">
+  <div class="card" style="border-left:4px solid var(--cobalt)"><div class="chip">Test 1</div>
+    <h3 style="margin-top:10px;font-size:20px">The evidence test</h3>
+    <p style="margin-top:8px;font-size:15px">Can you point to where each number came from? A log, a report, a person's name, or an honest label.</p></div>
+  <div class="card" style="border-left:4px solid var(--amber)"><div class="chip amber">Test 2</div>
+    <h3 style="margin-top:10px;font-size:20px">The sponsor test</h3>
+    <p style="margin-top:8px;font-size:15px">Would the named sponsor read it and say "yes, that is my business"? If they would ask what the words mean, rewrite it.</p></div>
+  <div class="card" style="border-left:4px solid var(--sage)"><div class="chip sage">Test 3</div>
+    <h3 style="margin-top:10px;font-size:20px">The so-what test</h3>
+    <p style="margin-top:8px;font-size:15px">Does it say what happens if nothing changes? A problem with no cost of waiting is a preference, not a problem.</p></div>
+</div>
+<div class="analogy reveal"><div class="label">When you have no source</div><p>Say so. Label the figure <b>assumption to confirm</b> and keep going. An invented number dressed as a fact fails the check. An honest assumption passes it.</p></div>
+<div style="margin-top:18px"><div class="slidewrap reveal" data-quiz="tests"></div></div>`,
+
+/* 17 WORKED REFRAME */
+`<div class="eyebrow reveal"><span class="dot"></span> THE WHOLE MOVE, END TO END · KESTREL</div>
+<h2 class="reveal">From request to statement in five steps</h2>
+<div class="grid4 reveal" style="margin-top:14px;grid-template-columns:repeat(5,1fr)">
+  <div class="card" style="min-width:0;border-top:4px solid var(--clay)"><div class="chip clay">1 · The request</div><p style="margin-top:8px;font-size:14px">"Build us an AI route optimiser."</p></div>
+  <div class="card" style="min-width:0;border-top:4px solid var(--amber)"><div class="chip amber">2 · The questions</div><p style="margin-top:8px;font-size:14px">What goes wrong today, how often, what does it cost, who feels it?</p></div>
+  <div class="card" style="min-width:0;border-top:4px solid var(--cobalt)"><div class="chip">3 · The map</div><p style="margin-top:8px;font-size:14px">Six capabilities. Customs and invoicing are hot. Routing is fine.</p></div>
+  <div class="card" style="min-width:0;border-top:4px solid var(--cobalt)"><div class="chip">4 · The lenses</div><p style="margin-top:8px;font-size:14px">Customs is risk-heavy. Invoicing is cost-heavy. Both have owners.</p></div>
+  <div class="card" style="min-width:0;border-top:4px solid var(--sage)"><div class="chip sage">5 · The statement</div><p style="margin-top:8px;font-size:14px">One sentence block, one number, one role, no technology.</p></div>
+</div>
+<div class="analogy reveal"><div class="label">Notice what never happened</div><p>Nobody chose a technology. The route optimiser was not rejected. It simply never earned a place, because no capability needed it.</p></div>
+<div class="eyebrow reveal" style="margin-top:18px"><span class="dot"></span> QUICK QUESTIONNAIRE · THREE QUESTIONS, ONE AT A TIME</div>
+<div class="scoreit reveal" id="stepquiz"></div>`,
+
+/* 18 SCORING: CORE SKILLS */
+`<div class="eyebrow reveal"><span class="dot"></span> WHAT YOUR WORK IS SCORED ON · NOTHING HIDDEN</div>
+<h2 class="reveal">Three skills, read from your Business Pain Map and Problem Statement</h2>
+<div class="grid3 reveal" style="margin-top:14px">
+  <div class="card" style="border-left:4px solid var(--cobalt)"><div class="chip">Skill 1 · 20%</div>
+    <h3 style="margin-top:8px;font-size:17px">Business Capability Mapping</h3>
+    <p style="font-size:13.5px;margin-top:6px">Maps four to six real capabilities and marks where cost, friction or inefficiency concentrates, <b>before</b> naming any technology.</p>
+    <p style="font-size:13px;margin-top:6px;color:var(--ink-soft)">Evaluator looks for: verb-plus-object names, marked hot spots with numbers.</p></div>
+  <div class="card" style="border-left:4px solid var(--amber)"><div class="chip amber">Skill 2 · 20%</div>
+    <h3 style="margin-top:8px;font-size:17px">Multi-Lens Stakeholder Analysis</h3>
+    <p style="font-size:13.5px;margin-top:6px">Applies cost, risk, time-to-value and adoption lenses, not just the first one volunteered.</p>
+    <p style="font-size:13px;margin-top:6px;color:var(--ink-soft)">Evaluator looks for: four lenses that say different things, and a named role.</p></div>
+  <div class="card" style="border-left:4px solid var(--sage)"><div class="chip sage">Skill 3 · 20%</div>
+    <h3 style="margin-top:8px;font-size:17px">Business-Framed Problem Statement</h3>
+    <p style="font-size:13.5px;margin-top:6px">Names a business cost, risk or friction a non-technical sponsor recognises, with <b>no technology named</b>.</p>
+    <p style="font-size:13px;margin-top:6px;color:var(--ink-soft)">Evaluator looks for: one marked statement, a sourced or flagged number, zero technology words.</p></div>
+</div>
+<div class="analogy reveal"><div class="label">How the rest of the score works</div><p>The three skills carry 60%. The other 40% is six judgment dimensions read from the same submission. Pass is 50, and spread beats brilliance: evenly decent on every line beats brilliant on two and empty on the rest.</p></div>`,
+
+/* 18B THE VECTOR FRAMEWORK */
+`<div class="eyebrow reveal"><span class="dot"></span> THE OTHER 40% · ONE FRAMEWORK, ALL NINE WEEKS</div>
+<h2 class="reveal">VECTOR: six judgment calls, read from the same page</h2>
+<p class="sub reveal">Not a rotating topic. These six are read from every weekly submission, Week 1 through Week 9, so the same page gets judged on content and on judgment.</p>
+<div class="grid3 reveal" style="margin-top:14px">
+  <div class="card" style="border-left:4px solid var(--sage)"><div class="chip sage">V · Vision Clarity</div>
+    <p style="margin-top:8px;font-size:14px">Did the business reframe happen before any talk of architecture? <span class="mono" style="font-size:10.5px;color:var(--sage)">THIS WEEK'S FOCUS</span></p></div>
+  <div class="card"><div class="chip">E · Edge Judgment</div>
+    <p style="margin-top:8px;font-size:14px">Is a real trade-off named and defended, not just a decision stated?</p></div>
+  <div class="card"><div class="chip amber">C · Context Fluency</div>
+    <p style="margin-top:8px;font-size:14px">Does the page show real enterprise specifics - named roles, constraints, governance - not generic ones?</p></div>
+  <div class="card"><div class="chip clay">T · Trust Architecture</div>
+    <p style="margin-top:8px;font-size:14px">Are guarantees stated as testable commitments, not just asserted as "secure" or "reliable"?</p></div>
+  <div class="card"><div class="chip">O · Orchestration Intelligence</div>
+    <p style="margin-top:8px;font-size:14px">Is any platform or pattern direction justified against the actual task, not just the familiar option?</p></div>
+  <div class="card" style="border-left:4px solid var(--sage)"><div class="chip sage">R · Range</div>
+    <p style="margin-top:8px;font-size:14px">Does the work connect forward or backward to a bigger pattern, or does it stand alone?</p></div>
+</div>
+<div class="analogy reveal"><div class="label">How it is scored</div><p>Each dimension lands on one of five bands (0/25/50/75/100) against written criteria, the same way the Vision Clarity ladder on the next slide works. No sub-checks, no interpolating between bands.</p></div>
+<p class="hintline reveal">Week 1 is scored mainly on Vision Clarity, the dimension this week's lab trains directly. The other five are still read from your submission every week, and get their own focus in later weeks.</p>`,
+
+/* 19 VISION CLARITY LADDER */
+`<div class="eyebrow reveal"><span class="dot"></span> THIS WEEK'S SIGNATURE LENS · VISION CLARITY</div>
+<h2 class="reveal">How the reframe itself is read</h2>
+<p class="sub reveal">Five bands, and scores never land between them. The question is where your reframe happens relative to any talk of architecture.</p>
+<div style="margin-top:12px;display:flex;flex-direction:column;gap:9px;max-width:1100px">
+  <div class="card reveal" style="padding:12px 18px;display:flex;gap:16px;align-items:center;border-left:4px solid var(--sage);flex:none"><div class="chip sage" style="min-width:58px;justify-content:center">100</div><p style="font-size:15px;color:var(--ink)">Reframes the technology-shaped complaint into a specific business capability gap, <b>entirely before</b> any architecture discussion.</p></div>
+  <div class="card reveal" style="padding:12px 18px;display:flex;gap:16px;align-items:center;border-left:4px solid var(--sage);flex:none"><div class="chip sage" style="min-width:58px;justify-content:center">75</div><p style="font-size:15px;color:var(--ink)">Reframes it, but architecture language creeps in before the reframe is complete. <span class="mono" style="font-size:11px;color:var(--sage)">THIS WEEK'S TARGET</span></p></div>
+  <div class="card reveal" style="padding:12px 18px;display:flex;gap:16px;align-items:center;border-left:4px solid var(--amber);flex:none"><div class="chip amber" style="min-width:58px;justify-content:center">50</div><p style="font-size:15px;color:var(--ink)">Reframe and architecture talk are interleaved, with no clear sequence.</p></div>
+  <div class="card reveal" style="padding:12px 18px;display:flex;gap:16px;align-items:center;border-left:4px solid var(--clay);flex:none"><div class="chip clay" style="min-width:58px;justify-content:center">25</div><p style="font-size:15px;color:var(--ink)">Acknowledges the complaint might be more than technical, without actually reframing it.</p></div>
+  <div class="card reveal" style="padding:12px 18px;display:flex;gap:16px;align-items:center;border-left:4px solid var(--clay);flex:none"><div class="chip clay" style="min-width:58px;justify-content:center">0</div><p style="font-size:15px;color:var(--ink)">Takes the technology-shaped complaint at face value and moves straight to architecture.</p></div>
+</div>
+<p class="hintline reveal">The other five VECTOR dimensions from the previous slide are read the same way, each against its own five-band ladder. Missing is scored as zero, never as partial.</p>`,
+
+/* 20 FLIP RECAP */
+`<div class="eyebrow reveal"><span class="dot"></span> RECAP · FLIP EACH CARD AND SAY IT IN YOUR OWN WORDS</div>
+<h2 class="reveal">Six ideas from today</h2>
+<div class="flipgrid reveal">
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">The Stack-First Instinct</div><div class="fsub">The trap behind most failed projects.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">Tool before problem</div><p>Reaching for a technology before anyone has named the loss it should remove.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">Capability</div><div class="fsub">Not process, not function.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">The WHAT</div><p>A stable verb plus object, like Process a Claim. Map four to six of them.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">Concentration</div><div class="fsub">Where the map goes hot.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">Mark it, number it</div><p>At least two capabilities marked as the home of cost or friction, each with a figure attached.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">Four lenses</div><div class="fsub">Cost, risk, time-to-value, adoption.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">The swap test</div><p>Hide the labels. If the four entries could trade places, you wrote cost four times.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">Validated</div><div class="fsub">Three tests, one honest label.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">Evidence, sponsor, so-what</div><p>Sourced numbers, sponsor language, a cost of waiting. No source means "assumption to confirm".</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">Vision Clarity</div><div class="fsub">How the reframe is read.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">Reframe first</div><p>The top band reframes the complaint into a business capability gap before any architecture talk.</p></div></div></div>
+</div>`,
+
+/* 21 POST QUIZ */
+`<div class="slidewrap" data-quiz="post"></div>`,
+
+/* 22 JEOPARDY */
+`<div class="eyebrow reveal"><span class="dot"></span> RECAP · PICK A TILE, DISCUSS, REVEAL</div>
+<h2 class="reveal">Today's board</h2>
+<p class="sub reveal">Four categories from the session. Pick a tile, talk it out, then reveal.</p>
+<div class="jboard reveal" id="jboard"></div>`,
+
+/* 23 TAKEAWAY */
+`<div class="grow center" style="position:relative">
+  <div class="blob b2" style="right:20%;top:10%;opacity:.35"></div>
+  <div class="eyebrow reveal" style="justify-content:center"><span class="dot"></span> THE ONE THING TO CARRY</div>
+  <h1 class="reveal"><span class="shimmer">Say the problem</span><br>before the tool.</h1>
+  <p class="sub reveal" style="max-width:700px;margin-top:16px">Every idea today is one habit. Before anyone discusses what to build, someone writes down what the business is losing, how much, and who feels it. Do that and the technology choice gets easy. Skip it and the choice is a guess.</p>
+  <div class="grid3 reveal" style="margin-top:24px;max-width:880px;width:100%">
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;text-align:center"><div class="chip">Ask before you answer</div><p style="margin-top:8px;font-size:15px">A request names a solution. Find the symptom.</p></div>
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;text-align:center"><div class="chip amber">Map before you pick</div><p style="margin-top:8px;font-size:15px">The pain is rarely where the request points.</p></div>
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;text-align:center"><div class="chip sage">Name a number, name a role</div><p style="margin-top:8px;font-size:15px">Both turn an opinion into a problem.</p></div>
+  </div>
+</div>`,
+
+/* 24 THANK YOU */
+`<div class="grow center" style="position:relative">
+  <div class="blob b1" style="right:26%;top:6%;opacity:.4"></div>
+  <div class="blob b3" style="left:20%;bottom:8%;opacity:.35"></div>
+  <div class="eyebrow reveal" style="justify-content:center"><span class="dot"></span> THAT IS MODULE M1</div>
+  <h1 class="reveal"><span class="shimmer">Thank you.</span></h1>
+  <p class="sub reveal" style="max-width:660px;margin-top:16px;text-align:center">Open floor. Bring the hardest request you have ever been handed, with the technology word still in it, and we will reframe it together, live.</p>
+  <div class="reveal" style="margin-top:26px;display:flex;flex-direction:column;align-items:center;gap:14px">
+    <button class="jbtn rev" onclick="fireConfetti()">Questions? Let us go</button>
+    <p class="hintline" style="margin-top:4px;text-align:center">linkedin.com/in/hardikgoelai</p>
+  </div>
+</div>`
+];
+
+const TITLES = ["Cover","Pre-check","Warm-up","What you leave with","The Stack-First trap","Six real cases","What they share","Executor to consultant","Question sort","Capability vocabulary","Heat map","Who is measured on what","Four lenses","Break","Anatomy of a statement","Find the stack","Validated: three tests","Request to statement","How it is scored","The VECTOR framework","Vision Clarity ladder","Recap flip cards","Closing check","Recap board","Takeaway","Thank you"];
+
+/* ============================================================= QUIZ DATA */
+const QUIZ = {
+  pre:{eyebrow:"PRE-CHECK · NO PENALTY, JUST YOUR INSTINCT",title:"What would you do first?",
+    q:{prompt:"A COO says: 'Our customers are unhappy, so we need an AI chatbot by Q3.' What is the strongest first move for a Solution Architect?",
+      opts:[
+        {k:"A",t:"Shortlist three chatbot platforms and compare their prices.",ok:false},
+        {k:"B",t:"Ask what customers are failing to get done today, and where the business loses money or time because of it.",ok:true},
+        {k:"C",t:"Start a small proof of concept to show quick value.",ok:false},
+        {k:"D",t:"Explain to the COO why a chatbot is the wrong choice.",ok:false}],
+      fb:"<b>B.</b> A request names a solution. Your job is to find the problem it stands in for. A and C start building on an untested assumption. D also answers before any evidence exists, just in the opposite direction. Ask first, then decide whether a chatbot is even relevant."}},
+  post:{eyebrow:"CLOSING CHECK · ONE LAST SCENARIO",title:"Which statement do you take back to the sponsor?",
+    q:{prompt:"A sponsor says: 'We need an AI assistant to chase suppliers for missing customs documents.' After your questions, which is the best problem statement to bring back?",
+      opts:[
+        {k:"A",t:"Customs staff need an AI assistant that chases missing documents faster.",ok:false},
+        {k:"B",t:"Consignments held for missing documents add about 2.4 days each (to be confirmed against the hold log), raising storage cost and audit risk in Clear Customs.",ok:true},
+        {k:"C",t:"The company must modernise its customs systems.",ok:false},
+        {k:"D",t:"Document collection is inefficient and needs to improve.",ok:false}],
+      fb:"<b>B.</b> It names a capability, carries a number with an honest label, states a consequence, and mentions no technology. A smuggles the solution back in. C has no capability, no number and a technology in disguise. D is true of almost every company on earth, so it tells the sponsor nothing."}},
+  tests:{eyebrow:"TEAM CHALLENGE · PICK, THEN WE REVEAL",title:"Which test does this line fail?",
+    q:{prompt:"A candidate's statement reads: 'Approximately 40% of shipments face customs delays.' No source is given, and it is not labelled as an assumption. Which test does this fail, and what should the line score?",
+      opts:[
+        {k:"A",t:"The sponsor test. It should score 75, since the sentence is clear and well written.",ok:false},
+        {k:"B",t:"The evidence test. It should score 0, because an unsourced figure that is not flagged as an assumption fails exactly the check this test exists for.",ok:true},
+        {k:"C",t:"The so-what test. It should score 50, since the number is at least in the right range.",ok:false},
+        {k:"D",t:"No test, since a specific number like 40% is always good evidence on its own.",ok:false}],
+      fb:"<b>B.</b> A number with no source and no honest assumption-label is not weak evidence, it is no evidence, dressed up to look like a fact. The rule from this slide is exact: label it or source it, or it scores zero, however specific or plausible the figure sounds."}}
+};
+
+/* ============================================================= UNUSED (calibration data kept for engine) */
+const SCOREITEMS = [];
+
+/* ============================================================= STEP QUESTIONNAIRE DATA (Kestrel, five-step slide) */
+const STEPQUIZ = [
+  {q:"At step 2 (the questions), Kestrel's ops team says invoices are disputed \"sometimes.\" What should happen next, before moving to step 3?",
+   opts:[
+     {t:"Push for a real figure: how often, over what period, measured how.",ok:true},
+     {t:"Accept it as given. \"Sometimes\" is honest enough to work with.",ok:false},
+     {t:"Assume 10% and move on, since some number is better than none.",ok:false}],
+   fb:"Correct answer: push for a real figure. \"Sometimes\" cannot carry a statement past the evidence test later, and an invented 10% is worse than no number at all, since it is unsourced and unlabelled."},
+  {q:"At step 3 (the map), routing scores \"low pain\" on the heat map, even though the original request was a route optimiser. What is the right move?",
+   opts:[
+     {t:"Build it anyway. The sponsor specifically asked for it.",ok:false},
+     {t:"Drop it from this cycle and follow where the map actually runs hot.",ok:true},
+     {t:"Ask for a bigger budget so both the request and the hot spots get built.",ok:false}],
+   fb:"Correct answer: follow the map. The request named a technology before anyone had checked where the business was actually losing money. The map just checked, and routing is not where it is."},
+  {q:"At step 5 (the statement), a draft reads: \"Kestrel needs faster customs processing enabled by automation.\" Does this pass the problem-statement checks?",
+   opts:[
+     {t:"Yes, because it clearly names the capability (customs processing).",ok:false},
+     {t:"No. \"Automation\" is a technology word, even though the rest of the sentence is framed well.",ok:true},
+     {t:"Yes, because \"faster\" implies a measurable improvement.",ok:false}],
+   fb:"Correct answer: no. One technology word is enough to fail the check, however good the rest of the sentence reads. \"Enabled by automation\" names the solution, not the loss."}
+];
+
+/* ============================================================= JEOPARDY DATA */
+const JEO = [
+  {cat:"The Trap",items:[
+    {v:10,q:"The first noun in a stack-first brief.",a:"A technology"},
+    {v:10,q:"The one question that exposes the trap.",a:"What is this costing the business today?"},
+    {v:10,q:"Why a polished demo proves nothing at this stage.",a:"It shows the tool works, not that anyone has the problem"}]},
+  {cat:"Capabilities",items:[
+    {v:10,q:"What a capability name is written as.",a:"A verb plus an object, like Process a Claim"},
+    {v:10,q:"Capability, process or function: which one describes who does the work?",a:"Function"},
+    {v:10,q:"How many capabilities belong on the map.",a:"Four to six"}]},
+  {cat:"Lenses",items:[
+    {v:10,q:"The four lenses.",a:"Cost, risk, time-to-value and adoption"},
+    {v:10,q:"The test that shows you wrote cost four times.",a:"Swap the labels. If it still reads correctly, the lenses say the same thing"},
+    {v:10,q:"Who decides whether a new tool actually gets used.",a:"The people who have to change how they work"}]},
+  {cat:"The Statement",items:[
+    {v:10,q:"What a figure with no source must be labelled as.",a:"An assumption to confirm"},
+    {v:10,q:"How many technology words a statement may contain.",a:"Zero"},
+    {v:10,q:"How long the statement should be, at most.",a:"About four sentences"}]}
+];
+
+/* ============================================================= WIDGET DATA */
+const LENS = [
+  {t:"Cost lens: where does the money actually leave?",
+   b:"Missing documents hold 31% of consignments for about 2.4 days. Each held day carries storage charges and re-handling labour. Counting only the admin time of the customs desk understates it. The held days are where the money leaves.",
+   v:"Answer: storage and re-handling per held day",c:"var(--cobalt)"},
+  {t:"Risk lens: what could go wrong if we change this?",
+   b:"A wrong customs declaration is a regulatory exposure, not just a delay. Anything that speeds clearance must not raise the rate of incorrect declarations, and a named person must stay accountable for every filing.",
+   v:"Answer: audit exposure and accountability",c:"var(--clay)"},
+  {t:"Time-to-value lens: how soon would anyone see a difference?",
+   b:"A fix inside the document-collection step can show a measurable change in held consignments within a quarter. A redesign of the whole customs process cannot. The first step should be the one whose result is visible quickly.",
+   v:"Answer: start where the result shows fastest",c:"var(--amber)"},
+  {t:"Adoption lens: who has to change how they work?",
+   b:"The customs desk, not the CEO, decides whether this works. If the change adds a screen to check, they will route around it. The test is simple: does their day get shorter?",
+   v:"Answer: the customs desk team",c:"var(--sage)"}
+];
+const SORTQ = [
+  {t:"What happens today, from the moment the customer asks to the moment it is resolved?",consult:true},
+  {t:"How often does that go wrong, and what does one failure cost?",consult:true},
+  {t:"Who is measured on this, and what do they lose if it improves?",consult:true},
+  {t:"What happens if we do nothing for twelve months?",consult:true},
+  {t:"What would you stop doing if this were fixed?",consult:true},
+  {t:"Which vendor do you prefer?",consult:false},
+  {t:"How many users should the chatbot support?",consult:false},
+  {t:"What is the budget for the platform?",consult:false},
+  {t:"Should it run on mobile and web?",consult:false},
+  {t:"When do you need the model live?",consult:false}
+];
+const POLLROWS = [];
+
+
+/* ============================================================= ENGINE */
+const stage=document.getElementById('stage');
+let cur=0, revealStops=[], revealIdx=0;
+SLIDES.forEach((html,i)=>{ const s=document.createElement('section'); s.className='slide'; s.dataset.title=TITLES[i]||('Slide '+i); s.innerHTML=html; stage.appendChild(s); });
+const slideEls=[...document.querySelectorAll('.slide')];
+
+function buildQuiz(el){
+  const kind=el.dataset.quiz; const d=QUIZ[kind]; const parent=el.parentElement;
+  let opts=d.q.opts.map(o=>`<div class="qopt" data-ok="${o.ok}" onclick="quizPick(this)"><span class="k">${o.k}</span><span>${o.t}</span></div>`).join('');
+  parent.innerHTML=
+   `<div class="eyebrow reveal"><span class="dot"></span> ${d.eyebrow}</div>
+    <h2 class="reveal">${d.title}</h2>
+    <div class="quiz reveal"><p class="big" style="color:var(--ink)">${d.q.prompt}</p>
+      <div class="qopts">${opts}</div>
+      <div class="qfb" id="qfb-${kind}"></div></div>`;
+  parent.dataset.qkind=kind;
+}
+function buildWidgets(s){
+  const qz=s.querySelector('[data-quiz]'); if(qz) buildQuiz(qz);
+  if(s.querySelector('#qchips')) buildSort();
+  if(s.querySelector('#jboard')) buildJeopardy();
+  if(s.querySelector('#poll')) buildPoll();
+  if(s.querySelector('#scoreit')) buildScore();
+  if(s.querySelector('#stepquiz')) buildStepQuiz();
+}
+function enterHooks(s){
+  if(s.querySelector('#heatmap')) heatUpdate();
+  if(s.querySelector('#lenspanel')) lensRender();
+  if(s.querySelector('#typed')) typeWriter();
+  if(s.querySelector('.chklist')) chkInit(s);
+}
+function enter(n, full){
+  slideEls[cur].classList.remove('active');
+  cur=n; const s=slideEls[cur];
+  buildWidgets(s);
+  s.classList.add('active');
+  const rv=[...s.querySelectorAll('.reveal')]; revealStops=rv;
+  rv.forEach(r=>r.classList.remove('show'));
+  if(full){ rv.forEach(r=>r.classList.add('show')); revealIdx=rv.length; }
+  else { if(rv.length){ rv[0].classList.add('show'); revealIdx=1; } else revealIdx=0; }
+  document.getElementById('prog').style.width=(cur/(SLIDES.length-1)*100)+'%';
+  document.getElementById('pageno').textContent=String(cur+1).padStart(2,'0');
+  enterHooks(s);
+}
+function show(n){ enter(Math.max(0,Math.min(SLIDES.length-1,n)), false); }
+function next(){
+  if(revealIdx<revealStops.length){ revealStops[revealIdx].classList.add('show'); revealIdx++; return; }
+  if(cur<SLIDES.length-1) enter(cur+1,false);
+}
+function prev(){
+  if(revealIdx>1){ revealIdx--; revealStops[revealIdx].classList.remove('show'); return; }
+  if(cur>0) enter(cur-1,true);   // land on previous slide's fully revealed final state
+}
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  const k=e.key.toLowerCase();
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();prev();}
+  else if(k==='w'){toggleWB();} else if(k==='s'){toggleSB();}
+  else if(k==='t'){toggleTM();}
+  else if(k==='f'){toggleFull();} else if(e.key==='Escape'){closeOverlays();}
+});
+function closeOverlays(){document.getElementById('jmodal').classList.remove('open');document.getElementById('toolsmenu').classList.remove('on');}
+function toggleFull(){ if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();} }
+function toggleTools(){ document.getElementById('toolsmenu').classList.toggle('on'); }
+
+/* ---------- typewriter (cover) ---------- */
+let typed=false;
+function typeWriter(){
+  const el=document.getElementById('typed'); if(!el||typed) return; typed=true;
+  const txt=el.dataset.text||'"could a stranger run this without asking me anything?"'; let i=0;
+  el.textContent='';
+  const iv=setInterval(()=>{ el.textContent=txt.slice(0,i); i++; if(i>txt.length){clearInterval(iv); const c=document.getElementById('caret'); if(c) c.style.display='none';} }, 45);
+}
+
+/* ---------- quiz ---------- */
+function quizPick(el){
+  const box=el.closest('.qopts'); if(box.dataset.done) return; box.dataset.done=1;
+  const kind=el.closest('[data-qkind]').dataset.qkind;
+  [...box.children].forEach(o=>{ if(o.dataset.ok==='true') o.classList.add('correct'); });
+  if(el.dataset.ok!=='true') el.classList.add('wrong');
+  document.getElementById('qfb-'+kind).innerHTML=QUIZ[kind].q.fb;
+  if(el.dataset.ok==='true') award(20);
+}
+function tapOpen(el){ el.classList.toggle('open'); }
+
+/* ---------- heat map ---------- */
+function heatCycle(el){ let l=(+el.dataset.l+1)%4; el.dataset.l=l; el.querySelector('.lv').textContent=['unmarked','low pain','medium pain','high pain'][l]; heatUpdate(); }
+function heatUpdate(){ const map=document.getElementById('heatmap'); if(!map)return;
+  const hot=[...map.querySelectorAll('.heat')].filter(h=>h.dataset.l==='3').map(h=>h.querySelector('.cn').textContent);
+  const read=document.getElementById('heatread');
+  if(!hot.length) read.innerHTML="Nothing marked <b>high</b> yet. Which capability is actually bleeding money and time?";
+  else read.innerHTML="Concentrated pain: <b>"+hot.join(", ")+"</b>. That is your candidate opportunity. <i>Now</i> we can ask what technology serves it.";
+}
+
+/* ---------- four lens ---------- */
+let lensCur=0;
+function lensPick(el,i){ [...el.parentElement.children].forEach(t=>t.classList.remove('on')); el.classList.add('on'); lensCur=i; lensRender(); }
+function lensRender(){ const p=document.getElementById('lenspanel'); if(!p)return; const d=LENS[lensCur];
+  p.innerHTML=`<h3>${d.t}</h3><p style="font-size:17px">${d.b}</p><div class="verdict" style="color:${d.c}">${d.v}</div>`; }
+
+/* ---------- sort ---------- */
+let selChip=null;
+function buildSort(){ const wrap=document.getElementById('qchips'); if(!wrap||wrap.dataset.built)return; wrap.dataset.built=1;
+  const sh=[...SORTQ].sort(()=>Math.random()-.5);
+  wrap.innerHTML=sh.map(q=>`<div class="qchip" data-consult="${q.consult}" onclick="selectChip(this)">${q.t}</div>`).join(''); }
+function selectChip(el){ if(el.classList.contains('placed'))return; if(selChip)selChip.classList.remove('sel'); selChip=el; el.classList.add('sel'); }
+document.addEventListener('click',e=>{ const bin=e.target.closest('.bin'); if(!bin||!selChip)return;
+  const correct=(bin.classList.contains('consult'))===(selChip.dataset.consult==='true');
+  const chip=selChip; chip.classList.remove('sel'); chip.classList.add('placed', correct?'ok':'no');
+  bin.querySelector('.binitems').appendChild(chip); selChip=null;
+  if(correct){ award(10); toast('Correct'); } else { toast('That one belongs in the other bin'); }
+});
+
+/* ---------- fix ---------- */
+function strike(el){ el.classList.add('struck'); const box=el.closest('.fixbox');
+  if(box.querySelectorAll('.tech:not(.struck)').length===0){ box.querySelector('#fixgood').classList.add('show'); award(10); } }
+
+/* ---------- jeopardy ---------- */
+let jActive=null;
+function buildJeopardy(){ const b=document.getElementById('jboard'); if(!b||b.dataset.built)return; b.dataset.built=1;
+  b.innerHTML=JEO.map((col,ci)=>`<div class="jcol"><div class="jhead">${col.cat}</div>`+
+    col.items.map((it,ii)=>`<div class="jtile" data-c="${ci}" data-i="${ii}" onclick="jOpen(this)">${it.v}</div>`).join('')+`</div>`).join(''); }
+function jOpen(el){ if(el.classList.contains('done'))return; jActive={el,c:+el.dataset.c,i:+el.dataset.i};
+  const it=JEO[jActive.c].items[jActive.i]; document.getElementById('jq').innerHTML=it.q;
+  const ja=document.getElementById('ja'); ja.textContent=it.a; ja.classList.remove('show');
+  document.getElementById('jmodal').classList.add('open'); }
+function jReveal(){ document.getElementById('ja').classList.add('show'); }
+function jClose(){ if(jActive){ const it=JEO[jActive.c].items[jActive.i]; jActive.el.classList.add('done'); award(it.v); }
+  document.getElementById('jmodal').classList.remove('open'); jActive=null; }
+
+/* ---------- poll ---------- */
+function buildPoll(){ const p=document.getElementById('poll'); if(!p||p.dataset.built)return; p.dataset.built=1;
+  p.innerHTML=POLLROWS.map((r,i)=>`<div class="prow" onclick="pollRow(this,${i})"><div class="ptop"><span>${r.t}</span><span class="mono" id="pp-${i}"></span></div><div class="ptrack"><div class="pfill" id="pf-${i}"></div></div><div class="why">${r.why}</div></div>`).join(''); }
+function pollRow(el,i){ if(el.classList.contains('open'))return; el.classList.add('open');
+  document.getElementById('pf-'+i).style.width=POLLROWS[i].pct+'%'; document.getElementById('pp-'+i).textContent=POLLROWS[i].pct+'%'; }
+
+/* ---------- scoreboard ---------- */
+const LSK='asa_teams'; let teams=[], activeTeam=0;
+function lsGet(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function loadTeams(){ teams=lsGet(LSK,[{n:'Team 1',s:0},{n:'Team 2',s:0},{n:'Team 3',s:0}]); }
+function renderTeams(){ const box=document.getElementById('teams'); const max=Math.max(...teams.map(t=>t.s),0);
+  box.innerHTML='<div class="activehint">Active team is highlighted. Click any team to switch.</div>'+
+    teams.map((t,i)=>`<div class="team ${t.s===max&&max>0?'lead':''} ${i===activeTeam?'active-team':''}" onclick="setActive(${i})">
+      <div class="tt"><input class="nm" value="${t.n.replace(/"/g,'&quot;')}" onchange="renameTeam(${i},this.value)" onclick="event.stopPropagation()"><span class="sc">${t.s}</span></div>
+      <div class="btns"><button onclick="event.stopPropagation();bump(${i},5)">+5</button><button onclick="event.stopPropagation();bump(${i},10)">+10</button><button onclick="event.stopPropagation();bump(${i},-5)">-5</button></div></div>`).join(''); }
+function setActive(i){ activeTeam=i; renderTeams(); }
+function bump(i,d){ teams[i].s=Math.max(0,teams[i].s+d); lsSet(LSK,teams); renderTeams(); }
+function renameTeam(i,v){ teams[i].n=v||('Team '+(i+1)); lsSet(LSK,teams); }
+function addTeam(){ if(teams.length>=8)return; teams.push({n:'Team '+(teams.length+1),s:0}); lsSet(LSK,teams); renderTeams(); }
+function removeTeam(){ if(teams.length<=2)return; teams.pop(); if(activeTeam>=teams.length)activeTeam=teams.length-1; lsSet(LSK,teams); renderTeams(); }
+function resetScores(){ teams.forEach(t=>t.s=0); lsSet(LSK,teams); renderTeams(); }
+function award(n){ if(!teams.length)return; teams[activeTeam].s+=n; lsSet(LSK,teams); renderTeams(); toast('+'+n+' to '+teams[activeTeam].n); }
+function toggleSB(){ document.getElementById('sb').classList.toggle('on'); }
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1500); }
+
+/* ---------- whiteboard ---------- */
+let wbCtx,wbDrawing=false,wbColorV='#14213D',wbSizeV=3,wbErase=false,wbLast=null;
+function initWB(){ const c=document.getElementById('wbc'); wbCtx=c.getContext('2d'); sizeWB();
+  const pos=e=>{ const r=c.getBoundingClientRect(); const p=e.touches?e.touches[0]:e; return {x:p.clientX-r.left,y:p.clientY-r.top}; };
+  const start=e=>{ wbDrawing=true; wbLast=pos(e); e.preventDefault(); };
+  const move=e=>{ if(!wbDrawing)return; const p=pos(e);
+    wbCtx.strokeStyle=wbColorV; wbCtx.lineWidth=wbErase?wbSizeV*6:wbSizeV; wbCtx.lineCap='round'; wbCtx.lineJoin='round';
+    wbCtx.globalCompositeOperation=wbErase?'destination-out':'source-over';
+    wbCtx.beginPath(); wbCtx.moveTo(wbLast.x,wbLast.y); wbCtx.lineTo(p.x,p.y); wbCtx.stroke(); wbLast=p; e.preventDefault(); };
+  c.addEventListener('pointerdown',start); c.addEventListener('pointermove',move); window.addEventListener('pointerup',()=>wbDrawing=false);
+}
+function sizeWB(){ const c=document.getElementById('wbc'); c.width=window.innerWidth; c.height=window.innerHeight; }
+function toggleWB(){ const on=document.getElementById('wb').classList.toggle('on'); document.getElementById('wbbar').classList.toggle('on',on); if(on&&!wbCtx)initWB(); }
+function wbMode(m){ wbErase=(m==='erase'); document.getElementById('wbpen').style.opacity=wbErase?.5:1; document.getElementById('wberase').style.opacity=wbErase?1:.5; }
+function wbColor(el){ wbErase=false; wbColorV=el.dataset.c; wbMode('pen'); [...document.querySelectorAll('.wbbar .sw')].forEach(s=>s.classList.remove('on')); el.classList.add('on'); }
+function wbSize(n){ wbSizeV=n; }
+function wbClear(){ wbCtx&&wbCtx.clearRect(0,0,window.innerWidth,window.innerHeight); }
+window.addEventListener('resize',()=>{ if(wbCtx) sizeWB(); });
+
+/* ---------- timer ---------- */
+let tmTotal=10*60,tmLeft=10*60,tmInt=null,tmRun=false;
+function tmFmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function tmRender(){ document.getElementById('tmdisp').textContent=tmFmt(tmLeft);
+  const el=document.getElementById('tm'); el.classList.toggle('warn',tmLeft<=60&&tmLeft>0); el.classList.toggle('done',tmLeft<=0); }
+function tmToggle(){ tmRun=!tmRun; document.getElementById('tmbtn').textContent=tmRun?'PAUSE':'START';
+  if(tmRun){ tmInt=setInterval(()=>{ if(tmLeft>0){tmLeft--;tmRender();} else {clearInterval(tmInt);tmRun=false;document.getElementById('tmbtn').textContent='START';} },1000); } else clearInterval(tmInt); }
+function tmReset(){ clearInterval(tmInt); tmRun=false; tmLeft=tmTotal; document.getElementById('tmbtn').textContent='START'; tmRender(); }
+function tmSet(m){ tmTotal=m*60; tmLeft=m*60; clearInterval(tmInt); tmRun=false; document.getElementById('tmbtn').textContent='START'; tmRender(); }
+function tmSetSec(s){ tmTotal=s; tmLeft=s; clearInterval(tmInt); tmRun=false; document.getElementById('tmbtn').textContent='START'; tmRender(); }
+function tmAdjust(m){ tmLeft=Math.max(0,tmLeft+m*60); tmTotal=Math.max(0,tmTotal+m*60); tmRender(); }
+function toggleTM(){ document.getElementById('tm').classList.toggle('on'); tmRender(); }
+
+/* ---------- break clock (start / stop / reset) ---------- */
+let breakTotal=10*60, breakLeft=10*60, breakInt=null, breakRun=false;
+function breakRender(){ const el=document.getElementById('breakclock'); if(el) el.textContent=tmFmt(breakLeft); }
+function breakAdjust(m){ breakLeft=Math.max(0,breakLeft+m*60); breakTotal=Math.max(0,breakTotal+m*60); const el=document.getElementById('breakclock'); if(el)el.style.color='var(--cobalt)'; breakRender(); }
+function breakToggle(){ const btn=document.getElementById('breakbtn');
+  if(breakRun){ breakRun=false; clearInterval(breakInt); if(btn)btn.textContent='RESUME'; return; }
+  breakRun=true; if(btn)btn.textContent='PAUSE';
+  breakInt=setInterval(()=>{ if(breakLeft>0){breakLeft--;breakRender();} else {clearInterval(breakInt);breakRun=false; if(btn)btn.textContent='START'; const el=document.getElementById('breakclock'); if(el)el.style.color='var(--clay)';} },1000); }
+function breakStop(){ breakRun=false; clearInterval(breakInt); const btn=document.getElementById('breakbtn'); if(btn)btn.textContent='RESUME'; }
+function breakReset(){ breakRun=false; clearInterval(breakInt); breakLeft=breakTotal; breakRender(); const el=document.getElementById('breakclock'); if(el)el.style.color='var(--cobalt)'; const btn=document.getElementById('breakbtn'); if(btn)btn.textContent='START'; }
+
+
+/* ---------- confetti ---------- */
+function fireConfetti(){ const c=document.getElementById('confetti'); c.classList.add('on'); c.width=innerWidth;c.height=innerHeight;
+  const ctx=c.getContext('2d'); const cols=['#1B65F5','#F5A31B','#2E9E7B','#E5533D','#14213D']; let ps=[];
+  for(let i=0;i<160;i++)ps.push({x:Math.random()*c.width,y:-20-Math.random()*c.height,r:4+Math.random()*6,col:cols[i%cols.length],vy:2+Math.random()*4,vx:-2+Math.random()*4,rot:Math.random()*6.28,vr:-.2+Math.random()*.4});
+  let f=0; (function anim(){ ctx.clearRect(0,0,c.width,c.height); f++;
+    ps.forEach(p=>{ p.y+=p.vy;p.x+=p.vx;p.rot+=p.vr; ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.col;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);ctx.restore(); });
+    if(f<240)requestAnimationFrame(anim); else c.classList.remove('on'); })(); }
+
+
+/* ---------- checklist ---------- */
+function chkStat(list){ const items=list.querySelectorAll('.chk'); const done=[...items].filter(i=>i.classList.contains('done')).length; const fill=list.querySelector('.chkfill'); const read=list.querySelector('.chkread'); if(fill)fill.style.width=(done/items.length*100)+'%'; if(read)read.textContent= done===items.length ? 'All checked. You are ready.' : (done+' of '+items.length+' checked'); }
+function chkInit(s){ s.querySelectorAll('.chklist').forEach(chkStat); }
+function chkToggle(el){ el.classList.toggle('done'); chkStat(el.closest('.chklist')); }
+/* ---------- score-it ---------- */
+let scIdx=0;
+function buildScore(){ if(document.getElementById('scoreit')) scRender(); }
+function scRender(){ const box=document.getElementById('scoreit'); if(!box)return; box.dataset.done=''; const it=SCOREITEMS[scIdx];
+  box.innerHTML='<div class="scq">Sample '+(scIdx+1)+' of '+SCOREITEMS.length+' · '+it.line+'</div><div class="scsub">'+it.sub+'</div>'+
+  '<div class="scbtns">'+[0,25,50,75,100].map(v=>'<button class="scbtn" onclick="scorePick('+v+')">'+v+'</button>').join('')+'</div><div class="scfb" id="scfb"></div>'; }
+function scorePick(v){ const box=document.getElementById('scoreit'); if(box.dataset.done)return; box.dataset.done=1; const it=SCOREITEMS[scIdx];
+  document.querySelectorAll('#scoreit .scbtn').forEach(b=>{ if(+b.textContent===it.model)b.classList.add('correct'); });
+  if(Math.abs(v-it.model)<=25) award(10);
+  document.getElementById('scfb').innerHTML='<b>Model score: '+it.model+'.</b> '+it.why+(scIdx<SCOREITEMS.length-1?'<button class="scnext" onclick="scNext()">Next sample</button>':''); }
+function scNext(){ if(scIdx<SCOREITEMS.length-1){ scIdx++; scRender(); } }
+/* ---------- step questionnaire (Kestrel five-step slide) ---------- */
+let sqIdx=0;
+function buildStepQuiz(){ sqIdx=0; if(document.getElementById('stepquiz')) sqRender(); }
+function sqRender(){ const box=document.getElementById('stepquiz'); if(!box)return; box.dataset.done=''; const it=STEPQUIZ[sqIdx];
+  box.innerHTML='<div class="scq">Question '+(sqIdx+1)+' of '+STEPQUIZ.length+'</div>'+
+  '<div class="scsub" style="margin-bottom:14px">'+it.q+'</div>'+
+  '<div class="qopts" style="grid-template-columns:1fr">'+it.opts.map((o,i)=>'<div class="qopt" data-ok="'+o.ok+'" onclick="sqPick(this)"><span class="k">'+String.fromCharCode(65+i)+'</span><span>'+o.t+'</span></div>').join('')+'</div>'+
+  '<div class="qfb" id="sqfb"></div>'; }
+function sqPick(el){ const box=document.getElementById('stepquiz'); if(box.dataset.done)return; box.dataset.done=1;
+  [...el.parentElement.children].forEach(o=>{ if(o.dataset.ok==='true') o.classList.add('correct'); });
+  if(el.dataset.ok!=='true') el.classList.add('wrong'); else award(15);
+  const it=STEPQUIZ[sqIdx];
+  document.getElementById('sqfb').innerHTML=it.fb+(sqIdx<STEPQUIZ.length-1?'<button class="scnext" onclick="sqNext()">Next question</button>':'<div style="margin-top:12px;font-weight:700;color:var(--sage)">That is all three. Nice work.</div>'); }
+function sqNext(){ if(sqIdx<STEPQUIZ.length-1){ sqIdx++; sqRender(); } }
+/* ---------- work-timer nudge ---------- */
+function openWorkTimer(m){ const el=document.getElementById('tm'); if(el&&!el.classList.contains('on')) el.classList.add('on'); tmSet(m); if(!tmRun) tmToggle(); }
+
+/* ---------- boot ---------- */
+loadTeams(); renderTeams(); enter(0,false);
+</script>
+</body>
+</html>

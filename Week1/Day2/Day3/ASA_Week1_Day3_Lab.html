@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Solution Architect · Week 1 · Guided Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F5EF; --ink:#14213D; --cobalt:#1B65F5; --amber:#F5A31B;
+  --sage:#2E9E7B; --clay:#E5533D; --line:rgba(20,33,61,.14);
+  --ink-soft:rgba(20,33,61,.62); --card:#FFFFFF;
+  --disp:'Space Grotesk',sans-serif; --body:'Inter',sans-serif; --mono:'Space Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--body);background:var(--ink);color:var(--ink);overflow:hidden}
+
+/* ---------- slide framework ---------- */
+.stage{position:fixed;inset:0}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;
+  padding:60px 72px 58px;background:var(--paper);overflow:hidden}
+.slide.active{display:flex;animation:slideIn .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px) scale(.997)}to{opacity:1;transform:none}}
+.slide::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:38px 38px;mask-image:radial-gradient(circle at 30% 20%,#000,transparent 78%)}
+.slide.dark{background:#0E1730;color:#EAF0FF}
+.slide.dark::before{background-image:linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)}
+.slide>*{position:relative;z-index:2}
+
+.eyebrow{font-family:var(--mono);font-size:12.5px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--cobalt);font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.55}}
+h1{font-family:var(--disp);font-weight:700;font-size:58px;line-height:1.02;letter-spacing:-.02em}
+h2{font-family:var(--disp);font-weight:700;font-size:39px;line-height:1.05;letter-spacing:-.015em;margin-bottom:8px}
+h3{font-family:var(--disp);font-weight:600;font-size:22px;line-height:1.15}
+p{font-size:18px;line-height:1.5;color:var(--ink-soft)}
+.sub{font-size:20px;color:var(--ink-soft);line-height:1.5;max-width:1000px}
+.big{font-size:22px}
+strong{color:var(--ink);font-weight:600}
+.slide.dark strong{color:#fff}
+.mono{font-family:var(--mono)}
+.grow{flex:1}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.hl{background:linear-gradient(transparent 62%,rgba(245,163,27,.45) 0);padding:0 2px}
+.cobalt{color:var(--cobalt)} .amber{color:var(--amber)} .sage{color:var(--sage)} .clay{color:var(--clay)}
+.shimmer{background:linear-gradient(100deg,var(--ink) 30%,var(--cobalt) 50%,var(--ink) 70%);
+  background-size:200% auto;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  animation:shim 5s linear infinite}
+@keyframes shim{to{background-position:-200% center}}
+
+/* staged reveals */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.reveal.show{opacity:1;transform:none}
+
+/* ---------- chrome ---------- */
+.daytag{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:39;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-soft);pointer-events:none}
+.markbrand{position:fixed;top:14px;left:20px;z-index:40;font-family:var(--disp);font-weight:700;font-size:13px;
+  letter-spacing:.02em;color:var(--ink);display:flex;align-items:center;gap:9px}
+.markbrand .sq{width:15px;height:15px;border-radius:4px;background:var(--cobalt);box-shadow:5px 0 0 var(--amber),10px 0 0 var(--sage)}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--cobalt);z-index:41;transition:width .4s ease}
+.pageno{position:fixed;bottom:12px;right:18px;font-family:var(--mono);font-size:12px;color:var(--ink-soft);z-index:39}
+
+/* discreet control launcher (facilitator only; keyboard shortcuts still work) */
+.tools{position:fixed;bottom:12px;left:16px;z-index:60}
+.toolstrigger{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.55);
+  color:var(--ink-soft);cursor:pointer;font-size:15px;line-height:1;opacity:.28;transition:.2s;letter-spacing:1px}
+.toolstrigger:hover{opacity:1;background:#fff}
+.toolsmenu{position:absolute;bottom:38px;left:0;background:var(--ink);border-radius:12px;padding:7px;display:none;
+  flex-direction:column;gap:4px;box-shadow:0 12px 34px rgba(0,0,0,.3);min-width:150px}
+.toolsmenu.on{display:flex}
+.toolsmenu .legtitle{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  color:rgba(255,255,255,.45);font-weight:700;padding:4px 12px 6px}
+.toolsmenu button{background:transparent;border:none;color:#EAF0FF;text-align:left;font-family:var(--body);
+  font-size:13.5px;padding:8px 12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px}
+.toolsmenu button:hover{background:rgba(255,255,255,.12)}
+.toolsmenu button .k{margin-left:auto;font-family:var(--mono);font-size:11px;font-weight:700;color:#0E1730;
+  background:var(--amber);border-radius:5px;padding:2px 7px;min-width:22px;text-align:center}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;
+  box-shadow:0 2px 0 var(--line);flex:1;min-width:220px;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(20,33,61,.1)}
+.card h3{margin-bottom:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11.5px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;padding:5px 11px;border-radius:999px;background:rgba(27,101,245,.1);color:var(--cobalt)}
+.chip.amber{background:rgba(245,163,27,.16);color:#a56a00}
+.chip.sage{background:rgba(46,158,123,.14);color:#1c7c5d}
+.chip.clay{background:rgba(229,83,61,.14);color:#c23b25}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px}
+
+/* tap-to-reveal */
+.tapcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;
+  cursor:pointer;position:relative;overflow:hidden;transition:.2s;min-height:236px;display:flex}
+.tapcard:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(20,33,61,.13)}
+.tapcard .front{display:flex;flex-direction:column;height:100%;width:100%}
+.tapcard .co{font-family:var(--disp);font-weight:700;font-size:20px;line-height:1.1}
+.tapcard .teaser{font-size:14px;color:var(--ink-soft);margin-top:8px;line-height:1.4}
+.tapcard .prompt{margin-top:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--cobalt);padding-top:10px}
+.tapcard .back{position:absolute;inset:0;background:var(--ink);color:#EAF0FF;padding:18px 20px;
+  transform:translateY(101%);transition:transform .4s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;gap:8px;overflow-y:auto}
+.tapcard.open .back{transform:none}
+.tapcard .back .co{color:var(--amber);font-size:18px}
+.tapcard .back p{color:rgba(234,240,255,.88);font-size:14px;line-height:1.45}
+.tapcard .src{margin-top:auto;font-family:var(--mono);font-size:9.5px;color:rgba(234,240,255,.5);padding-top:8px}
+
+/* analogy / example */
+.analogy{margin-top:18px;border-left:4px solid var(--amber);background:rgba(245,163,27,.09);
+  padding:15px 22px;border-radius:0 14px 14px 0}
+.analogy .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#a56a00;font-weight:700}
+.analogy p{color:var(--ink);font-size:18px;margin-top:6px}
+.example{margin-top:18px;border-left:4px solid var(--cobalt);background:rgba(27,101,245,.07);
+  padding:15px 22px;border-radius:0 14px 14px 0}
+.example .label{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--cobalt);font-weight:700}
+.example p{color:var(--ink);font-size:16.5px;margin-top:6px;line-height:1.5}
+.example b{font-weight:600}
+.exlist{list-style:none;margin-top:6px;display:flex;flex-direction:column;gap:7px}
+.exlist li{font-size:16.5px;color:var(--ink);padding-left:22px;position:relative;line-height:1.4}
+.exlist li::before{content:"";position:absolute;left:0;top:8px;width:8px;height:8px;border-radius:2px;background:var(--cobalt);transform:rotate(45deg)}
+.exlist li b{color:var(--ink);font-weight:600}
+
+/* ---------- quiz ---------- */
+.quiz{margin-top:14px;max-width:940px}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.qopt{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:15px 18px;
+  cursor:pointer;font-size:16.5px;transition:.15s;display:flex;gap:12px;align-items:center}
+.qopt:hover{border-color:var(--cobalt);transform:translateY(-2px)}
+.qopt .k{font-family:var(--mono);font-weight:700;color:var(--cobalt);font-size:14px}
+.qopt.correct{background:rgba(46,158,123,.14);border-color:var(--sage)}
+.qopt.wrong{background:rgba(229,83,61,.12);border-color:var(--clay);opacity:.85}
+.qopt.correct::after{content:"\2713";margin-left:auto;font-weight:700;color:var(--sage);font-size:22px;line-height:1}
+.qopt.wrong::after{content:"\2717";margin-left:auto;font-weight:700;color:var(--clay);font-size:20px;line-height:1}
+.qfb{margin-top:14px;font-size:16px;min-height:24px;color:var(--ink-soft)}
+.qfb b{color:var(--ink)}
+
+/* ---------- ice-breaker ---------- */
+.ib{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;max-width:1040px}
+.ibcard{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:18px 20px;cursor:pointer;
+  transition:.18s;position:relative;overflow:hidden;min-height:96px}
+.ibcard:hover{border-color:var(--cobalt);transform:translateY(-2px)}
+.ibcard .q{font-size:17.5px;color:var(--ink);font-weight:500}
+.ibcard .a{font-size:15px;color:var(--sage);margin-top:10px;max-height:0;opacity:0;transition:.35s;font-weight:500}
+.ibcard.open{background:rgba(46,158,123,.06);border-color:var(--sage)}
+.ibcard.open .a{max-height:120px;opacity:1}
+
+/* ---------- capability heat map ---------- */
+.heatwrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;max-width:960px}
+.heat{border:1.5px solid var(--line);border-radius:14px;padding:16px;background:var(--card);cursor:pointer;transition:.18s;user-select:none}
+.heat:hover{transform:translateY(-2px)}
+.heat .cn{font-family:var(--disp);font-weight:600;font-size:17px}
+.heat .cd{font-size:12.5px;color:var(--ink-soft);margin-top:3px}
+.heat .lv{margin-top:10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.heat[data-l="1"]{background:rgba(46,158,123,.12);border-color:var(--sage)} .heat[data-l="1"] .lv{color:#1c7c5d}
+.heat[data-l="2"]{background:rgba(245,163,27,.16);border-color:var(--amber)} .heat[data-l="2"] .lv{color:#a56a00}
+.heat[data-l="3"]{background:rgba(229,83,61,.16);border-color:var(--clay)} .heat[data-l="3"] .lv{color:#c23b25}
+.heatread{margin-top:14px;font-size:17px;color:var(--ink)}
+
+/* ---------- four lens ---------- */
+.lenstabs{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.ltab{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:9px 16px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;transition:.15s}
+.ltab:hover{transform:translateY(-2px)} .ltab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lenspanel{margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 24px;min-height:150px;animation:slideIn .35s ease}
+.lenspanel h3{margin-bottom:8px}
+.lenspanel .verdict{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;margin-top:12px}
+
+/* ---------- sort game ---------- */
+.sortarea{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:14px}
+.bin{border:2px dashed var(--line);border-radius:16px;padding:14px;min-height:200px;background:rgba(255,255,255,.5)}
+.bin h3{font-size:18px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.bin.consult{border-color:var(--cobalt)} .bin.order{border-color:var(--clay)}
+.chips{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px;max-width:1000px}
+.qchip{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:9px 13px;font-size:14.5px;cursor:pointer;transition:.15s}
+.qchip:hover{border-color:var(--cobalt)}
+.qchip.sel{border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,163,27,.25)}
+.qchip.placed{opacity:.55;cursor:default}
+.qchip.ok{border-color:var(--sage);background:rgba(46,158,123,.1)}
+.qchip.no{border-color:var(--clay);background:rgba(229,83,61,.1)}
+.qchip.ok::after{content:" \2713";color:var(--sage);font-weight:700}
+.qchip.no::after{content:" \2717";color:var(--clay);font-weight:700}
+.binitems{display:flex;flex-direction:column;gap:8px}
+
+/* ---------- fix statement ---------- */
+.fixbox{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:980px}
+.fixbox .stmt{font-size:20px;line-height:1.5}
+.tech{cursor:pointer;border-bottom:2px dashed var(--clay);color:var(--clay);font-weight:600;transition:.15s}
+.tech.struck{text-decoration:line-through;color:var(--ink-soft);border-bottom:none;opacity:.6}
+.fixgood{margin-top:16px;padding:16px 18px;border-radius:12px;background:rgba(46,158,123,.1);border:1px solid var(--sage);font-size:18px;color:var(--ink);display:none}
+.fixgood.show{display:block;animation:slideIn .4s ease}
+
+/* ---------- jeopardy ---------- */
+.jboard{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.jcol{display:flex;flex-direction:column;gap:12px}
+.jhead{font-family:var(--disp);font-weight:700;font-size:15px;text-align:center;background:var(--ink);color:#fff;
+  padding:12px 6px;border-radius:10px;min-height:58px;display:flex;align-items:center;justify-content:center}
+.jtile{background:var(--cobalt);color:#fff;font-family:var(--disp);font-weight:700;font-size:24px;border-radius:10px;
+  height:62px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.15s}
+.jtile:hover{background:var(--ink);transform:scale(1.03)}
+.jtile.done{background:rgba(20,33,61,.12);color:var(--ink-soft);cursor:default;transform:none}
+.jmodal{position:fixed;inset:0;background:rgba(14,23,48,.8);z-index:70;display:none;align-items:center;justify-content:center;padding:40px}
+.jmodal.open{display:flex;animation:slideIn .3s ease}
+.jcardm{background:var(--paper);border-radius:20px;padding:40px;max-width:760px;width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.jcardm .jq{font-family:var(--disp);font-size:29px;font-weight:600;line-height:1.2}
+.jcardm .ja{margin-top:20px;font-size:22px;color:var(--sage);font-weight:600;display:none}
+.jcardm .ja.show{display:block;animation:slideIn .3s ease}
+.jbtns{margin-top:26px;display:flex;gap:12px;justify-content:center}
+.jbtn{font-family:var(--mono);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:11px 20px;border-radius:10px;border:none;cursor:pointer}
+.jbtn.rev{background:var(--amber);color:#3a2600} .jbtn.close{background:var(--ink);color:#fff}
+
+/* poll */
+.poll{margin-top:14px;max-width:860px;display:flex;flex-direction:column;gap:12px}
+.prow{cursor:pointer}
+.prow .ptop{display:flex;justify-content:space-between;font-size:16px;margin-bottom:5px}
+.ptrack{height:26px;background:rgba(20,33,61,.08);border-radius:8px;overflow:hidden}
+.pfill{height:100%;width:0;background:var(--cobalt);border-radius:8px;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.prow .why{font-size:13.5px;color:var(--ink-soft);margin-top:5px;display:none}
+.prow.open .why{display:block}
+
+/* ---------- whiteboard ---------- */
+#wb{position:fixed;inset:0;z-index:75;display:none;background:rgba(247,245,239,.96)}
+#wb.on{display:block}
+#wbc{position:absolute;inset:0;cursor:crosshair;touch-action:none}
+.wbbar{position:fixed;top:56px;left:50%;transform:translateX(-50%);z-index:76;display:none;gap:8px;background:var(--ink);padding:9px 12px;border-radius:14px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.wbbar.on{display:flex}
+.wbbar button{background:rgba(255,255,255,.12);border:none;color:#fff;font-family:var(--mono);font-size:11px;font-weight:700;padding:7px 10px;border-radius:8px;cursor:pointer;letter-spacing:.05em}
+.wbbar button:hover{background:rgba(255,255,255,.28)}
+.wbbar .sw{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.35);cursor:pointer;padding:0}
+.wbbar .sw.on{border-color:#fff;transform:scale(1.15)}
+
+/* ---------- scoreboard ---------- */
+#sb{position:fixed;top:0;right:0;bottom:0;width:340px;background:#0E1730;color:#fff;z-index:66;transform:translateX(100%);transition:transform .3s ease;padding:60px 20px 20px;overflow-y:auto;box-shadow:-10px 0 40px rgba(0,0,0,.3)}
+#sb.on{transform:none}
+#sb h3{font-family:var(--disp);font-size:20px;margin-bottom:4px}
+#sb .hint{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:16px}
+.team{background:rgba(255,255,255,.07);border-radius:12px;padding:12px;margin-bottom:10px}
+.team.lead{box-shadow:0 0 0 2px var(--amber)}
+.team .tt{display:flex;justify-content:space-between;align-items:center}
+.team .nm{font-family:var(--disp);font-weight:600;font-size:16px;background:none;border:none;color:#fff;width:60%;outline:none}
+.team .sc{font-family:var(--disp);font-weight:700;font-size:26px;color:var(--amber)}
+.team .btns{display:flex;gap:6px;margin-top:9px}
+.team .btns button{flex:1;background:rgba(255,255,255,.1);border:none;color:#fff;font-family:var(--mono);font-weight:700;padding:7px;border-radius:8px;cursor:pointer;font-size:13px}
+.team .btns button:hover{background:rgba(255,255,255,.24)}
+.team.active-team{background:rgba(27,101,245,.25)}
+.sbctl{display:flex;gap:8px;margin-top:8px}
+.sbctl button{flex:1;background:var(--cobalt);border:none;color:#fff;font-family:var(--mono);font-weight:700;padding:9px;border-radius:8px;cursor:pointer;font-size:12px}
+.sbctl button.rm{background:rgba(255,255,255,.12)}
+.activehint{font-size:11px;color:rgba(255,255,255,.5);margin:6px 0 2px}
+
+/* ---------- timer ---------- */
+#tm{position:fixed;bottom:20px;left:60px;z-index:67;background:var(--ink);color:#fff;border-radius:16px;padding:14px 16px;display:none;box-shadow:0 10px 30px rgba(0,0,0,.3);min-width:220px}
+#tm.on{display:block}
+#tm .disp{font-family:var(--disp);font-weight:700;font-size:40px;text-align:center;letter-spacing:.02em}
+#tm.warn .disp{color:var(--amber)} #tm.done .disp{color:var(--clay)}
+#tm .adj{display:flex;gap:6px;margin-top:6px;justify-content:center}
+#tm .adj button{background:rgba(255,255,255,.12);border:none;color:#fff;font-family:var(--mono);font-weight:700;padding:6px 0;border-radius:8px;cursor:pointer;font-size:12px;flex:1}
+#tm .row{display:flex;gap:6px;margin-top:6px}
+#tm .row button{flex:1;background:rgba(255,255,255,.12);border:none;color:#fff;font-family:var(--mono);font-weight:700;padding:8px;border-radius:8px;cursor:pointer;font-size:12px}
+#tm .row button.go{background:var(--cobalt)}
+#tm .presets{display:flex;gap:6px;margin-top:6px}
+#tm .presets button{flex:1;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.8);font-family:var(--mono);font-weight:700;padding:5px 0;border-radius:8px;cursor:pointer;font-size:11px}
+
+/* ---------- grid nav ---------- */
+.gtitle{color:#fff;font-family:var(--disp);font-size:22px;margin-bottom:20px;text-align:center}
+.gwrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;max-width:1200px;margin:0 auto}
+.gcell{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:14px;cursor:pointer;transition:.15s;min-height:80px;color:#EAF0FF}
+.gcell:hover{background:var(--cobalt);border-color:var(--cobalt)}
+.gcell .gn{font-family:var(--mono);font-size:11px;color:var(--amber);font-weight:700}
+.gcell .gt{font-family:var(--disp);font-size:14px;margin-top:6px;line-height:1.2}
+#gridnav{position:fixed;inset:0;background:rgba(14,23,48,.94);z-index:80;display:none;padding:70px 40px 40px;overflow-y:auto}
+#gridnav.on{display:block}
+
+#toast{position:fixed;top:64px;left:50%;transform:translateX(-50%) translateY(-30px);z-index:90;background:var(--sage);color:#fff;font-family:var(--disp);font-weight:700;font-size:18px;padding:12px 22px;border-radius:12px;opacity:0;transition:.3s;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;inset:0;z-index:85;pointer-events:none;display:none}
+#confetti.on{display:block}
+
+.hintline{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:12px}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);border-radius:999px;padding:4px 10px;color:var(--ink-soft);font-weight:700}
+ul.clean{list-style:none;margin-top:12px;display:flex;flex-direction:column;gap:11px}
+ul.clean li{font-size:17.5px;color:var(--ink-soft);padding-left:26px;position:relative;line-height:1.4}
+ul.clean li::before{content:"";position:absolute;left:0;top:9px;width:11px;height:11px;border-radius:3px;background:var(--cobalt);transform:rotate(45deg)}
+ul.clean li b{color:var(--ink)}
+
+/* ---------- animated cover ---------- */
+.cover{position:absolute;inset:0;display:flex;align-items:center;padding:0 72px;gap:40px}
+.cover .left{flex:1;max-width:620px}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;z-index:1;animation:floaty 9s ease-in-out infinite}
+.blob.b1{width:360px;height:360px;background:rgba(27,101,245,.28);top:-80px;right:120px}
+.blob.b2{width:300px;height:300px;background:rgba(245,163,27,.26);bottom:-70px;right:340px;animation-delay:-3s}
+.blob.b3{width:240px;height:240px;background:rgba(46,158,123,.22);top:180px;right:-40px;animation-delay:-5s}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-26px)}}
+.driftchip{position:absolute;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink-soft);
+  background:rgba(255,255,255,.7);border:1px solid var(--line);border-radius:999px;padding:7px 13px;z-index:2;
+  animation:drift 7s ease-in-out infinite;box-shadow:0 4px 16px rgba(20,33,61,.06)}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-16px) rotate(2deg)}}
+.strike{text-decoration:line-through;opacity:.55}
+/* notecard */
+.notecard{width:420px;background:#FFFDF7;border:1px solid var(--line);border-radius:16px;padding:26px 26px 30px;
+  position:relative;z-index:3;box-shadow:0 24px 60px rgba(20,33,61,.16);transform:rotate(1.6deg);
+  animation:noteIn 1s cubic-bezier(.2,.8,.2,1) both}
+@keyframes noteIn{from{opacity:0;transform:rotate(6deg) translateY(30px) scale(.94)}to{opacity:1;transform:rotate(1.6deg)}}
+.notecard::before{content:"";position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:120px;height:20px;
+  background:rgba(245,163,27,.5);border-radius:3px;box-shadow:0 3px 8px rgba(20,33,61,.12)}
+.notelbl{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);font-weight:700}
+.noteline{font-family:var(--disp);font-size:19px;color:var(--ink);margin-top:14px;line-height:1.35}
+.noteline .lead{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);display:block;margin-bottom:3px}
+.caret{display:inline-block;width:2px;background:var(--cobalt);margin-left:1px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.notestamp{position:absolute;bottom:-16px;right:-10px;font-family:var(--disp);font-weight:700;font-size:14px;
+  color:#fff;background:var(--sage);padding:8px 14px;border-radius:10px;transform:rotate(-5deg);box-shadow:0 8px 20px rgba(46,158,123,.35)}
+.riseUp{animation:riseUp .7s cubic-bezier(.2,.8,.2,1) both}
+.riseUp.d1{animation-delay:.08s}.riseUp.d2{animation-delay:.18s}.riseUp.d3{animation-delay:.3s}.riseUp.d4{animation-delay:.42s}
+@keyframes riseUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+@media (max-width:900px){
+  .slide{padding:56px 22px 50px} h1{font-size:36px} h2{font-size:27px}
+  .qopts,.grid2,.grid3,.grid4,.heatwrap,.sortarea,.ib{grid-template-columns:1fr}
+  .cover{flex-direction:column;justify-content:center;padding:60px 22px;gap:24px}
+  .notecard{width:100%;transform:none} #sb{width:100%}
+}
+
+/* flip cards */
+.flipgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.flip{height:210px;perspective:1200px;cursor:pointer}
+.flipinner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.flip.flip-on .flipinner{transform:rotateY(180deg)}
+.flipface{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:16px;padding:20px 22px;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;box-shadow:0 2px 0 var(--line)}
+.flipfront{background:var(--card)}
+.flipfront .fh{font-family:var(--disp);font-weight:700;font-size:20px}
+.flipfront .fsub{font-size:14px;color:var(--ink-soft);margin-top:8px}
+.flipfront .fhint{margin-top:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt);padding-top:12px}
+.flipback{background:var(--ink);color:#EAF0FF;transform:rotateY(180deg)}
+.flipback p{color:rgba(234,240,255,.9);font-size:14.5px;line-height:1.45}
+.flipback .fh{color:var(--amber);font-family:var(--disp);font-weight:700;font-size:16px;margin-bottom:6px}
+/* checklist */
+.chklist{margin-top:14px;max-width:880px}
+.chk{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:9px;cursor:pointer;font-size:16.5px;transition:.15s}
+.chk:hover{border-color:var(--cobalt)}
+.chk .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px}
+.chk.done{background:rgba(46,158,123,.1);border-color:var(--sage)}
+.chk.done .box{background:var(--sage);border-color:var(--sage)}
+.chk.done .box::after{content:"\2713"}
+.chkbar{height:8px;background:rgba(20,33,61,.08);border-radius:6px;overflow:hidden;margin-top:6px}
+.chkfill{height:100%;width:0;background:var(--sage);transition:width .4s}
+.chkread{margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+/* score-it */
+.scoreit{margin-top:14px;max-width:960px}
+.scq{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);font-weight:700;margin-bottom:8px}
+.scsub{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--cobalt);border-radius:12px;padding:18px 20px;font-size:17px;color:var(--ink);line-height:1.5}
+.scbtns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.scbtn{font-family:var(--disp);font-weight:700;font-size:20px;padding:11px 20px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;transition:.15s}
+.scbtn:hover{border-color:var(--cobalt);transform:translateY(-2px)}
+.scbtn.correct{background:rgba(46,158,123,.14);border-color:var(--sage)}
+.scfb{margin-top:14px;font-size:16px;color:var(--ink-soft);line-height:1.5;min-height:20px}
+.scfb b{color:var(--ink)}
+.scnext{margin-left:10px;font-family:var(--mono);font-weight:700;font-size:12px;background:var(--ink);color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer}
+
+/* ===== WEEK 2 PATCH: 100%-zoom fit ===== */
+.slide{padding:36px 54px 36px}
+h1{font-size:46px}
+h2{font-size:33px;margin-bottom:7px}
+.sub{font-size:16.5px;line-height:1.45;max-width:1180px}
+.eyebrow{font-size:10.5px;letter-spacing:.18em}
+.card{padding:15px 17px;border-radius:13px}
+.chip{font-size:10px;padding:4px 9px}
+.grid2{gap:13px;margin-top:11px}
+.grid3{gap:12px;margin-top:11px}
+.analogy{margin-top:12px;padding:11px 15px}
+.analogy p{font-size:13px;line-height:1.45}
+.example{margin-top:12px;padding:11px 15px}
+.exlist{margin-top:5px;gap:5px}
+.exlist li{font-size:13.5px;padding-left:17px;line-height:1.42}
+.exlist li::before{top:6px;width:7px;height:7px}
+.tapcard{min-height:188px;padding:15px 17px;border-radius:13px}
+.tapcard .co{font-size:16px}
+.tapcard .teaser{font-size:12.5px;margin-top:6px}
+.tapcard .prompt{font-size:9px}
+.tapcard .back{padding:13px 15px}
+.tapcard .back .co{font-size:14.5px}
+.tapcard .back p{font-size:13px;line-height:1.42}
+.tapcard.mini{min-height:116px}
+.tapcard.mini .co{font-size:14px}
+.tapcard.mini .teaser{font-size:11.5px;margin-top:4px}
+.tapcard.mini .back .co{font-size:13px}
+.tapcard.mini .back .exlist li{font-size:12.5px;line-height:1.4}
+.hintline{font-size:10.5px;margin-top:8px}
+.fixbox{padding:14px 16px;margin-top:10px}
+.lenspanel{padding:18px 20px;min-height:200px;margin-top:11px}
+.lenstabs{gap:7px}
+.flipgrid{gap:12px;margin-top:11px}
+.slide>.flipgrid:last-child{margin-top:14px;flex:1 1 auto;min-height:0;grid-auto-rows:1fr;align-content:stretch}
+.slide>.flipgrid:last-child>.flip{height:auto;min-height:0}
+.slide>.flipgrid:last-child>.flip>.flipinner{height:100%}
+.flipgrid .flipface{display:flex;flex-direction:column}
+.flipgrid .flipfront .fhint{margin-top:auto}
+.rbadge{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+ padding:2px 7px;border-radius:20px;margin-right:6px;vertical-align:1px;font-weight:700}
+.rbadge.core{background:rgba(27,101,245,.13);color:var(--cobalt)}
+.rbadge.vec{background:rgba(46,158,123,.16);color:var(--sage)}
+.rbadge.vec.primary{background:var(--amber);color:#2a1d00}
+.brkband{display:flex;align-items:center;gap:16px;margin-top:10px;padding:13px 18px;
+ border-radius:12px;background:rgba(245,163,27,.12);border:1px solid rgba(245,163,27,.4)}
+.brkband .brkl{font-family:var(--disp);font-weight:800;font-size:16px;color:var(--ink);white-space:nowrap}
+.brkband p{margin:0;font-size:12.5px;color:var(--ink-soft);line-height:1.4}
+.podpad{margin-top:12px;flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.ppbar{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.pplab{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-right:auto}
+.ppbtn{font-family:var(--mono);font-size:11px;padding:5px 11px;border-radius:7px;cursor:pointer;
+ border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.ppbtn:hover{border-color:var(--cobalt);color:var(--cobalt)}
+.ppbtn.clear:hover{border-color:var(--clay);color:var(--clay)}
+.ppcount{font-family:var(--mono);font-size:11px;color:var(--ink-soft);min-width:56px;text-align:center}
+.ppgrid{display:grid;gap:10px;flex:1 1 auto;min-height:0}
+.ppcell{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);
+ border-radius:11px;overflow:hidden;min-height:0}
+.ppcell .pph{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+ color:#fff;background:var(--ink);padding:5px 10px}
+.ppcell textarea{flex:1 1 auto;min-height:0;border:0;outline:0;resize:none;padding:9px 11px;
+ font-family:var(--body);font-size:13px;line-height:1.45;color:var(--ink);background:transparent}
+.ppcell textarea::placeholder{color:var(--ink-soft);opacity:.55}
+.scoreit{margin-top:10px;max-width:1180px}
+.scq{font-size:10px;margin-bottom:6px}
+.scsub{padding:16px 18px;font-size:15px;border-radius:10px}
+.scbtns{gap:8px;margin-top:10px}
+.scbtn{font-size:18px;padding:11px 20px;border-radius:10px}
+.scfb{font-size:13.5px;margin-top:12px;line-height:1.5;min-height:112px}
+
+/* ===== WEEK 2 PATCH: dark-card contrast fix =====
+   .exlist li is hard-coded var(--ink); on the navy .tapcard .back it was
+   dark-on-dark and invisible. Fix globally so future decks inherit it. */
+.tapcard .back .exlist li{color:rgba(234,240,255,.9)}
+.tapcard .back .exlist li b{color:#fff}
+.tapcard .back .exlist li::before{background:var(--amber)}
+.tapcard .back ul{margin:0;padding:0;list-style:none}
+.tapcard .back .exlist li span{color:#9DBBF5 !important}
+
+/* ===== WEEK 2 PATCH: activity bar + artefact strip (fill the dead space) ===== */
+.actbar{margin-top:auto;display:flex;align-items:center;gap:15px;background:var(--paper2);border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:12px;padding:13px 17px}
+.actbar .lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:800;white-space:nowrap;line-height:1.4}
+.actbar p{font-size:13.5px;color:var(--ink);line-height:1.45;margin:0}
+.actbar .mini{margin-left:auto;white-space:nowrap;font-family:var(--mono);font-weight:700;font-size:10.5px;background:var(--ink);color:#fff;border:none;padding:9px 14px;border-radius:8px;cursor:pointer}
+.actbar .mini:hover{background:var(--cobalt)}
+.bandstrip{margin-top:12px;flex:1 1 auto;display:flex;flex-direction:column;background:var(--paper2);border:1px solid var(--line);border-left:4px solid var(--sage);border-radius:12px;padding:13px 17px;min-height:120px}
+.bandstrip .bl{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sage);font-weight:800}
+.bandcells{display:grid;gap:10px;margin-top:9px;flex:1}
+.bandcell{background:#fff;border:1px dashed var(--line);border-radius:9px;padding:9px 12px;display:flex;flex-direction:column}
+.bandcell .bh{font-family:var(--mono);font-size:9px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.12em;font-weight:700}
+.bandcell .bw{flex:1;min-height:34px;border-bottom:1px dotted var(--line);margin-top:7px;background:repeating-linear-gradient(transparent,transparent 29px,var(--line) 29px,var(--line) 30px)}
+.bandcell .bx{font-size:12px;color:var(--ink-soft);margin-top:5px;line-height:1.35;font-style:italic}
+.selfaudit{margin-top:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.saitem{background:var(--paper2);border:1px solid var(--line);border-top:3px solid var(--cobalt);border-radius:11px;padding:11px 14px}
+.saitem .sh{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--cobalt);font-weight:800}
+.saitem p{font-size:12.5px;line-height:1.4;margin-top:6px;color:var(--ink)}
+.quiz{margin-top:12px}
+/* let the primary content grid absorb slack so space is distributed, not pooled at one gap */
+.slide>.grid2,.slide>.grid3{flex:0 1 auto}
+.listen{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:11px}
+.lsitem{background:#fff;border:1px solid var(--line);border-top:3px solid var(--clay);border-radius:11px;padding:11px 14px}
+.lsitem .lh{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--clay);font-weight:800}
+.lsitem p{font-size:12.5px;line-height:1.4;margin-top:6px;color:var(--ink)}
+.stretchcol>.tapcard{flex:1}
+.slidewrap{display:flex;flex-direction:column;flex:1}
+.quiz .big{font-size:19px;line-height:1.4}
+.qopt{font-size:14.5px;padding:12px 15px}
+.jboard{margin-top:12px}
+/* ===== WEEK 2 PATCH: band tooltips, inline mini timer, oi prev ===== */
+.scbtn{position:relative}
+.scbtn::after{content:attr(data-tip);position:absolute;top:calc(100% + 10px);left:0;transform:translateY(-4px);background:var(--ink);color:#EAF0FF;font-family:var(--body);font-weight:500;font-size:12px;letter-spacing:0;text-transform:none;line-height:1.45;padding:10px 13px;border-radius:9px;width:268px;opacity:0;pointer-events:none;transition:.16s;box-shadow:0 12px 30px rgba(20,33,61,.26);z-index:40}
+.scbtn:hover::after{opacity:1;transform:translateY(0)}
+.mtwrap{display:flex;align-items:center;gap:10px;margin-top:12px}
+.mtimer{font-family:var(--mono);font-weight:700;font-size:11.5px;letter-spacing:.1em;background:var(--ink);color:#fff;border:none;padding:9px 16px;border-radius:9px;cursor:pointer;min-width:110px;transition:.15s}
+.mtimer:hover{background:var(--cobalt)}
+.mtimer.run{background:var(--amber)}
+.mtimer.done{background:var(--clay)}
+.mthint{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);letter-spacing:.05em}
+.oiprev{font-family:var(--mono);font-weight:700;font-size:10.5px;background:transparent;color:var(--ink-soft);border:1.5px solid var(--line);padding:8px 13px;border-radius:8px;cursor:pointer;transition:.15s}
+.oiprev:hover{border-color:var(--cobalt);color:var(--cobalt)}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-top:11px}
+.vscard{border-radius:13px;padding:14px 16px;border:1px solid var(--line)}
+.vscard.bad{background:rgba(199,84,58,.07);border-left:4px solid var(--clay)}
+.vscard.good{background:rgba(46,158,123,.09);border-left:4px solid var(--sage)}
+.vscard .vh{font-family:var(--disp);font-size:21px;font-weight:800}
+.vscard.bad .vh{color:var(--clay)}
+.vscard.good .vh{color:var(--sage)}
+.vsq{font-size:13.5px;line-height:1.5;margin-top:8px;color:var(--ink);background:#fff;border-radius:9px;padding:11px 13px}
+.vsq u{text-decoration:none;border-bottom:2.5px solid var(--amber);padding-bottom:1px;font-weight:600}
+.vswhy{margin-top:9px;font-size:12.5px;line-height:1.45;color:var(--ink-soft)}
+.vswhy b{color:var(--ink)}
+/* mid-band row on the 0-vs-100 slide */
+.mid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.midc{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card)}
+.midc .mh{font-family:var(--disp);font-size:17px;font-weight:800}
+.midc.m25{border-left:4px solid var(--clay)}.midc.m25 .mh{color:var(--clay)}
+.midc.m50{border-left:4px solid var(--amber)}.midc.m50 .mh{color:var(--amber)}
+.midc.m75{border-left:4px solid var(--sage)}.midc.m75 .mh{color:var(--sage)}
+.midc .mq{font-size:12.5px;line-height:1.45;margin-top:7px;background:var(--paper2);border-radius:8px;padding:9px 11px;color:var(--ink)}
+.midc .mq u{text-decoration:none;border-bottom:2px solid var(--amber);padding-bottom:1px;font-weight:600}
+.midc .mw{margin-top:7px;font-size:11.5px;line-height:1.4;color:var(--ink-soft)}
+.midc .mw b{color:var(--ink)}
+/* slide 3 recap grid grows into the space */
+.slide>.grid2.recapgrid{flex:1 1 auto;max-height:440px;align-content:stretch;grid-auto-rows:1fr}
+.recapgrid>.card{display:flex;flex-direction:column}
+/* ---- Week 1 Day 2: sort-game compaction + trailing-element pinning ---- */
+.bin{min-height:150px;padding:12px;border-radius:13px}
+.qchip{padding:8px 12px;font-size:13.5px}
+.qchipwrap{margin-top:11px;display:flex;flex-wrap:wrap;gap:8px}
+/* pin the last block to the bottom so slack sits between content, not after it */
+.slide>.analogy:last-child,.slide>.listen:last-child,.slide>.workband:last-child,.slide>.example:last-child,.slide>.actbar:last-child{margin-top:auto}
+.workband{display:flex;align-items:center;gap:14px;background:var(--paper2);border:2px dashed var(--line);border-radius:12px;padding:14px 18px;margin-top:12px}
+/* let the primary grid on a sparse slide take the slack */
+.slide>.grid2.grow,.slide>.grid3.grow{flex:1 1 auto;max-height:230px;align-content:stretch;grid-auto-rows:1fr}
+/* worked-example artefact: the map row the story produces */
+.artefact{margin-top:11px;border:1px solid var(--line);border-radius:12px;background:var(--card);
+ padding:12px 15px 13px;flex:0 0 auto}
+.artlab{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+ color:var(--cobalt);margin-bottom:8px}
+.artrow{display:grid;grid-template-columns:1.1fr 1.9fr .9fr;gap:14px;padding:7px 0;
+ border-top:1px solid var(--line);font-size:12.5px;line-height:1.4;align-items:start}
+.artrow.arthead{border-top:0;padding-top:0;font-family:var(--mono);font-size:9.5px;
+ letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft)}
+.artnote{margin:9px 0 0;font-size:12px;line-height:1.45;color:var(--ink-soft);
+ border-top:1px dashed var(--line);padding-top:8px}
+.slide>.grid2.grow>.card,.slide>.grid3.grow>.card{display:flex;flex-direction:column}
+/* content-rich worked-example grid: allowed to grow further than the default cap */
+.slide>.grid2.grow.tall{max-height:48vh}
+/* expected-deliverable skeleton */
+.deliv{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--paper2);
+ padding:11px 15px 12px;flex:0 0 auto}
+.dlab{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+ color:var(--cobalt);margin-bottom:7px}
+.dpre{margin:0;font-family:var(--mono);font-size:11.5px;line-height:1.55;color:var(--ink);
+ white-space:pre-wrap;word-break:break-word}
+.dpre b{color:var(--sage)}
+.maprow3{display:grid;grid-template-columns:0.85fr 0.8fr 1.5fr 1.25fr;gap:13px;padding:7px 0;
+ border-top:1px solid var(--line);font-size:12px;line-height:1.38;align-items:start}
+.maprow3>div:nth-child(2){color:var(--ink-soft);font-family:var(--mono);font-size:10.5px}
+.maprow3>div:nth-child(3){color:var(--cobalt)}
+.maprow3>div:nth-child(4){color:var(--clay)}
+.maprow3.maphead{border-top:0;font-family:var(--mono);font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft);padding-top:2px}
+.maprow3.maphead>div{color:var(--ink-soft)!important;font-size:9px!important}
+@media (max-height:880px){.maprow3{padding:5px 0;font-size:11.3px}}
+@media (max-height:720px){.maprow3{padding:3px 0;font-size:10.4px;gap:10px}}
+/* short-viewport scaling: the sort game and the review checklist are the two densest slides */
+/* this week's VECTOR letter panel */
+.vecwrap{margin-top:10px;background:var(--ink);border-radius:16px;padding:20px 26px 22px}
+.veclab{font-family:var(--mono);font-size:11px;letter-spacing:.17em;text-transform:uppercase;
+ color:var(--amber);margin-bottom:12px}
+.vecrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.vecrow .vl{font-family:var(--disp);font-weight:700;font-size:clamp(30px,4.6vh,46px);
+ color:#EAF0FF;line-height:1;padding:4px 10px;border-radius:10px}
+.vecrow .vl.on{background:var(--amber);color:#2a1d00}
+.vecrow .vl.second{color:var(--sage)}
+.vecrow .vd{color:rgba(234,240,255,.42);font-size:clamp(20px,3vh,30px);line-height:1}
+.vecsub{margin:14px 0 0;font-size:clamp(12.5px,1.8vh,15px);line-height:1.5;color:rgba(234,240,255,.84)}
+.vecsub b{color:#fff}
+/* five-places -> real-example mapping */
+.maprow{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:7px 0;
+ border-top:1px solid var(--line);font-size:12px;line-height:1.4;align-items:start}
+.maprow:first-of-type{border-top:0}
+.maprow.maphead{border-top:0;padding-top:2px;font-family:var(--mono);font-size:9px;
+ letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft)}
+.maprow>div:last-child{color:var(--cobalt)}
+.maprow.maphead>div:last-child{color:var(--ink-soft)}
+.kindcol{display:flex;flex-direction:column;gap:10px;min-height:0}
+.kind{background:var(--card);border:1px solid var(--line);border-radius:11px;
+ padding:11px 14px;flex:1 1 auto;display:flex;flex-direction:column}
+.kind.sourced{border-left:3px solid var(--sage)}
+.kind.flagged{border-left:3px solid var(--amber)}
+.kind.invented{border-left:3px solid var(--clay)}
+.kind .kh{margin-bottom:5px}
+.kind p{margin:0;font-size:12.5px;line-height:1.45;color:var(--ink)}
+.example .mapnote,.mapnote{margin:9px 0 0;font-size:11.5px;line-height:1.45;color:var(--ink-soft);
+ border-top:1px dashed var(--line);padding-top:8px}
+/* peer review band */
+.peerband{margin-top:10px;border-radius:12px;padding:11px 16px;flex:0 0 auto;
+ background:rgba(46,158,123,.1);border:1px solid rgba(46,158,123,.38)}
+.pbl{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;color:var(--sage);margin-bottom:5px}
+.peerband p{margin:0;font-size:12.5px;line-height:1.45;color:var(--ink)}
+@media (max-height:940px){.peerband{padding:9px 14px;margin-top:8px}.peerband p{font-size:12px}}
+@media (max-height:830px){.peerband{padding:7px 12px;margin-top:6px}.peerband p{font-size:11.5px;line-height:1.38}}
+/* the breakout slide carries the most blocks, so it scales with viewport height */
+.dpre{font-size:clamp(9px,1.3vh,11.5px);line-height:1.5}
+@media (max-height:940px){
+  .slide>.grid3.grow.bkgrid{max-height:150px}
+  .deliv{padding:8px 13px 9px;margin-top:8px}
+  .dlab{margin-bottom:5px}
+  .brkband{padding:10px 16px;margin-top:8px}
+}
+@media (max-height:830px){
+  .slide>.grid3.grow.bkgrid{max-height:112px}
+  .dpre{font-size:8.6px;line-height:1.36}
+  .deliv{margin-top:4px;padding:5px 10px 6px}
+  .peerband{margin-top:4px;padding:6px 11px}
+  .peerband p{font-size:11px;line-height:1.32}
+  .slide>.workband{padding:8px 13px}
+  .brkband{padding:6px 13px;margin-top:4px}
+  .brkband .brkl{font-size:14px}
+  .brkband{padding:8px 14px;margin-top:6px}
+  .deliv{margin-top:6px;padding:7px 12px 8px}
+  .slide>.workband{padding:10px 14px}
+}
+.slide>.flipgrid{flex:0 1 auto}
+/* six-letter VECTOR reference strip */
+.vecstrip{margin-top:12px;display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.vs6{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:11px;padding:13px 14px;display:flex;flex-direction:column}
+.vs6 .vl{font-family:var(--disp);font-size:22px;font-weight:800;color:var(--ink-soft);line-height:1}
+.vs6 .vt{font-size:11.5px;line-height:1.38;margin-top:7px;color:var(--ink-soft)}
+.vs6.on{border-top-color:var(--amber);background:rgba(245,163,27,.09)}
+.vs6.on .vl{color:var(--amber)}
+.vs6.on .vt{color:var(--ink);font-weight:500}
+/* four-blocks grid absorbs the space the two case cards used to take */
+.slide>.blockgrid{flex:1 1 auto;max-height:540px;align-content:stretch;grid-auto-rows:1fr}
+.blockgrid>.tapcard.mini{min-height:0}
+.blockgrid>.tapcard.mini .teaser{font-size:12.5px;margin-top:7px}
+.blockgrid>.tapcard.mini .back .exlist li{font-size:13px;line-height:1.45}
+/* cost / predictability rail on the four-blocks slide */
+.costrail{margin-top:auto;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;background:var(--paper2);border:1px solid var(--line);border-radius:13px;padding:14px 18px}
+.crlab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;line-height:1.7;font-weight:700}
+.crend.left .crlab{color:var(--sage);text-align:right}
+.crend.right .crlab{color:var(--clay)}
+.crsteps{display:flex;align-items:center;justify-content:center;gap:10px}
+.crstep{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 15px;font-family:var(--disp);font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap}
+.crn{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;border-radius:6px;background:var(--ink);color:#fff;font-family:var(--mono);font-size:11px}
+.crarrow{color:var(--ink-soft);font-size:17px}
+/* band ladder reference strip */
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:12px}
+.ldc{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;text-align:center}
+.ldc .ln{font-family:var(--disp);font-size:19px;font-weight:800;line-height:1}
+.ldc .lt{font-size:11px;color:var(--ink-soft);margin-top:5px;line-height:1.3}
+.ldc.b0{border-top:3px solid var(--clay)}.ldc.b25{border-top:3px solid var(--clay)}
+.ldc.b50{border-top:3px solid var(--amber)}.ldc.b75{border-top:3px solid var(--sage)}
+.ldc.b100{border-top:3px solid var(--sage)}
+/* ===== WEEK 2 PATCH: orchestration-intelligence builder ===== */
+.oibuild{margin-top:11px;display:grid;grid-template-columns:1.3fr 1fr;gap:14px;align-items:stretch;flex:1 1 auto}
+.oiq{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--cobalt);border-radius:13px;padding:16px 18px;min-height:0}
+.oistep{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);font-weight:700}
+.oiprompt{font-size:14px;color:var(--ink);line-height:1.4;margin-top:6px;font-weight:600}
+.oiopt{margin-top:9px;background:var(--paper2);border:1.5px solid var(--line);border-radius:9px;padding:8px 11px;font-size:12.5px;cursor:pointer;transition:.15s;line-height:1.35}
+.oiopt:hover{border-color:var(--cobalt);transform:translateX(2px)}
+.oiopt.ok{background:rgba(46,158,123,.15);border-color:var(--sage)}
+.oiopt.no{background:rgba(199,84,58,.1);border-color:var(--clay);opacity:.7}
+.oifb{margin-top:9px;font-size:12.5px;color:var(--ink-soft);line-height:1.4;min-height:16px}
+.oifb b{color:var(--ink)}
+.oinext{margin-left:8px;font-family:var(--mono);font-weight:700;font-size:10.5px;background:var(--ink);color:#fff;border:none;padding:6px 11px;border-radius:7px;cursor:pointer}
+.oidef{background:var(--ink);color:#EAF0FF;border-radius:13px;padding:16px 18px;min-height:0}
+.oidef .lab{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);font-weight:700}
+.oifrag{margin-top:9px;font-size:12.5px;line-height:1.45;padding-left:16px;position:relative;color:rgba(234,240,255,.92);animation:slideIn .3s ease}
+.oifrag b{color:#fff}
+#oifrags:empty::before{content:"Answer the first question and the definition starts building here, one line at a time.";display:block;margin-top:14px;font-size:12.5px;line-height:1.5;color:rgba(234,240,255,.42);font-style:italic}
+.oifrag::before{content:"";position:absolute;left:0;top:6px;width:7px;height:7px;border-radius:2px;background:var(--amber);transform:rotate(45deg)}
+.oidone{margin-top:11px;padding-top:10px;border-top:1px solid rgba(234,240,255,.22);font-size:13px;color:#fff;font-weight:600;line-height:1.45}
+
+.qrcard{display:flex;flex-direction:column;background:var(--ink);border-radius:14px;
+ padding:16px 18px;align-items:center;text-align:center;justify-content:center;min-height:0}
+.qrlab{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+ color:var(--amber);margin-bottom:10px}
+.qrbox{background:#fff;border-radius:10px;padding:8px;width:min(190px,30vh);aspect-ratio:1;
+ display:flex;align-items:center;justify-content:center}
+.qrbox svg{width:100%;height:100%;display:block}
+.qrtxt{margin:10px 0 0;font-size:12.5px;line-height:1.45;color:rgba(234,240,255,.86);max-width:230px}
+.qrtxt b{color:#fff}
+@media (max-height:830px){.qrbox{width:min(150px,26vh)}.qrcard{padding:12px 14px}.qrtxt{font-size:11.5px}}
+@media (max-height:880px){
+  .bin{min-height:104px}
+  .qchip{padding:6px 10px;font-size:12.5px}
+  .maprow{padding:5px 0;font-size:11.5px}
+  .mapnote{font-size:11px;padding-top:6px;margin-top:6px}
+}
+@media (max-height:720px){
+  .bin{min-height:72px}
+  .bintitle{font-size:12px}
+  .qchip{padding:5px 9px;font-size:11.5px}
+  .bins{gap:8px;margin-top:8px!important}
+  .maprow{padding:4px 0;font-size:11px;gap:10px}
+  .example .label{font-size:9px;margin-bottom:4px}
+  .mapnote{font-size:10.5px}
+  .slide>.listen{margin-top:7px}
+  .lsitem p{font-size:11.5px;line-height:1.35}
+}
+@media (max-height:700px){
+  .maprow{padding:1px 0;font-size:9.6px;gap:7px;line-height:1.26}
+  .cover .driftchip{display:none}
+  .slide>.actbar{padding:8px 13px}
+  .slide>.actbar p{font-size:11px;line-height:1.34}
+  .maprow.maphead{font-size:8px}
+  .slide>.example{padding:9px 12px}
+  .example>p[style*="font-size:12px"]{font-size:10.5px!important;margin-bottom:4px!important}
+  .mapnote{font-size:10px;padding-top:5px;margin-top:5px}
+  .slide>.grid3.grow.bkgrid{max-height:96px}
+  .slide>.grid3.grow.bkgrid .card{padding:8px 11px!important}
+  .slide>.grid3.grow.bkgrid .card p{font-size:11px!important;line-height:1.32!important}
+  .slide>.workband{padding:6px 12px}
+  .slide>.workband div[style*="font-size:22px"]{font-size:16px!important}
+  .slide>.workband p{font-size:11px!important}
+  .slide h2{font-size:28px}
+}
+/* ---- narrow CSS viewports (browser zoom on a normal laptop) ---- */
+@media (max-width:1400px){
+  .slide h2{font-size:28px}
+  .slide>p.sub{font-size:12.4px!important;line-height:1.34}
+  .maprow{padding:4px 0;font-size:10.6px;gap:10px;line-height:1.33}
+  .maprow3{padding:4px 0;font-size:10.6px;gap:9px;line-height:1.33}
+  .maprow.maphead,.maprow3.maphead{font-size:8.4px}
+  .mapnote{font-size:10px;padding-top:5px;margin-top:5px}
+  .lsitem p{font-size:10.4px;line-height:1.28}
+  .lsitem .lh{font-size:10.4px}
+  .slide>.listen{margin-top:6px}
+  .slide>.actbar{padding:8px 13px}
+  .slide>.actbar p{font-size:10.8px;line-height:1.32}
+  .slide>.grid3>.card{padding:9px 11px!important}
+  .slide>.grid3>.card p{font-size:10.9px!important;line-height:1.32!important}
+  .slide>.grid2>.card{padding:9px 12px!important}
+  .slide>.grid2>.card p{font-size:11px!important;line-height:1.33!important}
+  .kind{padding:9px 12px}
+  .kind p{font-size:10.8px;line-height:1.32}
+  .slide>.example{padding:9px 12px}
+  .example .label{font-size:8.8px;margin-bottom:4px}
+  .exlist li{font-size:10.8px;line-height:1.32}
+  .slide>.grid3{margin-top:7px!important}
+  .slide>.listen{margin-top:3px}
+  .slide>#scoreit{margin-top:0}
+  .slide>.grid2.grow.tall{margin-top:7px!important}
+  .slide>.grid2.grow.tall + .grid2{margin-top:7px!important}
+  .slide>.grid2.grow.tall + .grid2 > .card p{font-size:10.6px!important;line-height:1.3!important}
+}
+@media (max-width:1240px){
+  .slide h2{font-size:25px}
+  .slide>p.sub{font-size:11.6px!important;line-height:1.32}
+  .maprow{padding:3px 0;font-size:10px;gap:9px;line-height:1.3}
+  .maprow3{padding:3px 0;font-size:10px;gap:8px;line-height:1.3}
+  .maprow.maphead,.maprow3.maphead{font-size:8px}
+  .mapnote{font-size:9.6px;padding-top:4px;margin-top:4px}
+  .lsitem p{font-size:10px;line-height:1.26}
+  .lsitem .lh{font-size:10px}
+  .slide>.listen{margin-top:6px}
+  .slide>.actbar{padding:7px 12px}
+  .slide>.actbar p{font-size:10.4px;line-height:1.3}
+  .slide>.actbar .lab{font-size:9px}
+  .slide>.grid3>.card{padding:8px 10px!important}
+  .slide>.grid3>.card p{font-size:10.4px!important;line-height:1.3!important}
+  .slide>.grid2>.card{padding:9px 11px!important}
+  .slide>.grid2>.card p{font-size:10.6px!important;line-height:1.3!important}
+  .kind{padding:8px 11px}
+  .kind p{font-size:10.2px;line-height:1.3}
+  .slide>.example{padding:8px 11px}
+  .example .label{font-size:8.6px;margin-bottom:4px}
+  .exlist li{font-size:10.4px;line-height:1.3}
+  .dpre{font-size:9px;line-height:1.34}
+  .slide h2{font-size:24px}
+  .slide>.listen{margin-top:5px}
+  .lsitem p{font-size:9.7px;line-height:1.25}
+  .lsitem .lh{font-size:9.7px}
+  .slide>.actbar p{font-size:10px;line-height:1.28}
+  .slide>.example{padding:7px 10px}
+  .maprow,.maprow3{padding:2.5px 0;font-size:9.7px;gap:8px;line-height:1.28}
+  .mapnote{font-size:9.2px;padding-top:4px;margin-top:4px}
+
+}
+/* ---- capped grids must not overrun the element below them ---- */
+@media (max-height:940px){.slide>.grid3.grow.bkgrid{max-height:176px}}
+@media (max-height:830px){.slide>.grid3.grow.bkgrid{max-height:152px}}
+@media (max-height:700px){.slide>.grid3.grow.bkgrid{max-height:120px}}
+/* ---- narrow AND short: take the tightest of both (must stay last) ---- */
+@media (max-width:1400px) and (max-height:760px){
+  .slide h2{font-size:24px}
+  .slide>p.sub{font-size:11.4px!important;line-height:1.3}
+  .maprow,.maprow3{padding:2.5px 0;font-size:9.6px;gap:8px;line-height:1.27}
+  .maprow.maphead,.maprow3.maphead{font-size:8px}
+  .mapnote{font-size:9.2px;padding-top:4px;margin-top:4px}
+  .lsitem p{font-size:9.7px;line-height:1.25}
+  .lsitem .lh{font-size:9.7px}
+  .slide>.listen{margin-top:4px}
+  .slide>.actbar{padding:6px 11px}
+  .slide>.actbar p{font-size:10px;line-height:1.28}
+  .slide>.grid3>.card{padding:8px 10px!important}
+  .slide>.grid3>.card p{font-size:10.2px!important;line-height:1.28!important}
+  .slide>.grid2>.card{padding:8px 10px!important}
+  .slide>.grid2>.card p{font-size:10.3px!important;line-height:1.28!important}
+  .kind{padding:7px 10px}
+  .kind p{font-size:9.9px;line-height:1.28}
+  .slide>.example{padding:7px 10px}
+  .example .label{font-size:8.4px;margin-bottom:3px}
+  .exlist li{font-size:10px;line-height:1.28}
+  .dpre{font-size:8.6px;line-height:1.3}
+  .vscard{padding:8px 10px}.midc{padding:7px 9px}
+  .vh{font-size:15px}.mh{font-size:12.5px}
+  .vsq{font-size:10.3px;line-height:1.3;margin-top:5px;padding:7px 9px}
+  .vswhy{font-size:9.8px;line-height:1.28;margin-top:5px}
+  .mq{font-size:9.8px;line-height:1.28;margin-top:4px;padding:6px 8px}
+  .mw{font-size:9.4px;line-height:1.26;margin-top:4px}
+}
+
+
+@media (max-width:1240px) and (max-height:690px){
+  .slide h2{font-size:22px}
+  .slide>p.sub{font-size:10.6px!important;line-height:1.28}
+  .maprow,.maprow3{padding:1.5px 0;font-size:9px;gap:7px;line-height:1.24}
+  .maprow.maphead,.maprow3.maphead{font-size:7.6px}
+  .mapnote{font-size:8.6px;padding-top:3px;margin-top:3px}
+  .slide>.example{padding:6px 9px}
+  .example .label{font-size:8px;margin-bottom:3px}
+  .kind p{font-size:9.4px;line-height:1.26}
+  .lsitem p{font-size:9.2px;line-height:1.23}
+}
+.slide>.grid2.grow.tall{max-height:54vh}
+@media (max-width:1240px){.slide>.grid2.grow.tall{max-height:62vh}}
+
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+
+<div class="markbrand"><span class="sq"></span> AI SOLUTION ARCHITECT</div>
+<div class="daytag" id="daytag">WEEK 1 · GUIDED LAB PART 2 · MODULE M1</div>
+<div class="progress" id="prog"></div>
+<div class="pageno" id="pageno">01</div>
+
+<!-- discreet control launcher -->
+<div class="tools">
+  <button class="toolstrigger" onclick="toggleTools()" title="controls">•••</button>
+  <div class="toolsmenu" id="toolsmenu">
+    <div class="legtitle">Facilitator controls · keyboard shortcut</div>
+    <button onclick="toggleSB();toggleTools()">Teams &amp; scores<span class="k">S</span></button>
+    <button onclick="toggleWB();toggleTools()">Whiteboard / draw<span class="k">W</span></button>
+    <button onclick="toggleTM();toggleTools()">Countdown timer<span class="k">T</span></button>
+    <button onclick="toggleGrid();toggleTools()">Slide map / jump<span class="k">G</span></button>
+    <button onclick="toggleFull();toggleTools()">Fullscreen<span class="k">F</span></button>
+  </div>
+</div>
+
+<!-- whiteboard -->
+<div id="wb"><canvas id="wbc"></canvas></div>
+<div class="wbbar" id="wbbar">
+  <button onclick="wbMode('pen')" id="wbpen">PEN</button>
+  <button onclick="wbMode('erase')" id="wberase">ERASE</button>
+  <span class="sw on" style="background:#14213D" data-c="#14213D" onclick="wbColor(this)"></span>
+  <span class="sw" style="background:#1B65F5" data-c="#1B65F5" onclick="wbColor(this)"></span>
+  <span class="sw" style="background:#E5533D" data-c="#E5533D" onclick="wbColor(this)"></span>
+  <span class="sw" style="background:#2E9E7B" data-c="#2E9E7B" onclick="wbColor(this)"></span>
+  <span class="sw" style="background:#F5A31B" data-c="#F5A31B" onclick="wbColor(this)"></span>
+  <button onclick="wbSize(3)">S</button><button onclick="wbSize(7)">M</button><button onclick="wbSize(14)">L</button>
+  <button onclick="wbClear()">CLEAR</button><button onclick="toggleWB()">CLOSE</button>
+</div>
+
+<!-- scoreboard -->
+<div id="sb">
+  <h3>Pods</h3>
+  <div class="hint">Click a pod to make it active; game points land there. Names are editable.</div>
+  <div id="teams"></div>
+  <div class="sbctl"><button onclick="addTeam()">+ POD</button><button class="rm" onclick="removeTeam()">- POD</button></div>
+  <div class="sbctl"><button class="rm" onclick="resetScores()">RESET SCORES</button></div>
+</div>
+
+<!-- timer -->
+<div id="tm">
+  <div class="disp" id="tmdisp">00:30</div>
+  <div class="adj"><button onclick="tmAdjustSec(-30)">-30s</button><button onclick="tmAdjustSec(30)">+30s</button>
+    <button onclick="tmAdjust(-5)">-5m</button><button onclick="tmAdjust(-1)">-1m</button>
+    <button onclick="tmAdjust(1)">+1m</button><button onclick="tmAdjust(5)">+5m</button></div>
+  <div class="row"><button class="go" onclick="tmToggle()" id="tmbtn">START</button><button onclick="tmReset()">RESET</button></div>
+  <div class="presets"><button onclick="tmSetSec(30)">30s</button>
+    <button onclick="tmSet(5)">5m</button><button onclick="tmSet(15)">15m</button></div>
+</div>
+
+<!-- jeopardy modal -->
+<!-- grid nav -->
+<div id="gridnav"><div class="gtitle">Jump to a slide</div><div class="gwrap" id="gwrap"></div></div>
+
+<div class="jmodal" id="jmodal"><div class="jcardm">
+  <div class="jq" id="jq"></div><div class="ja" id="ja"></div>
+  <div class="jbtns"><button class="jbtn rev" onclick="jReveal()">REVEAL</button><button class="jbtn close" onclick="jClose()">NEXT</button></div>
+</div></div>
+
+<div id="toast"></div>
+<canvas id="confetti"></canvas>
+
+
+<script>
+/* ============================================================= SLIDE DATA */
+const SLIDES = [
+
+/* 0 COVER */
+`<div class="cover">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <div class="driftchip" style="top:74%;right:58%">"it'll be 100% reliable"</div>
+  <div class="driftchip" style="top:84%;right:34%;animation-delay:-2s">"there's no real downside"</div>
+  <div class="driftchip" style="top:88%;right:13%;animation-delay:-4s">"it's industry standard"</div>
+  <div class="left">
+    <div class="eyebrow riseUp"><span class="dot"></span> MODULE M1 &middot; GUIDED LAB, PART 2</div>
+    <h1 class="riseUp d1"><span class="shimmer">Now defend it</span><br>when it costs you.</h1>
+    <p class="sub riseUp d2" style="margin-top:12px;max-width:600px">Yesterday you found the real problem. Today you take a position on it, put a number on what you promise, and say what you gave up to get there.</p>
+    <div class="riseUp d3" style="margin-top:18px;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="pill">Four letters, four cases</span>
+      <span class="pill" style="border-color:var(--amber);color:var(--amber)">Two breakouts today</span>
+      <span class="pill" style="border-color:var(--sage);color:var(--sage)">You leave ready to submit</span>
+    </div>
+  </div>
+  <div class="riseUp d2" style="flex:1;max-width:430px;display:flex;flex-direction:column;gap:9px;z-index:2">
+    <div class="card" style="padding:10px 13px;border-left:3px solid var(--clay)"><div class="chip clay" style="font-size:9.5px">E &middot; Facebook, January 2018</div>
+      <p style="font-size:11.8px;margin-top:5px;line-height:1.36">Zuckerberg changed the News Feed knowing it would cost him. <b>Roughly 50 million hours a day</b>, gone, and he said so in the earnings statement.</p></div>
+    <div class="card" style="padding:10px 13px;border-left:3px solid var(--cobalt)"><div class="chip" style="font-size:9.5px">T &middot; Amazon S3</div>
+      <p style="font-size:11.8px;margin-top:5px;line-height:1.36">Below <b>99.9%</b> in a month and you get <b>10%</b> of your money back. Below 95% and you get <b>all of it</b>. A promise with a price on it.</p></div>
+    <div class="card" style="padding:10px 13px;border-left:3px solid var(--amber)"><div class="chip amber" style="font-size:9.5px">O &middot; Google's TPU</div>
+      <p style="font-size:11.8px;margin-top:5px;line-height:1.36">Three minutes of voice search per user per day would have meant <b>doubling every Google data centre</b>. That arithmetic picked the chip.</p></div>
+    <div class="card" style="padding:10px 13px;border-left:3px solid var(--sage)"><div class="chip sage" style="font-size:9.5px">R &middot; MapReduce</div>
+      <p style="font-size:11.8px;margin-top:5px;line-height:1.36">Built for Google's own indexing. Written up in 2004. The rest of the industry built <b>Hadoop</b> from the paper.</p></div>
+  </div>
+</div>`,
+
+/* 2 WHAT TODAY PRODUCES + THE CLOCK */
+`<div class="eyebrow reveal"><span class="dot"></span> THE PLAN &middot; TWO HOURS, TWO BREAKOUTS, ONE SUBMISSION</div>
+<h2 class="reveal">The shape of the next two hours</h2>
+<div class="grid2 reveal" style="margin-top:10px">
+  <div class="example" style="margin-top:0"><div class="label">The clock &middot; and it is tight, so we keep to it</div>
+    <div class="maprow3 maphead" style="grid-template-columns:0.3fr 0.68fr 1.5fr"><div>Mins</div><div>What</div><div>What you leave with</div></div>
+    <div class="maprow3" style="grid-template-columns:0.3fr 0.68fr 1.5fr"><div><b>15</b></div><div>Four letters, four cases</div><div>E, T, O and R, fast. The cases stay on the slides for you to read again tonight.</div></div>
+    <div class="maprow3" style="grid-template-columns:0.3fr 0.68fr 1.5fr"><div><b>35</b></div><div><b>Breakout 1</b>, Tuesday's work</div><div>A capability map, four lenses on the hottest one, and a validated problem statement. On Redpoint.</div></div>
+    <div class="maprow3" style="grid-template-columns:0.3fr 0.68fr 1.5fr"><div><b>10</b></div><div><b>Break</b>, straight out of the room</div><div>You come out, you take ten minutes, <b>then</b> you present. Nobody presents cold off a 35-minute call.</div></div>
+    <div class="maprow3" style="grid-template-columns:0.3fr 0.68fr 1.5fr"><div><b>12</b></div><div>Every pod reports</div><div>Two minutes each. I type what you say into board 1, and you get the notes.</div></div>
+    <div class="maprow3" style="grid-template-columns:0.3fr 0.68fr 1.5fr"><div><b>35</b></div><div><b>Breakout 2</b>, today's work</div><div>The trade-off, two guarantees, the platform justification, the named pattern. Same pack, same pod.</div></div>
+    <div class="maprow3" style="grid-template-columns:0.3fr 0.68fr 1.5fr"><div><b>12</b></div><div>Every pod reports again</div><div>Board 2. Both boards download as one file and go round afterwards.</div></div>
+    <div class="maprow3" style="grid-template-columns:0.3fr 0.68fr 1.5fr"><div><b>3</b></div><div>Close</div><div>How to send your file. The rest of the submission detail is in the pack.</div></div>
+    <p class="mapnote">That is <b>120 minutes exactly, with no slack at all</b>. Two 35-minute breakouts and two full rounds of reporting leave three minutes to close, so the submission instructions live in the pack rather than on a slide. The two things that will cost us the schedule are <b>reading the pack inside the breakout</b> and <b>pods that have not picked a presenter</b> before the timer ends. Both are avoidable, and both are on you.</p>
+  </div>
+  <div class="kindcol">
+    <div class="kind sourced"><div class="kh"><span class="chip sage" style="font-size:9.5px">Breakout 1 produces</span></div>
+      <p>Sections <b>2 to 5</b> of the method, rehearsed on <b>Redpoint</b>. Nothing is collected.</p></div>
+    <div class="kind flagged"><div class="kh"><span class="chip amber" style="font-size:9.5px">Breakout 2 produces</span></div>
+      <p>Sections <b>6 to 9</b>, same pack, same pod. Also not collected.</p></div>
+    <div class="kind invented"><div class="kh"><span class="chip clay" style="font-size:9.5px">What you actually submit</span></div>
+      <p>Your own <b>Halden Mutual</b> document, written alone, by the <b>end of today</b>. Redpoint never leaves this room.</p>
+      <p style="margin-top:6px"><b>Why two scenarios?</b> Because a method you have only ever seen applied to the example you were given is not a method you have.</p></div>
+  </div>
+</div>
+<div class="listen reveal">
+  <div class="lsitem"><div class="lh">In the break, do this</div><p>Open the <b>Redpoint pack</b> and read the data table. Thirty-five minutes is enough to think and not enough to read.</p></div>
+  <div class="lsitem"><div class="lh">What I am doing</div><p>Dropping into each pod, and typing what you report onto the board. <b>Both boards get downloaded and sent round</b>, so nobody has to take their own minutes.</p></div>
+  <div class="lsitem"><div class="lh">If we run over</div><p>The second breakout keeps its full 35 minutes and the close gets shorter. The practice is the part that transfers, so it is the part we protect.</p></div>
+</div>`,
+
+/* 3 TODAY'S FOUR LETTERS */
+`<div class="eyebrow reveal"><span class="dot"></span> ORIENTATION &middot; THE FOUR LETTERS YOU WRITE TODAY</div>
+<div class="vecwrap reveal">
+  <div class="veclab">All six are scored, every week, on the same document</div>
+  <div class="vecrow"><span class="vl second">V</span><span class="vd">&middot;</span><span class="vl on">E</span><span class="vd">&middot;</span><span class="vl second">C</span><span class="vd">&middot;</span><span class="vl on">T</span><span class="vd">&middot;</span><span class="vl on">O</span><span class="vd">&middot;</span><span class="vl on">R</span></div>
+  <p class="vecsub"><b>V and C are green:</b> Tuesday taught them and Breakout 1 is where you finally practise them. <b>E, T, O and R are amber:</b> the next thirty-five minutes are for those, and Breakout 2 is where you practise them. Same document, same nine lines.</p>
+</div>
+<div class="example reveal" style="max-width:none;margin-top:11px">
+  <div class="label">One question per letter, and one real decision behind each</div>
+  <div class="maprow3 maphead" style="grid-template-columns:0.72fr 1.25fr 1.1fr"><div>Letter</div><div>The question the evaluator is really asking</div><div>Today's case</div></div>
+  <div class="maprow3" style="grid-template-columns:0.72fr 1.25fr 1.1fr"><div><span class="rbadge vec primary">E</span> <b>Edge Judgment</b></div>
+    <div>You chose something over something else. <b>What did you give up</b>, and who would argue with you?</div>
+    <div>Facebook deliberately losing <b>50 million hours a day</b>.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.72fr 1.25fr 1.1fr"><div><span class="rbadge vec">T</span> <b>Trust Architecture</b></div>
+    <div>You say it will work. <b>What number proves it</b>, and what happens the day it is missed?</div>
+    <div>Amazon S3, where missing the number costs Amazon money.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.72fr 1.25fr 1.1fr"><div><span class="rbadge vec">O</span> <b>Orchestration Intelligence</b></div>
+    <div>You named a platform or a pattern. Did <b>the task</b> demand it, or did you already know it?</div>
+    <div>Google doing the arithmetic and building its own chip.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.72fr 1.25fr 1.1fr"><div><span class="rbadge vec">R</span> <b>Range</b></div>
+    <div>This solves one thing. <b>What else is it an instance of</b>, and what would reuse require?</div>
+    <div>MapReduce, and the industry that grew out of the paper.</div></div>
+</div>
+<div class="listen reveal">
+  <div class="lsitem"><div class="lh">Why these four companies</div><p>Not because they are famous. Because each one <b>published the number</b>, which is the thing your own sections are scored on.</p></div>
+  <div class="lsitem"><div class="lh">E is marked hardest</div><p>Five of the six letters are expected at <b>75</b>. Edge Judgment is expected at <b>100</b>, and it is the one people lose by being generous to their own idea.</p></div>
+  <div class="lsitem"><div class="lh">Four sections, not four essays</div><p>These are <b>sections 6 to 9</b> of the file you already have open. Nothing today asks you to start again.</p></div>
+</div>`,
+
+/* 4 E - FACEBOOK NEWS FEED */
+`<div class="eyebrow reveal"><span class="dot"></span> E &middot; EDGE JUDGMENT &middot; A DECISION THAT COST THEM SOMETHING REAL</div>
+<h2 class="reveal">Facebook gave up 50 million hours a day, on purpose</h2>
+<div class="grid2 grow tall reveal" style="margin-top:10px;grid-template-columns:1.1fr 1fr">
+  <div class="example" style="margin-top:0"><div class="label">The anatomy of a defensible trade-off</div>
+    <div class="maprow maphead"><div>What the rubric wants</div><div>What Facebook actually did</div></div>
+    <div class="maprow"><div><b>A specific decision defended</b> against a requirement</div>
+      <div>January 2018: rank the News Feed for <b>"meaningful social interactions"</b> rather than for relevant content. Posts from friends and family up, publisher and business content down.</div></div>
+    <div class="maprow"><div><b>What was given up</b>, acknowledged out loud and <b>before</b> it happened</div>
+      <div>Zuckerberg said plainly that he <b>expected time spent to go down</b>. Not a risk, not a caveat. An expected loss, stated in advance.</div></div>
+    <div class="maprow"><div><b>The loss, priced</b></div>
+      <div>With the Q4 2017 results on <b>31 January 2018</b> he put a figure on it: use of Facebook fell by <b>roughly 50 million hours every day</b>, about 5% of time spent.</div></div>
+    <div class="maprow"><div><b>Who disagreed, and on what grounds</b></div>
+      <div>Publishers and Pages, who absorbed most of the cost in lower reach, lower referral traffic and lower video watch time. Their objection was concrete and they were right about their own numbers.</div></div>
+    <p class="mapnote">His defence was one sentence, and it is the shape you want: <b>"I also expect the time you do spend on Facebook will be more valuable."</b> A named loss, a named beneficiary, and a reason about the product rather than the metric. Agree or not, that is a 100-band answer.</p>
+  </div>
+  <div class="kindcol">
+    <div class="kind sourced"><div class="kh"><span class="chip sage" style="font-size:9.5px">100 &middot; top band</span></div>
+      <p>Names an <b>explicit trade-off</b> and defends a <b>specific decision</b>, acknowledging <b>what was given up</b>.</p></div>
+    <div class="kind flagged"><div class="kh"><span class="chip amber" style="font-size:9.5px">75 and 50</span></div>
+      <p><b>75:</b> names a trade-off, but the defence is generic.<br><b>50:</b> says "there are trade-offs" without naming one.</p></div>
+    <div class="kind invented"><div class="kh"><span class="chip clay" style="font-size:9.5px">25 and 0</span></div>
+      <p><b>25:</b> implies a decision without acknowledging any trade-off.<br><b>0:</b> claims the chosen approach has <b>no downside at all</b>.</p></div>
+  </div>
+</div>
+<div class="grid2 reveal" style="margin-top:10px">
+  <div class="card" style="border-left:3px solid var(--clay);padding:11px 14px"><div class="chip clay" style="font-size:9.5px">Scores 25</div>
+    <p style="margin-top:6px;font-size:12.5px;line-height:1.42">"We chose a phased rollout because it reduces risk and allows us to learn as we go, while still delivering value early."</p>
+    <p style="margin-top:6px;font-size:11.5px;line-height:1.38;color:var(--ink-soft)">Every clause names a <b>gain</b>. Nothing was given up, so no decision was actually made.</p></div>
+  <div class="card" style="border-left:3px solid var(--sage);padding:11px 14px"><div class="chip sage" style="font-size:9.5px">Scores 100</div>
+    <p style="margin-top:6px;font-size:12.5px;line-height:1.42">"We chose to fix the parts data before deploying anything. It costs us two quarters with nothing visible, and the COO will be asked why competitors shipped first. We took it because optimising dispatch on 22% incomplete records produces confident wrong answers."</p>
+    <p style="margin-top:6px;font-size:11.5px;line-height:1.38;color:var(--ink-soft)">Names the loss, <b>prices it</b>, names who feels it, and ties the choice to a requirement.</p></div>
+</div>`,
+
+/* 5 T - AMAZON S3 SLA */
+`<div class="eyebrow reveal"><span class="dot"></span> T &middot; TRUST ARCHITECTURE &middot; A PROMISE WITH A PRICE ON IT</div>
+<h2 class="reveal">"Secure and reliable" is worth 25. Amazon writes a cheque.</h2>
+<div class="grid3 reveal" style="margin-top:10px">
+  <div class="card" style="border-left:3px solid var(--sage);padding:11px 14px"><div class="chip sage" style="font-size:9.5px">What S3 actually promises</div>
+    <p style="margin-top:6px;font-size:12.3px;line-height:1.4">A <b>Monthly Uptime Percentage</b>. Below <b>99.9%</b> you get a <b>10%</b> service credit. Below <b>99.0%</b> it becomes <b>25%</b>. Below <b>95.0%</b> you get <b>100%</b> of that month back.</p></div>
+  <div class="card" style="border-left:3px solid var(--cobalt);padding:11px 14px"><div class="chip" style="font-size:9.5px">The four parts, visible in one SLA</div>
+    <p style="margin-top:6px;font-size:12.3px;line-height:1.4"><b>1.</b> The metric: uptime percentage. <b>2.</b> The threshold: 99.9%, with a unit and a period. <b>3.</b> How it is measured: Amazon's own monthly calculation. <b>4.</b> What happens on breach: <b>money moves</b>.</p></div>
+  <div class="card" style="border-left:3px solid var(--clay);padding:11px 14px"><div class="chip clay" style="font-size:9.5px">Why the fourth part is the hard one</div>
+    <p style="margin-top:6px;font-size:12.3px;line-height:1.4">Most submissions get the first three and stop. A guarantee with <b>no breach clause is a wish</b>: if nothing happens when the number is missed, nobody owns the number, and the rubric reads it as an assertion.</p></div>
+</div>
+<div id="scoreit"></div>
+<div class="listen reveal">
+  <div class="lsitem"><div class="lh">The question that exposes it</div><p>"Who finds out, and how soon, if this stops being true?" If the answer is nobody, it was never a guarantee.</p></div>
+  <div class="lsitem"><div class="lh">Note the number they did not pick</div><p>Not 100%, and not five nines. <b>99.9%</b>, because that is what they are willing to pay for. A threshold is a commercial decision, not an engineering wish.</p></div>
+  <div class="lsitem"><div class="lh">The cheap version for Halden</div><p>Borrow a number that already exists in the pack and add a date. Your breach action can be a named person taking it to a named body. That is enough.</p></div>
+</div>
+`,
+
+/* 6 O - GOOGLE TPU */
+`<div class="eyebrow reveal"><span class="dot"></span> O &middot; ORCHESTRATION INTELLIGENCE &middot; THE TASK DECIDED IT, NOT THE TEAM</div>
+<h2 class="reveal">Google did the arithmetic, then built a chip</h2>
+<div class="grid2 grow tall reveal" style="margin-top:10px;grid-template-columns:1.1fr 1fr">
+  <div class="example" style="margin-top:0"><div class="label">Norm Jouppi, Google Fellow, 5 April 2017</div>
+    <div class="maprow maphead"><div>What O asks</div><div>What Google did</div></div>
+    <div class="maprow"><div>Was the choice forced by <b>a requirement of this task</b>?</div>
+      <div>In his own words: <b>"If we considered a scenario where people use Google voice search for just three minutes a day and we ran deep neural nets for our speech recognition system on the processing units we were using, we would have had to double the number of Google data centers."</b></div></div>
+    <div class="maprow"><div>Is the requirement <b>checkable</b>, or is it a feeling?</div>
+      <div>It is arithmetic. Users times minutes times cost per inference against the capacity they had. Anybody could redo the sum and argue with it.</div></div>
+    <div class="maprow"><div>Was the <b>familiar option</b> actually considered?</div>
+      <div>Yes, and named: the CPUs and GPUs they were already running on. It was rejected on the number, not on taste.</div></div>
+    <div class="maprow"><div>What <b>would have changed the answer</b>?</div>
+      <div>Fewer users, cheaper inference, or a cheaper data centre. Change any one of those and the custom chip stops being defensible.</div></div>
+    <p class="mapnote"><b>This is the whole of O in one sentence.</b> A platform choice is defensible when you can state the number that forced it and the condition that would reverse it. "We are a Google shop" is the 25 band. "Three minutes a day would double our data centres" is the 100.</p>
+  </div>
+  <div class="kindcol">
+    <div class="kind sourced"><div class="kh"><span class="chip sage" style="font-size:9.5px">100</span></div>
+      <p>Justifies the platform or pattern <b>against the task's actual requirements</b>, not familiarity.</p></div>
+    <div class="kind flagged"><div class="kh"><span class="chip amber" style="font-size:9.5px">75 and 50</span></div>
+      <p><b>75:</b> justifies it, but the reasoning <b>leans on familiarity</b> as a factor.<br><b>50:</b> names a platform with no justification at all.</p></div>
+    <div class="kind invented"><div class="kh"><span class="chip clay" style="font-size:9.5px">25 and 0</span></div>
+      <p><b>25:</b> defaults to the most familiar option with a token justification.<br><b>0:</b> no platform or pattern reasoning anywhere.</p></div>
+  </div>
+</div>
+<div class="actbar reveal"><div class="lab">On<br>Redpoint</div><p>You will not be sizing data centres. But the same move is available: <b>22% of parts records carry no model compatibility</b>, and an optimiser that allocates against incomplete state produces confident wrong answers. That is a number that forces a choice, and it is already in your pack.</p></div>`,
+
+/* 7 R - MAPREDUCE */
+`<div class="eyebrow reveal"><span class="dot"></span> R &middot; RANGE &middot; BUILT FOR THEIR OWN PROBLEM FIRST</div>
+<h2 class="reveal">Google wrote it down. The industry built Hadoop from it.</h2>
+<div class="grid2 grow tall reveal" style="margin-top:10px;grid-template-columns:1fr 1.1fr">
+  <div class="kindcol">
+    <div class="kind sourced"><div class="kh"><span class="chip sage" style="font-size:9.5px">What it was</span></div>
+      <p><b>MapReduce: Simplified Data Processing on Large Clusters</b>, Jeffrey Dean and Sanjay Ghemawat, <b>OSDI 2004</b>.</p>
+      <p style="margin-top:6px">Two functions the user writes. A <b>map</b> turns a key and value into intermediate pairs; a <b>reduce</b> merges every value sharing an intermediate key. The runtime handles partitioning, scheduling, machine failure and communication.</p></div>
+    <div class="kind flagged"><div class="kh"><span class="chip amber" style="font-size:9.5px">Built for their own need</span></div>
+      <p>It was not a product. It ran Google's own indexing on <b>commodity machines</b>, and by the time of the paper <b>upwards of a thousand MapReduce jobs ran on Google's clusters every day</b>.</p></div>
+  </div>
+  <div class="example" style="margin-top:0"><div class="label">Why this is the Range case, and what it asks of you</div>
+    <div class="maprow maphead"><div>What Range asks</div><div>What good looks like</div></div>
+    <div class="maprow"><div>Is there a <b>named pattern</b>, or a gesture at reusability?</div>
+      <div><b>"Map then reduce over a distributed file system"</b> is a name you can look up and argue with. "This is reusable" is the <b>50</b> band, every time.</div></div>
+    <div class="maprow"><div>Does it connect to a <b>broader opportunity</b> beyond this build?</div>
+      <div>They published it. Doug Cutting and Mike Cafarella built <b>Hadoop</b> from that paper and the GFS one, and an industry followed. The opportunity was real because the pattern was written down precisely enough to copy.</div></div>
+    <div class="maprow"><div>What is the <b>precondition for reuse</b>?</div>
+      <div>Your computation has to be expressible as a map and a reduce. Plenty are not. <b>A precondition that excludes nothing is not a precondition</b>, and that is what separates 75 from 100.</div></div>
+    <p class="mapnote"><b>And a warning that costs people marks every year.</b> The stories everyone repeats about famous systems are often wrong, and an invented fact takes the credibility of every real number near it. If you put a figure in your document, you should be able to say where it came from. Where the pack says a thing is <b>not measured</b>, write that.</p>
+  </div>
+</div>
+<div class="listen reveal">
+  <div class="lsitem"><div class="lh">Range is not ambition</div><p>Not "this could be huge". It is <b>one</b> other named capability, the pattern's proper name, and the one thing that would have to be true first.</p></div>
+  <div class="lsitem"><div class="lh">The adjective trap</div><p>"Reusable", "scalable", "extensible". All three score <b>50</b> on their own. A pattern has a name.</p></div>
+  <div class="lsitem"><div class="lh">On Redpoint</div><p>Fixing parts data before automating dispatch is the same shape as fixing the asset register before automating site onboarding. <b>Master data remediation before decision automation.</b> That is a name.</p></div>
+</div>
+`,
+
+/* 8 WHAT THE EVALUATOR READS */
+`<div class="eyebrow reveal"><span class="dot"></span> ALL SIX &middot; EXACTLY WHERE THE EVALUATOR LOOKS</div>
+<h2 class="reveal">The whole rubric, on one page</h2>
+<p class="sub reveal" style="font-size:13.5px">This is the sheet you review a podmate against in both breakouts, and the sheet your Halden submission is marked with.</p>
+<div class="example reveal" style="max-width:none;margin-top:9px">
+  <div class="maprow3 maphead" style="grid-template-columns:0.75fr 0.78fr 1.5fr"><div>Letter</div><div>Where it lives</div><div>Top band, and what loses it</div></div>
+  <div class="maprow3" style="grid-template-columns:0.75fr 0.78fr 1.5fr"><div><span class="rbadge vec">V</span> <b>Vision Clarity</b> <span class="mono" style="font-size:8.5px;color:var(--sage)">BREAKOUT 1</span></div>
+    <div><b>Sections 4 and 5.</b> The reframe and the problem statement.</div>
+    <div>The reframe is complete <b>before</b> any architecture talk. Restating the request in business-sounding words is the failure.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.75fr 0.78fr 1.5fr"><div><span class="rbadge vec">C</span> <b>Context Fluency</b> <span class="mono" style="font-size:8.5px;color:var(--sage)">BREAKOUT 1</span></div>
+    <div><b>Sections 9.1 to 9.5.</b> Governance bodies and constraints.</div>
+    <div><b>Named</b> bodies from the pack, the constraint each imposes, and which lens it changes. "The governance team" names nobody who could refuse you.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.75fr 0.78fr 1.5fr"><div><span class="rbadge vec primary">E</span> <b>Edge Judgment</b> <span class="mono" style="font-size:8.5px;color:var(--amber)">BREAKOUT 2</span></div>
+    <div><b>Section 6.</b> Five fields: chose, over, requirement, loss, who disagrees.</div>
+    <div>An explicit trade-off, a specific decision defended, <b>what was given up</b> named. "No downside" scores <b>0</b>.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.75fr 0.78fr 1.5fr"><div><span class="rbadge vec">T</span> <b>Trust Architecture</b> <span class="mono" style="font-size:8.5px;color:var(--amber)">BREAKOUT 2</span></div>
+    <div><b>Section 7.</b> Two guarantees, four parts each.</div>
+    <div>Metric, numeric threshold, measurement method, breach action with a named person. A threshold with no digit in it is the common failure.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.75fr 0.78fr 1.5fr"><div><span class="rbadge vec">O</span> <b>Orchestration</b> <span class="mono" style="font-size:8.5px;color:var(--amber)">BREAKOUT 2</span></div>
+    <div><b>Section 8.</b> Two options, the chosen one, the deciding requirement, the reversal condition.</div>
+    <div>Justified against the <b>task's</b> requirements, not familiarity. "It is what we already use" is the 25 band, word for word.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.75fr 0.78fr 1.5fr"><div><span class="rbadge vec">R</span> <b>Range</b> <span class="mono" style="font-size:8.5px;color:var(--amber)">BREAKOUT 2</span></div>
+    <div><b>Sections 9.6 to 9.8.</b> The other capability, the pattern, the precondition.</div>
+    <div>A <b>named</b> architecture pattern beyond this build, plus what would have to be true to reuse it. "Reusable" alone is 50.</div></div>
+  <p class="mapnote"><b>Section 10 is not a letter and it is not optional.</b> Who reviewed your draft, the one thing they flagged that you changed, and the line you are least confident about. You get two chances today to fill it honestly. "Nothing flagged" is acceptable; empty is not.</p>
+</div>
+<div class="actbar reveal"><div class="lab">The band<br>rule</div><p>Every line lands on <b>0, 25, 50, 75 or 100</b>, never in between. Between two bands the evaluator takes the <b>lower</b>. And <b>25 beats 0</b>: a genuine attempt that falls short beats an empty field.</p></div>`,
+
+/* 9 END OF TEACHING: ALL SIX GREEN */
+`<div class="eyebrow reveal"><span class="dot"></span> END OF THE TEACHING BLOCK &middot; ALL SIX LETTERS NOW COVERED</div>
+<div class="vecwrap reveal">
+  <div class="veclab">Every letter you are scored on this week</div>
+  <div class="vecrow"><span class="vl second">V</span><span class="vd">&middot;</span><span class="vl second">E</span><span class="vd">&middot;</span><span class="vl second">C</span><span class="vd">&middot;</span><span class="vl second">T</span><span class="vd">&middot;</span><span class="vl second">O</span><span class="vd">&middot;</span><span class="vl second">R</span></div>
+  <p class="vecsub">All six are green. You have now been taught every line your Halden document is marked against. <b>Nothing after this slide introduces a new idea.</b> The rest of today is you doing it, twice, and then writing it alone.</p>
+</div>
+<div class="example reveal" style="max-width:none;margin-top:11px">
+  <div class="label">Before you go into the first room</div>
+  <div class="maprow maphead"><div>Do this now</div><div>Why it matters today</div></div>
+  <div class="maprow"><div><b>Open the Redpoint pack</b> and find the data table.</div>
+    <div>There is no reading time inside 35 minutes. A pod that starts by reading loses a third of the room.</div></div>
+  <div class="maprow"><div><b>Know who is in your pod</b>, and agree now who will not be presenting.</div>
+    <div>Picking a presenter at minute 34 is the single most common reason a pod overruns.</div></div>
+  <div class="maprow"><div><b>Have your own Halden document open in another window.</b></div>
+    <div>Everything you work out on Redpoint, you write on Halden tonight. Note it as you go or you will lose it.</div></div>
+  <p class="mapnote"><b>Two rooms, same pod, same pack.</b> The first is the half you were taught on Tuesday. The second is the half you were taught in the last fifteen minutes. The break falls between the first room and the first round of reporting, so you come out, take eight minutes, and then present.</p>
+</div>
+<div class="actbar reveal"><div class="lab">Equal<br>weight</div><p>These six carry <b>40%</b> between them and no letter is worth more than another. The three <b>Core Skills</b> carry the other 60%. If E got the most air time, that is because it is marked hardest, not because it is worth more.</p></div>`,
+
+/* 10 BREAKOUT 1 BRIEF */
+`<div class="eyebrow reveal"><span class="dot"></span> BREAKOUT 1 OF 2 &middot; TUESDAY'S WORK, RUN TODAY</div>
+<h2 class="reveal">Build the map. Find the real problem. Write the sentence.</h2>
+<p class="sub reveal" style="font-size:14px"><b>Redpoint Field Services.</b> 600 engineers, 11,000 sites, a union agreement on job allocation. The COO asked for a scheduling optimiser; the data says scheduling is fine.</p>
+<div class="grid3 grow bkgrid reveal" style="margin-top:10px">
+  <div class="card" style="border-left:3px solid var(--cobalt);padding:12px 14px"><div class="chip" style="font-size:9.5px">What your pod produces</div>
+    <p style="margin-top:6px;font-size:12.5px;line-height:1.42"><b>1.</b> A capability map: 4 to 6 capabilities, each marked where cost concentrates, with the number from the pack. Mark at least one <b>genuinely healthy</b>.<br><b>2.</b> All four lenses on your hottest capability, each tied to a <b>named role</b>.</p></div>
+  <div class="card" style="border-left:3px solid var(--amber);padding:12px 14px"><div class="chip amber" style="font-size:9.5px">And then</div>
+    <p style="margin-top:6px;font-size:12.5px;line-height:1.42"><b>3.</b> One <b>validated problem statement</b>: capability, number, consequence, named role, <b>zero technology words</b>.<br><b>4.</b> One named governance body or constraint from the pack that most shapes what Redpoint can do.</p></div>
+  <div class="card" style="border-left:3px solid var(--sage);padding:12px 14px"><div class="chip sage" style="font-size:9.5px">How to run 35 minutes</div>
+    <p style="margin-top:6px;font-size:12.5px;line-height:1.42">The 35 minutes are yours to divide, with three fixed points: <b>read the data before naming anything</b>, <b>peer review inside the pod</b>, and <b>pick who presents</b> before the timer ends.</p></div>
+</div>
+<div class="workband reveal">
+  <div><div style="font-family:var(--disp);font-size:22px;font-weight:800;color:var(--ink)">35 minutes in your AI Pod</div>
+  <p style="font-size:12.5px;color:var(--ink-soft);margin-top:4px"><b>Nothing here is collected.</b> This is Redpoint practice so that tonight, on Halden, you already know the moves. I will drop into each pod.</p></div>
+  <button class="jbtn rev" style="margin-left:auto;white-space:nowrap" onclick="openWorkTimer(35)">Start the 35-minute timer</button>
+</div>
+<div class="example reveal" style="max-width:none;margin-top:9px">
+  <div class="label">Three traps, and the peer review before anyone presents</div>
+  <div class="maprow maphead"><div>Trap</div><div>Why pods fall into it</div></div>
+  <div class="maprow"><div><b>Agreeing with the COO</b> and mapping scheduling</div><div>It is the thing you were asked about. The data says <b>94% of routes are accepted as issued</b>. Scheduling is healthy.</div></div>
+  <div class="maprow"><div><b>Finding one hot capability and stopping</b></div><div>There are two, and one causes the other. The map is where that becomes visible.</div></div>
+  <div class="maprow"><div><b>A technology word in the statement</b></div><div>Two of the five lines you write today are scored on technology being <b>absent</b>. Strike them before you present.</div></div>
+  <div class="maprow"><div><b>"The governance team will be consulted"</b></div><div>The <b>Context Fluency</b> failure, and the one nobody catches in their own work. See the three cards below before you write point 4.</div></div>
+  <p class="mapnote"><b>Peer review happens inside the 35 minutes.</b> Read a podmate's map and statement, not your own, and name <b>one</b> thing: an activity posing as a capability, a number with no source, a technology word, or a lens ending in "the business". <b>One, not five.</b> The owner fixes it before the pod presents and writes the reviewer's name in section 10.</p>
+</div>
+<div class="grid3 reveal" style="margin-top:9px">
+  <div class="card" style="border-left:3px solid var(--cobalt);padding:11px 13px"><div class="chip" style="font-size:9.5px">C &middot; Context Fluency, in one line</div>
+    <p style="margin-top:6px;font-size:12.2px;line-height:1.4">Can you name <b>who could stop you</b> and <b>exactly what they would stop</b>? Renovating a flat: "I'll check with the authorities" tells you nothing. <b>"The building committee won't allow work on a load-bearing wall without an engineer's certificate"</b> tells you who, and what.</p></div>
+  <div class="card" style="border-left:3px solid var(--clay);padding:11px 13px"><div class="chip clay" style="font-size:9.5px">Scores 25</div>
+    <p style="margin-top:6px;font-size:12.2px;line-height:1.4">"Appropriate governance approvals will be obtained and stakeholders will be engaged during rollout."</p>
+    <p style="margin-top:6px;font-size:11.4px;line-height:1.35;color:var(--ink-soft)">Nobody named, nothing stopped, nobody's work changes.</p></div>
+  <div class="card" style="border-left:3px solid var(--sage);padding:11px 13px"><div class="chip sage" style="font-size:9.5px">Scores 100</div>
+    <p style="margin-top:6px;font-size:12.2px;line-height:1.4">"The <b>union agreement on job allocation</b> means any allocation can be challenged, so every recommendation must trace to a named rule. That changes the <b>engineer's</b> day, not the planner's."</p>
+    <p style="margin-top:6px;font-size:11.4px;line-height:1.35;color:var(--ink-soft)">Named constraint, named consequence, named role.</p></div>
+</div>`,
+
+/* 11 DEBRIEF 1 + POD NOTES */
+`<div class="eyebrow reveal"><span class="dot"></span> BACK TOGETHER &middot; EVERY POD, TWO MINUTES &middot; BOARD 1 OF 2</div>
+<h2 class="reveal">What each pod found in the map</h2>
+<div class="grid3 reveal" style="margin-top:8px">
+  <div class="card" style="border-left:3px solid var(--cobalt);padding:10px 13px"><p style="font-size:12.3px;line-height:1.4;margin:0"><b>Which capability was hottest</b>, and the number you marked it with.</p></div>
+  <div class="card" style="border-left:3px solid var(--amber);padding:10px 13px"><p style="font-size:12.3px;line-height:1.4;margin:0"><b>Which one you marked healthy.</b> The map that calls everything broken has not been read.</p></div>
+  <div class="card" style="border-left:3px solid var(--sage);padding:10px 13px"><p style="font-size:12.3px;line-height:1.4;margin:0"><b>Your problem statement</b>, read out loud, word for word.</p></div>
+</div>
+<div class="brkband reveal">
+  <div class="brkl">10 MIN BREAK FIRST</div>
+  <p>You have just come out of 35 minutes. <b>Take ten minutes before anyone presents.</b> Come back, then every pod gets two minutes and I type it into the board.</p>
+  <button class="jbtn rev" style="margin-left:auto;white-space:nowrap" onclick="openWorkTimer(10)">Start the 10-minute break</button>
+</div>
+<div class="podpad reveal" data-pad="1">
+  <div class="ppbar">
+    <div class="pplab">Breakout 1 &middot; pod notes</div>
+    <button class="ppbtn" onclick="podLess('1')">&minus; pod</button>
+    <span class="ppcount" data-pad="1">6 pods</span>
+    <button class="ppbtn" onclick="podMore('1')">+ pod</button>
+    <button class="ppbtn" onclick="podClear('1')">clear</button>
+    <button class="ppbtn" onclick="podExport()" style="margin-left:auto">download both boards</button>
+  </div>
+  <div class="ppgrid" data-pad="1"></div>
+</div>`,
+
+/* 12 BREAKOUT 2 BRIEF */
+`<div class="eyebrow reveal"><span class="dot"></span> BREAKOUT 2 OF 2 &middot; SAME PACK, SAME POD, TECHNOLOGY NOW ALLOWED</div>
+<h2 class="reveal">Now take a position on it</h2>
+<p class="sub reveal" style="font-size:14.5px">No new pack. The same Redpoint you just mapped. What changed is that you may now name what you would build, and you have to say what it costs.</p>
+<div class="grid3 grow bkgrid reveal" style="margin-top:10px">
+  <div class="card" style="border-left:3px solid var(--cobalt);padding:12px 14px"><div class="chip" style="font-size:9.5px">What your pod produces</div>
+    <p style="margin-top:6px;font-size:12.5px;line-height:1.42"><b>1.</b> One trade-off, with the loss named and a role who would object.<br><b>2.</b> Two guarantees, each with a metric, a digit, a measurement method and a breach action.</p></div>
+  <div class="card" style="border-left:3px solid var(--amber);padding:12px 14px"><div class="chip amber" style="font-size:9.5px">And then</div>
+    <p style="margin-top:6px;font-size:12.5px;line-height:1.42"><b>3.</b> Two real options and the requirement that decides between them, plus what would flip it.<br><b>4.</b> The named pattern this is an instance of, and one other Redpoint capability it would serve.</p></div>
+  <div class="card" style="border-left:3px solid var(--sage);padding:12px 14px"><div class="chip sage" style="font-size:9.5px">How to run 35 minutes</div>
+    <p style="margin-top:6px;font-size:12.5px;line-height:1.42">The 35 minutes are yours to divide. Three fixed points again: <b>argue the trade-off before anyone writes it</b>, <b>peer review inside the pod</b>, and <b>pick who presents</b> before the timer ends.</p></div>
+</div>
+<div class="workband reveal">
+  <div><div style="font-family:var(--disp);font-size:22px;font-weight:800;color:var(--ink)">35 minutes, second round</div>
+  <p style="font-size:12.5px;color:var(--ink-soft);margin-top:4px">Build on the statement you wrote in round one. If your statement was weak, <b>fix it first</b>: a trade-off defended against a vague problem is not defensible.</p></div>
+  <button class="jbtn rev" style="margin-left:auto;white-space:nowrap" onclick="openWorkTimer(35)">Start the 35-minute timer</button>
+</div>
+<div class="deliv reveal">
+  <div class="dlab">The shape &middot; rehearse it on Redpoint now, write exactly this on Halden tonight</div>
+  <pre class="dpre">6  TRADE-OFF       chose &lt;X&gt; over &lt;Y&gt; | deciding requirement | <b>what we gave up</b> | who disagrees and why
+7  GUARANTEES      A and B, each: metric | threshold <b>with a digit</b> | how measured | action on breach + who
+8  ORCHESTRATION   option A | option B | chosen | the requirement that decided it | <b>what would make the other win</b>
+9  CONTEXT + RANGE governance body + constraint (x2) | which lens it changes
+                   another capability this pattern serves | <b>the named pattern</b> | precondition for reuse</pre>
+</div>
+<div class="example reveal" style="max-width:none;margin-top:9px">
+  <div class="label">Second peer review, inside the 35 minutes &middot; one row per letter, review against the rubric</div>
+  <div class="maprow3 maphead" style="grid-template-columns:0.42fr 0.5fr 1.5fr"><div>Letter</div><div>Look at</div><div>Flag it if</div></div>
+  <div class="maprow3" style="grid-template-columns:0.42fr 0.5fr 1.5fr"><div><span class="rbadge vec primary">E</span> Edge Judgment</div><div><b>6.4</b></div><div>Empty, vague, or says nothing was given up. That last one scores zero.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.42fr 0.5fr 1.5fr"><div><span class="rbadge vec">T</span> Trust Architecture</div><div><b>Section 7</b></div><div>Either guarantee has no digit in the threshold, or no breach action naming a person.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.42fr 0.5fr 1.5fr"><div><span class="rbadge vec">O</span> Orchestration</div><div><b>8.4 and 8.5</b></div><div>The deciding reason is familiarity, or 8.5 is blank. Either one caps the line at 75.</div></div>
+  <div class="maprow3" style="grid-template-columns:0.42fr 0.5fr 1.5fr"><div><span class="rbadge vec">R</span> Range</div><div><b>9.7</b></div><div>It says "reusable" or "scalable" instead of naming an actual pattern.</div></div>
+  <p class="mapnote"><b>Same rule as round one: name one thing, not four.</b> And write your reviewer's name into section 10 of your own document while you remember it, along with the one thing you changed because of them.</p>
+</div>`,
+
+/* 13 DEBRIEF 2 + POD NOTES */
+`<div class="eyebrow reveal"><span class="dot"></span> BACK TOGETHER &middot; EVERY POD, TWO MINUTES &middot; BOARD 2 OF 2</div>
+<h2 class="reveal">What each pod was willing to give up</h2>
+<div class="grid3 reveal" style="margin-top:8px">
+  <div class="card" style="border-left:3px solid var(--clay);padding:10px 13px"><p style="font-size:12.3px;line-height:1.4;margin:0"><b>Your trade-off, and the loss.</b> If the pod cannot name what it cost, say that out loud too.</p></div>
+  <div class="card" style="border-left:3px solid var(--cobalt);padding:10px 13px"><p style="font-size:12.3px;line-height:1.4;margin:0"><b>One guarantee, read in full.</b> Metric, number, method, breach action.</p></div>
+  <div class="card" style="border-left:3px solid var(--sage);padding:10px 13px"><p style="font-size:12.3px;line-height:1.4;margin:0"><b>Your named pattern</b>, and the thing that would have to be true to reuse it.</p></div>
+</div>
+<div class="podpad reveal" data-pad="2">
+  <div class="ppbar">
+    <div class="pplab">Breakout 2 &middot; pod notes</div>
+    <button class="ppbtn" onclick="podLess('2')">&minus; pod</button>
+    <span class="ppcount" data-pad="2">6 pods</span>
+    <button class="ppbtn" onclick="podMore('2')">+ pod</button>
+    <button class="ppbtn" onclick="podClear('2')">clear</button>
+    <button class="ppbtn" onclick="podExport()" style="margin-left:auto">download both boards</button>
+  </div>
+  <div class="ppgrid" data-pad="2"></div>
+</div>`,
+
+`<div class="eyebrow reveal"><span class="dot"></span> WEEK 1 &middot; M1 &middot; CONSULTATIVE &amp; ENTERPRISE THINKING</div>
+<h2 class="reveal">Diagnose before you prescribe, inside a real organisation</h2>
+<p class="sub reveal" style="font-size:14.5px">Six words, and the whole module is in them. <b>Diagnose</b> is the consultative half. <b>Inside a real organisation</b> is the enterprise half: named bodies, real constraints, named roles. A vendor skips to the prescription and does it in a vacuum. Here is where each piece of this week sat.</p>
+<div class="example reveal" style="max-width:none;margin-top:10px">
+  <div class="maprow3 maphead"><div>When</div><div>What you did</div><div>Which half of the claim</div><div>What it would look like if you skipped it</div></div>
+  <div class="maprow3"><div><b>Day 1</b></div><div>Heard a technology-shaped request and found the trap inside it.</div>
+    <div><b>Diagnose</b></div><div>You build the scheduler the COO asked for, and the return visits carry on.</div></div>
+  <div class="maprow3"><div><b>Day 2</b></div><div>Capability map with the cost marked, four stakeholder lenses, the reframe, the problem statement.</div>
+    <div><b>Diagnose</b></div><div>A statement nobody in Finance recognises, so nobody funds it.</div></div>
+  <div class="maprow3"><div><b>The firewall</b></div><div>No technology named until the business half was finished.</div>
+    <div><b>The mechanism</b></div><div>The tool picks the problem. This is the single most common way the whole thing goes wrong.</div></div>
+  <div class="maprow3"><div><b>Day 3</b></div><div>The trade-off and its cost, testable guarantees, the platform justified against the task, what it connects to. Both halves practised in one session.</div>
+    <div><b>Prescribe, and defend</b></div><div>A diagnosis with no recommendation. Interesting, and nobody acts on it.</div></div>
+  <div class="maprow3"><div><b>Peer review</b></div><div>Someone else read your work and named one thing before you submitted.</div>
+    <div><b>Both</b></div><div>You find out what was weak from the score instead of from a colleague.</div></div>
+</div>
+<div class="grid3 reveal" style="margin-top:10px">
+  <div class="card" style="border-left:3px solid var(--cobalt);padding:11px 13px"><div class="chip" style="font-size:9.5px">The three Core Skills &middot; 60%</div>
+    <p style="margin-top:6px;font-size:12px;line-height:1.4">Capability mapping, four lenses, a business-framed statement. All three ask one question: <b>can you diagnose?</b></p></div>
+  <div class="card" style="border-left:3px solid var(--amber);padding:11px 13px"><div class="chip amber" style="font-size:9.5px">The six VECTOR letters &middot; 40%</div>
+    <p style="margin-top:6px;font-size:12px;line-height:1.4">V and C sit on the diagnosis. E, T, O and R sit on the prescription. Together they ask: <b>can you decide, and defend it?</b></p></div>
+  <div class="card" style="border-left:3px solid var(--sage);padding:11px 13px"><div class="chip sage" style="font-size:9.5px">The work product</div>
+    <p style="margin-top:6px;font-size:12px;line-height:1.4"><b>Business Pain Map + Validated Problem Statement.</b> Not a document for its own sake. It is the only durable evidence that the thinking happened in the right order.</p></div>
+</div>
+<div class="actbar reveal"><div class="lab">If you<br>remember one thing</div><p>The first noun in a request is almost always a technology, and it is almost never the problem. Everything you were taught this week exists to buy you the thirty minutes between hearing that noun and agreeing to build it. <b>Week 2 assumes you have those thirty minutes</b> and asks what you build with them.</p></div>`,
+
+`<div class="eyebrow reveal"><span class="dot"></span> RECAP &middot; FLIP EACH CARD AND SAY IT IN YOUR OWN WORDS</div>
+<h2 class="reveal">Six ideas from today</h2>
+<div class="flipgrid reveal">
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">A choice with no cost is not a choice</div><div class="fsub">Apple, 2016.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">Name the loss</div><p>They gave up every wired headphone on earth, and said so. "No downside" scores zero on Edge Judgment.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">A guarantee has four parts</div><div class="fsub">Twelve nines.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">Metric, threshold, method, breach</div><p>Missing the breach clause makes it a wish. If nothing happens when the number is missed, nobody owns the number.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">The platform answer is a property of your task</div><div class="fsub">Dropbox off, Netflix on.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">Opposite directions, both right</div><p>Dropbox moved off AWS at 500 PB because of its own block-storage economics, and kept 10% on AWS where that reasoning did not hold.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">Say what would change your mind</div><div class="fsub">Field 8.5.</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">The reversal condition</div><p>If nothing would make the other option win, you justified one option rather than evaluating two. That field is 75 versus 100.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">Range needs a name, not an adjective</div><div class="fsub">"We could sell it as a service."</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">AWS, 2003 to 2006</div><p>Built for Amazon's own scaling problem, with the broader opportunity named in the proposal. "Reusable" on its own is the 50 band.</p></div></div></div>
+  <div class="flip" onclick="this.classList.toggle('flip-on')"><div class="flipinner">
+    <div class="flipface flipfront"><div class="fh">Check the story everyone repeats</div><div class="fsub">"It's totally false."</div><div class="fhint">Tap to flip</div></div>
+    <div class="flipface flipback"><div class="fh">The spare-capacity myth</div><p>AWS was not built from leftover Christmas servers. An invented fact survived twenty years because it sounded right. Check the numbers on your own map.</p></div></div></div>
+</div>`,
+
+`<div class="eyebrow reveal"><span class="dot"></span> BEFORE YOU LOG OFF &middot; TWO THINGS</div>
+<h2 class="reveal">Submit, and tell me how today went</h2>
+<div class="grid2 grow tall reveal" style="margin-top:10px;grid-template-columns:1.45fr 1fr">
+  <div class="example" style="margin-top:0"><div class="label">Submitting Lab 1: Halden Mutual</div>
+    <div class="maprow maphead"><div>Step</div><div>What to do</div></div>
+    <div class="maprow"><div><b>1</b></div><div>Open your <b>Halden Mutual</b> document. Finish sections 6 to 9, and section 10 with your reviewer's name and the one thing you changed because of it.</div></div>
+    <div class="maprow"><div><b>2</b></div><div>Open <b>ASA_Week1_PreCheck.html</b> in any browser. Drag your file onto it. Nothing is uploaded; it runs on your machine.</div></div>
+    <div class="maprow"><div><b>3</b></div><div>Fix everything under <b>Must fix</b>. Run it again. Submit only when it says <b>READY TO SUBMIT</b>.</div></div>
+    <div class="maprow"><div><b>4</b></div><div>Save as <b>&lt;YourUID&gt;.docx</b>. Nothing else in the file name. Not <i>week1 final v3.docx</i>.</div></div>
+    <div class="maprow"><div><b>5</b></div><div>Send it to the <b>programme moderator</b> by the <b>end of today</b>.</div></div>
+    <p class="mapnote"><b>Redpoint stays in this room.</b> Nothing from either breakout is collected. What you submit is your own Halden Mutual document. <b>Why tonight and not 13:00?</b> So you can put today's four letters into it properly rather than handing in something you wrote before you learned them. <b>Scoring comes back next week.</b> Every submission is read twice, independently, against the same nine lines you have been working to. Your scored rubric and written feedback reach you through the programme moderator.</p>
+  </div>
+  <div class="qrcard">
+    <div class="qrlab">Two minutes, please</div>
+    <div class="qrbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 45 45" shape-rendering="crispEdges" role="img" aria-label="Feedback form QR code"><rect width="45" height="45" fill="#fff"/><path d="M2 2h7v1h-7zM10 2h1v1h-1zM14 2h2v1h-2zM19 2h2v1h-2zM23 2h1v1h-1zM27 2h2v1h-2zM30 2h1v1h-1zM36 2h7v1h-7zM2 3h1v1h-1zM8 3h1v1h-1zM11 3h3v1h-3zM15 3h5v1h-5zM21 3h1v1h-1zM24 3h1v1h-1zM26 3h2v1h-2zM33 3h2v1h-2zM36 3h1v1h-1zM42 3h1v1h-1zM2 4h1v1h-1zM4 4h3v1h-3zM8 4h1v1h-1zM12 4h1v1h-1zM15 4h2v1h-2zM23 4h1v1h-1zM28 4h4v1h-4zM34 4h1v1h-1zM36 4h1v1h-1zM38 4h3v1h-3zM42 4h1v1h-1zM2 5h1v1h-1zM4 5h3v1h-3zM8 5h1v1h-1zM10 5h4v1h-4zM17 5h5v1h-5zM23 5h3v1h-3zM27 5h2v1h-2zM30 5h1v1h-1zM32 5h1v1h-1zM36 5h1v1h-1zM38 5h3v1h-3zM42 5h1v1h-1zM2 6h1v1h-1zM4 6h3v1h-3zM8 6h1v1h-1zM10 6h5v1h-5zM16 6h2v1h-2zM19 6h3v1h-3zM25 6h1v1h-1zM27 6h1v1h-1zM30 6h1v1h-1zM32 6h2v1h-2zM36 6h1v1h-1zM38 6h3v1h-3zM42 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM12 7h2v1h-2zM15 7h1v1h-1zM17 7h3v1h-3zM21 7h1v1h-1zM24 7h1v1h-1zM30 7h1v1h-1zM33 7h1v1h-1zM36 7h1v1h-1zM42 7h1v1h-1zM2 8h7v1h-7zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h1v1h-1zM30 8h1v1h-1zM32 8h1v1h-1zM34 8h1v1h-1zM36 8h7v1h-7zM10 9h7v1h-7zM18 9h6v1h-6zM25 9h1v1h-1zM28 9h4v1h-4zM2 10h1v1h-1zM6 10h1v1h-1zM8 10h4v1h-4zM14 10h2v1h-2zM17 10h1v1h-1zM19 10h1v1h-1zM22 10h2v1h-2zM26 10h1v1h-1zM31 10h1v1h-1zM33 10h7v1h-7zM42 10h1v1h-1zM9 11h2v1h-2zM12 11h2v1h-2zM15 11h1v1h-1zM20 11h1v1h-1zM22 11h1v1h-1zM25 11h1v1h-1zM28 11h3v1h-3zM32 11h1v1h-1zM35 11h1v1h-1zM37 11h3v1h-3zM41 11h2v1h-2zM4 12h3v1h-3zM8 12h1v1h-1zM11 12h2v1h-2zM16 12h1v1h-1zM18 12h1v1h-1zM20 12h1v1h-1zM22 12h1v1h-1zM25 12h1v1h-1zM28 12h3v1h-3zM32 12h1v1h-1zM34 12h1v1h-1zM36 12h1v1h-1zM41 12h2v1h-2zM3 13h1v1h-1zM5 13h2v1h-2zM11 13h2v1h-2zM15 13h5v1h-5zM22 13h2v1h-2zM25 13h2v1h-2zM31 13h1v1h-1zM33 13h2v1h-2zM37 13h1v1h-1zM39 13h1v1h-1zM42 13h1v1h-1zM2 14h3v1h-3zM7 14h3v1h-3zM11 14h2v1h-2zM19 14h2v1h-2zM23 14h5v1h-5zM29 14h1v1h-1zM35 14h1v1h-1zM41 14h1v1h-1zM2 15h2v1h-2zM6 15h1v1h-1zM10 15h1v1h-1zM16 15h2v1h-2zM21 15h2v1h-2zM25 15h1v1h-1zM29 15h2v1h-2zM32 15h1v1h-1zM34 15h3v1h-3zM38 15h1v1h-1zM3 16h1v1h-1zM8 16h1v1h-1zM10 16h3v1h-3zM18 16h1v1h-1zM20 16h1v1h-1zM22 16h1v1h-1zM24 16h2v1h-2zM27 16h3v1h-3zM31 16h2v1h-2zM34 16h4v1h-4zM39 16h1v1h-1zM42 16h1v1h-1zM2 17h1v1h-1zM5 17h2v1h-2zM9 17h4v1h-4zM14 17h1v1h-1zM19 17h2v1h-2zM23 17h1v1h-1zM29 17h6v1h-6zM39 17h1v1h-1zM41 17h1v1h-1zM2 18h2v1h-2zM5 18h1v1h-1zM8 18h5v1h-5zM14 18h2v1h-2zM19 18h1v1h-1zM21 18h3v1h-3zM29 18h6v1h-6zM37 18h1v1h-1zM2 19h1v1h-1zM6 19h1v1h-1zM10 19h1v1h-1zM12 19h2v1h-2zM17 19h1v1h-1zM20 19h2v1h-2zM23 19h3v1h-3zM27 19h1v1h-1zM29 19h2v1h-2zM35 19h6v1h-6zM42 19h1v1h-1zM5 20h1v1h-1zM8 20h3v1h-3zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h3v1h-3zM25 20h1v1h-1zM27 20h3v1h-3zM32 20h1v1h-1zM37 20h1v1h-1zM39 20h2v1h-2zM42 20h1v1h-1zM4 21h1v1h-1zM10 21h2v1h-2zM13 21h4v1h-4zM18 21h4v1h-4zM24 21h1v1h-1zM28 21h1v1h-1zM30 21h4v1h-4zM37 21h1v1h-1zM39 21h1v1h-1zM41 21h1v1h-1zM2 22h2v1h-2zM6 22h5v1h-5zM13 22h2v1h-2zM16 22h3v1h-3zM20 22h1v1h-1zM24 22h2v1h-2zM30 22h3v1h-3zM35 22h1v1h-1zM37 22h1v1h-1zM39 22h1v1h-1zM5 23h2v1h-2zM10 23h3v1h-3zM14 23h5v1h-5zM21 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM28 23h1v1h-1zM30 23h3v1h-3zM34 23h1v1h-1zM36 23h4v1h-4zM42 23h1v1h-1zM4 24h2v1h-2zM7 24h7v1h-7zM15 24h1v1h-1zM18 24h1v1h-1zM20 24h1v1h-1zM25 24h6v1h-6zM32 24h1v1h-1zM34 24h1v1h-1zM36 24h1v1h-1zM38 24h2v1h-2zM42 24h1v1h-1zM3 25h1v1h-1zM7 25h1v1h-1zM9 25h2v1h-2zM14 25h2v1h-2zM19 25h1v1h-1zM22 25h4v1h-4zM28 25h7v1h-7zM39 25h1v1h-1zM5 26h2v1h-2zM8 26h2v1h-2zM11 26h3v1h-3zM15 26h2v1h-2zM19 26h1v1h-1zM22 26h5v1h-5zM31 26h1v1h-1zM34 26h2v1h-2zM40 26h1v1h-1zM3 27h1v1h-1zM6 27h2v1h-2zM9 27h1v1h-1zM16 27h3v1h-3zM20 27h1v1h-1zM25 27h1v1h-1zM27 27h3v1h-3zM32 27h1v1h-1zM34 27h2v1h-2zM37 27h2v1h-2zM40 27h1v1h-1zM2 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM12 28h1v1h-1zM15 28h1v1h-1zM17 28h1v1h-1zM22 28h1v1h-1zM24 28h4v1h-4zM29 28h1v1h-1zM31 28h1v1h-1zM34 28h2v1h-2zM38 28h1v1h-1zM42 28h1v1h-1zM4 29h1v1h-1zM7 29h1v1h-1zM9 29h1v1h-1zM12 29h1v1h-1zM14 29h1v1h-1zM17 29h1v1h-1zM19 29h1v1h-1zM21 29h4v1h-4zM26 29h1v1h-1zM28 29h1v1h-1zM30 29h8v1h-8zM39 29h1v1h-1zM41 29h2v1h-2zM2 30h2v1h-2zM7 30h5v1h-5zM15 30h1v1h-1zM18 30h1v1h-1zM22 30h2v1h-2zM35 30h1v1h-1zM2 31h2v1h-2zM6 31h1v1h-1zM11 31h5v1h-5zM17 31h1v1h-1zM19 31h3v1h-3zM24 31h2v1h-2zM27 31h4v1h-4zM32 31h1v1h-1zM37 31h6v1h-6zM5 32h4v1h-4zM11 32h1v1h-1zM13 32h3v1h-3zM17 32h5v1h-5zM24 32h4v1h-4zM29 32h4v1h-4zM35 32h1v1h-1zM38 32h5v1h-5zM6 33h1v1h-1zM10 33h2v1h-2zM13 33h3v1h-3zM17 33h3v1h-3zM21 33h3v1h-3zM26 33h1v1h-1zM31 33h1v1h-1zM35 33h1v1h-1zM38 33h1v1h-1zM42 33h1v1h-1zM2 34h2v1h-2zM7 34h2v1h-2zM10 34h3v1h-3zM16 34h2v1h-2zM24 34h2v1h-2zM28 34h1v1h-1zM30 34h2v1h-2zM34 34h6v1h-6zM42 34h1v1h-1zM10 35h1v1h-1zM12 35h2v1h-2zM15 35h1v1h-1zM17 35h1v1h-1zM19 35h1v1h-1zM25 35h1v1h-1zM27 35h1v1h-1zM29 35h6v1h-6zM38 35h1v1h-1zM41 35h2v1h-2zM2 36h7v1h-7zM10 36h2v1h-2zM13 36h2v1h-2zM16 36h2v1h-2zM20 36h1v1h-1zM23 36h3v1h-3zM27 36h4v1h-4zM32 36h3v1h-3zM36 36h1v1h-1zM38 36h1v1h-1zM42 36h1v1h-1zM2 37h1v1h-1zM8 37h1v1h-1zM13 37h1v1h-1zM15 37h1v1h-1zM21 37h3v1h-3zM25 37h2v1h-2zM29 37h1v1h-1zM31 37h4v1h-4zM38 37h2v1h-2zM2 38h1v1h-1zM4 38h3v1h-3zM8 38h1v1h-1zM10 38h1v1h-1zM12 38h4v1h-4zM18 38h1v1h-1zM22 38h1v1h-1zM26 38h1v1h-1zM30 38h2v1h-2zM33 38h7v1h-7zM41 38h2v1h-2zM2 39h1v1h-1zM4 39h3v1h-3zM8 39h1v1h-1zM11 39h1v1h-1zM13 39h1v1h-1zM17 39h1v1h-1zM19 39h2v1h-2zM24 39h1v1h-1zM28 39h3v1h-3zM33 39h1v1h-1zM37 39h1v1h-1zM42 39h1v1h-1zM2 40h1v1h-1zM4 40h3v1h-3zM8 40h1v1h-1zM11 40h1v1h-1zM13 40h8v1h-8zM22 40h1v1h-1zM24 40h2v1h-2zM27 40h3v1h-3zM35 40h1v1h-1zM39 40h2v1h-2zM42 40h1v1h-1zM2 41h1v1h-1zM8 41h1v1h-1zM13 41h2v1h-2zM16 41h1v1h-1zM23 41h1v1h-1zM26 41h1v1h-1zM28 41h5v1h-5zM34 41h1v1h-1zM36 41h2v1h-2zM39 41h1v1h-1zM41 41h2v1h-2zM2 42h7v1h-7zM10 42h3v1h-3zM15 42h2v1h-2zM20 42h1v1h-1zM22 42h3v1h-3zM26 42h1v1h-1zM29 42h3v1h-3zM33 42h3v1h-3zM37 42h3v1h-3zM41 42h1v1h-1z" fill="#14213D"/></svg></div>
+    <p class="qrtxt">Scan for the <b>feedback form for this week</b>.</p>
+  </div>
+</div>
+<div class="listen reveal">
+  <div class="lsitem"><div class="lh">If the pre-check blocks you</div><p>Fix every item under <b>Must fix</b> and run it again. A blocked submission costs you one of your three attempts.</p></div>
+  <div class="lsitem"><div class="lh">If you are missing a number</div><p>Write <b>"not currently measured"</b> and say what you would instrument first. That scores. An empty field scores zero.</p></div>
+  <div class="lsitem"><div class="lh">Next Thursday</div><p>Week 2 opens on architecture thinking: which AI building block fits the problem you just framed. The letter the work bends moves to <b>O</b>, which you met today in the Google chip case.</p></div>
+</div>`
+];
+
+const TITLES = ["Cover", "The plan and the clock", "Today's four letters", "E: Facebook News Feed", "T: the S3 SLA", "O: Google builds a chip", "R: MapReduce to Hadoop", "The whole rubric", "Before you go into room 1", "BREAKOUT 1: the map", "Break + debrief 1 + board 1", "BREAKOUT 2: the position", "Debrief 2 + board 2", "How Week 1 marries up", "Recap flip cards", "Submit + feedback"];
+
+/* ============================================================= QUIZ (unused on Day 3) */
+const QUIZ = {};
+
+/* ============================================================= SORT GAME: real trade-off? */
+const SORTQ = [
+  {t:"Remove the headphone jack to fit a bigger battery, giving up every wired headphone", consult:true},
+  {t:"Move off S3 for better unit economics, giving up its elasticity and zero operations", consult:true},
+  {t:"Fix parts data first, giving up any visible progress for two quarters", consult:true},
+  {t:"Keep allocation rules-based so they can be challenged, giving up accuracy", consult:true},
+  {t:"Ship to one region first, giving up the launch date everyone was told", consult:true},
+  {t:"Adopt a modern, scalable, industry-standard platform", consult:false},
+  {t:"Improve the customer experience while reducing operational cost", consult:false},
+  {t:"Use the cloud provider we already have, since the team knows it", consult:false},
+  {t:"Follow best practice and align with the strategic roadmap", consult:false},
+  {t:"Deliver a solution that is secure, reliable and future-proof", consult:false}
+];
+
+/* ============================================================= SCORE IT: band these guarantees */
+const SCOREITEMS = [
+  {line:"Trust architecture, from a real submission",
+   sub:"\"The platform will be highly secure and reliable, and we will monitor it closely to ensure a good user experience.\"",
+   model:25,
+   why:"Trust is <b>asserted</b>, not designed. No metric, no threshold, no measurement method, nobody accountable. \"Closely\" is not a number. This is the exact wording the rubric puts at 25: trust asserted with no guarantee structure."},
+  {line:"Trust architecture, second attempt",
+   sub:"\"First-time fix rate will be reported weekly from job close records, and reviewed by the Head of Field Operations.\"",
+   model:50,
+   why:"A real metric and a real measurement method, which lifts it off 25. But there is <b>no threshold</b>. Reported weekly against what? Without a number there is nothing to breach, so there is nothing to hold anyone to. Guarantees mentioned generally rather than as testable commitments is the 50 band."},
+  {line:"Trust architecture, third attempt",
+   sub:"\"First-time fix rate rises from 58% to 70% within three quarters, measured from job close records in the field service system and reported weekly. If it is missed at the end of any quarter, the Head of Field Operations reviews with Commercial Review before further spend.\"",
+   model:100,
+   why:"All four parts present: the metric, a <b>numeric threshold with a deadline</b>, the system that produces the number, and a named person taking a named action on breach. This is what \"testable commitments stated up front\" means."},
+  {line:"Orchestration, from a real submission",
+   sub:"\"We will use our existing cloud provider's managed AI service, as it is already approved by security and the engineers know it well.\"",
+   model:25,
+   why:"Two familiarity reasons and one procurement reason. Nothing names a requirement of the <b>task</b>: not latency, not where the data sits, not volume, not explainability. Approved and known are real benefits, but the rubric asks whether the choice was justified against the task's actual requirements. This is the 25 band: defaults to the familiar option with a token justification."}
+];
+
+const BANDTIP = {
+  0:"Absent. Nothing to score.",
+  25:"A genuine attempt that falls short.",
+  50:"Present but thin, or missing a required part.",
+  75:"Strong, with one element generic or asserted.",
+  100:"Top band, fully evidenced."
+};
+
+const LENS = [];
+const POLLROWS = [];
+const STEPQUIZ = [];
+const JEO = [];
+const OIQ = [];
+const OIDONE = "";
+
+
+/* ============================================================= ENGINE */
+const stage=document.getElementById('stage');
+let cur=0, revealStops=[], revealIdx=0;
+SLIDES.forEach((html,i)=>{ const s=document.createElement('section'); s.className='slide'; s.dataset.title=TITLES[i]||('Slide '+i); s.innerHTML=html; stage.appendChild(s); });
+const slideEls=[...document.querySelectorAll('.slide')];
+
+function buildQuiz(el){
+  const kind=el.dataset.quiz; const d=QUIZ[kind]; const parent=el.parentElement;
+  let opts=d.q.opts.map(o=>`<div class="qopt" data-ok="${o.ok}" onclick="quizPick(this)"><span class="k">${o.k}</span><span>${o.t}</span></div>`).join('');
+  parent.innerHTML=
+   `<div class="eyebrow reveal"><span class="dot"></span> ${d.eyebrow}</div>
+    <h2 class="reveal">${d.title}</h2>
+    <div class="quiz reveal"><p class="big" style="color:var(--ink)">${d.q.prompt}</p>
+      <div class="qopts">${opts}</div>
+      <div class="qfb" id="qfb-${kind}"></div></div>`;
+  parent.dataset.qkind=kind;
+}
+function buildWidgets(s){
+  const qz=s.querySelector('[data-quiz]'); if(qz) buildQuiz(qz);
+  if(s.querySelector('#qchips')) buildSort();
+  if(s.querySelector('#jboard')) buildJeopardy();
+  if(s.querySelector('#poll')) buildPoll();
+  if(s.querySelector('#scoreit')) buildScore();
+  if(s.querySelector('#stepquiz')) buildStepQuiz();
+  if(s.querySelector('#oibuild')) buildOI();
+  if(s.querySelector('.podpad[data-pad]')) buildPodPad();
+  if(typeof mtClearAll==='function') mtClearAll();
+}
+function enterHooks(s){
+  if(s.querySelector('#heatmap')) heatUpdate();
+  if(s.querySelector('#lenspanel')) lensRender();
+  if(s.querySelector('#typed')) typeWriter();
+  if(s.querySelector('.chklist')) chkInit(s);
+}
+function enter(n, full){
+  if(!slideEls || !slideEls.length) return;
+  n = Math.max(0, Math.min(slideEls.length-1, n|0));
+  if(slideEls[cur]) slideEls[cur].classList.remove('active');
+  cur=n; const s=slideEls[cur];
+  if(!s) return;
+  buildWidgets(s);
+  s.classList.add('active');
+  const rv=[...s.querySelectorAll('.reveal')]; revealStops=rv;
+  rv.forEach(r=>r.classList.remove('show'));
+  if(full){ rv.forEach(r=>r.classList.add('show')); revealIdx=rv.length; }
+  else { if(rv.length){ rv[0].classList.add('show'); revealIdx=1; } else revealIdx=0; }
+  document.getElementById('prog').style.width=(cur/(SLIDES.length-1)*100)+'%';
+  document.getElementById('pageno').textContent=String(cur+1).padStart(2,'0');
+  enterHooks(s);
+}
+function show(n){ enter(Math.max(0,Math.min(SLIDES.length-1,n)), false); }
+function next(){
+  if(revealIdx<revealStops.length){ revealStops[revealIdx].classList.add('show'); revealIdx++; return; }
+  if(cur<SLIDES.length-1) enter(cur+1,false);
+}
+function prev(){
+  if(revealIdx>1){ revealIdx--; revealStops[revealIdx].classList.remove('show'); return; }
+  if(cur>0) enter(cur-1,true);   // land on previous slide's fully revealed final state
+}
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT') return;
+  const k=e.key.toLowerCase();
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();next();}
+  else if(e.key==='ArrowLeft'){e.preventDefault();prev();}
+  else if(k==='w'){toggleWB();} else if(k==='s'){toggleSB();}
+  else if(k==='t'){toggleTM();} else if(k==='g'){toggleGrid();}
+  else if(k==='f'){toggleFull();} else if(e.key==='Escape'){closeOverlays();}
+});
+function closeOverlays(){document.getElementById('gridnav').classList.remove('on');document.getElementById('jmodal').classList.remove('open');document.getElementById('toolsmenu').classList.remove('on');}
+/* ---------- grid nav ---------- */
+function toggleGrid(){ const g=document.getElementById('gridnav'); const on=g.classList.toggle('on');
+  if(on) document.getElementById('gwrap').innerHTML=TITLES.map((t,i)=>`<div class="gcell" onclick="jumpTo(${i})"><div class="gn">${String(i+1).padStart(2,'0')}</div><div class="gt">${t}</div></div>`).join(''); }
+function jumpTo(i){ document.getElementById('gridnav').classList.remove('on'); show(i); }
+/* ---------- reusable inline mini countdown (default 30s, 15s on small questions) ---------- */
+let mtHandles=[];
+function mtClearAll(){ mtHandles.forEach(h=>clearInterval(h)); mtHandles=[]; }
+function miniTimer(btn){ if(btn.dataset.run==='1')return; const secs=+btn.dataset.secs||30; let left=secs;
+  btn.dataset.run='1'; btn.classList.remove('done'); btn.classList.add('run'); btn.textContent=left+'s';
+  const h=setInterval(()=>{ left--;
+    if(left<=0){ clearInterval(h); btn.textContent="TIME'S UP"; btn.classList.remove('run'); btn.classList.add('done'); btn.dataset.run=''; return; }
+    btn.textContent=left+'s'; },1000);
+  mtHandles.push(h); }
+/* ---------- orchestration-intelligence socratic builder ---------- */
+let oiIdx=0, oiState=[];
+function buildOI(){ oiIdx=0; oiState=[]; if(document.getElementById('oiq')) oiRender(); }
+function oiFragsRender(){ const fr=document.getElementById('oifrags'); if(!fr)return; fr.innerHTML='';
+  oiState.forEach((st,i)=>{ if(!st)return; const d=document.createElement('div'); d.className='oifrag'; d.innerHTML=OIQ[i].frag; fr.appendChild(d); });
+  if(oiState.length===OIQ.length && oiState.every(Boolean)){ const f=document.createElement('div'); f.className='oidone'; f.innerHTML=OIDONE; fr.appendChild(f); } }
+function oiRender(){ const box=document.getElementById('oiq'); if(!box)return; const it=OIQ[oiIdx]; const st=oiState[oiIdx];
+  box.innerHTML='<div class="oistep">Question '+(oiIdx+1)+' of '+OIQ.length+'</div><div class="oiprompt">'+it.q+'</div>'+
+    it.opts.map(o=>'<div class="oiopt" data-ok="'+(o.ok?1:0)+'" onclick="oiPick(this)">'+o.t+'</div>').join('')+
+    '<div class="mtwrap"><button class="mtimer" data-secs="30" onclick="miniTimer(this)">Start 30s</button>'+
+    (oiIdx>0?'<button class="oiprev" onclick="oiPrev()">&larr; Previous</button>':'')+'</div>'+
+    '<div class="oifb" id="oifb"></div>';
+  if(st){ box.dataset.done='1'; box.querySelectorAll('.oiopt').forEach(o=>o.classList.add(o.dataset.ok==='1'?'ok':'no'));
+    document.getElementById('oifb').innerHTML='<b>'+(st.good?'Yes.':'Not quite.')+'</b> '+it.why+
+      (oiIdx<OIQ.length-1?'<button class="oinext" onclick="oiNext()">Next question</button>':''); }
+  else box.dataset.done='';
+  oiFragsRender(); }
+function oiPick(el){ const box=document.getElementById('oiq'); if(box.dataset.done)return;
+  oiState[oiIdx]={good:el.dataset.ok==='1'}; oiRender(); }
+function oiNext(){ if(oiIdx<OIQ.length-1){ oiIdx++; oiRender(); } }
+function oiPrev(){ if(oiIdx>0){ oiIdx--; oiRender(); } }
+const PODK='asa_podnotes_v1';
+let podS = lsGet(PODK, {});
+function podGet(p){ if(!podS[p]) podS[p]={n:6,t:{}}; return podS[p]; }
+function podSave(){ lsSet(PODK, podS); }
+function podRender(p){
+  const g=document.querySelector('.ppgrid[data-pad="'+p+'"]'); if(!g) return;
+  const st=podGet(p);
+  const cols = st.n<=2?st.n : (st.n<=4?2:3);
+  g.style.gridTemplateColumns='repeat('+cols+',1fr)';
+  g.innerHTML='';
+  for(let i=1;i<=st.n;i++){
+    const d=document.createElement('div'); d.className='ppcell';
+    const h=document.createElement('div'); h.className='pph'; h.textContent='Pod '+i;
+    const ta=document.createElement('textarea');
+    ta.placeholder='What this pod said...';
+    ta.value = st.t[i]||'';
+    ta.addEventListener('input',function(e){ st.t[i]=e.target.value; podSave(); });
+    d.appendChild(h); d.appendChild(ta); g.appendChild(d);
+  }
+  const c=document.querySelector('.ppcount[data-pad="'+p+'"]');
+  if(c) c.textContent = st.n+(st.n===1?' pod':' pods');
+}
+function podMore(p){ const st=podGet(p); if(st.n<9){ st.n++; podSave(); podRender(p); } }
+function podLess(p){ const st=podGet(p); if(st.n>1){ delete st.t[st.n]; st.n--; podSave(); podRender(p); } }
+function podClear(p){ const st=podGet(p); st.t={}; podSave(); podRender(p); }
+function podExport(){
+  let out=[];
+  Object.keys(podS).sort().forEach(function(p){
+    const st=podS[p]; out.push('=== BREAKOUT '+p+' ===');
+    for(let i=1;i<=st.n;i++){ out.push('Pod '+i+': '+((st.t[i]||'').trim()||'(nothing recorded)')); }
+    out.push('');
+  });
+  const blob=new Blob([out.join(String.fromCharCode(10))],{type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='ASA_Week1_Day3_pod_notes.txt'; a.click(); URL.revokeObjectURL(a.href);
+}
+function buildPodPad(){ document.querySelectorAll('.podpad[data-pad]').forEach(function(el){ podRender(el.dataset.pad); }); }
+function toggleFull(){ if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();} }
+function toggleTools(){ document.getElementById('toolsmenu').classList.toggle('on'); }
+
+/* ---------- typewriter (cover) ---------- */
+let typed=false;
+function typeWriter(){
+  const el=document.getElementById('typed'); if(!el||typed) return; typed=true;
+  const txt=el.dataset.text||'"could a stranger run this without asking me anything?"'; let i=0;
+  el.textContent='';
+  const iv=setInterval(()=>{ el.textContent=txt.slice(0,i); i++; if(i>txt.length){clearInterval(iv); const c=document.getElementById('caret'); if(c) c.style.display='none';} }, 45);
+}
+
+/* ---------- quiz ---------- */
+function quizPick(el){
+  const box=el.closest('.qopts'); if(box.dataset.done) return; box.dataset.done=1;
+  const kind=el.closest('[data-qkind]').dataset.qkind;
+  [...box.children].forEach(o=>{ if(o.dataset.ok==='true') o.classList.add('correct'); });
+  if(el.dataset.ok!=='true') el.classList.add('wrong');
+  document.getElementById('qfb-'+kind).innerHTML=QUIZ[kind].q.fb;
+  if(el.dataset.ok==='true') award(20);
+}
+function tapOpen(el){ el.classList.toggle('open'); }
+
+/* ---------- heat map ---------- */
+function heatCycle(el){ let l=(+el.dataset.l+1)%4; el.dataset.l=l; el.querySelector('.lv').textContent=['unmarked','low pain','medium pain','high pain'][l]; heatUpdate(); }
+function heatUpdate(){ const map=document.getElementById('heatmap'); if(!map)return;
+  const hot=[...map.querySelectorAll('.heat')].filter(h=>h.dataset.l==='3').map(h=>h.querySelector('.cn').textContent);
+  const read=document.getElementById('heatread');
+  if(!hot.length) read.innerHTML="Nothing marked <b>high</b> yet. Which capability is actually bleeding money and time?";
+  else read.innerHTML="Concentrated pain: <b>"+hot.join(", ")+"</b>. That is your candidate opportunity. <i>Now</i> we can ask what technology serves it.";
+}
+
+/* ---------- four lens ---------- */
+let lensCur=0;
+function lensPick(el,i){ [...el.parentElement.children].forEach(t=>t.classList.remove('on')); el.classList.add('on'); lensCur=i; lensRender(); }
+function lensRender(){ const p=document.getElementById('lenspanel'); if(!p)return; const d=LENS[lensCur];
+  p.innerHTML=`<h3>${d.t}</h3><p style="font-size:17px">${d.b}</p><div class="verdict" style="color:${d.c}">${d.v}</div>`; }
+
+/* ---------- sort ---------- */
+let selChip=null;
+function buildSort(){ const wrap=document.getElementById('qchips'); if(!wrap||wrap.dataset.built)return; wrap.dataset.built=1;
+  const sh=[...SORTQ].sort(()=>Math.random()-.5);
+  wrap.innerHTML=sh.map(q=>`<div class="qchip" data-consult="${q.consult}" onclick="selectChip(this)">${q.t}</div>`).join(''); }
+function selectChip(el){ if(el.classList.contains('placed'))return; if(selChip)selChip.classList.remove('sel'); selChip=el; el.classList.add('sel'); }
+document.addEventListener('click',e=>{ const bin=e.target.closest('.bin'); if(!bin||!selChip)return;
+  const correct=(bin.classList.contains('consult'))===(selChip.dataset.consult==='true');
+  const chip=selChip; chip.classList.remove('sel'); chip.classList.add('placed', correct?'ok':'no');
+  bin.querySelector('.binitems').appendChild(chip); selChip=null;
+  if(correct){ award(10); toast('Correct'); } else { toast('That one belongs in the other bin'); }
+});
+
+/* ---------- fix ---------- */
+function strike(el){ el.classList.add('struck'); const box=el.closest('.fixbox');
+  if(box.querySelectorAll('.tech:not(.struck)').length===0){ box.querySelector('#fixgood').classList.add('show'); award(10); } }
+
+/* ---------- jeopardy ---------- */
+let jActive=null;
+function buildJeopardy(){ const b=document.getElementById('jboard'); if(!b||b.dataset.built)return; b.dataset.built=1;
+  b.innerHTML=JEO.map((col,ci)=>`<div class="jcol"><div class="jhead">${col.cat}</div>`+
+    col.items.map((it,ii)=>`<div class="jtile" data-c="${ci}" data-i="${ii}" onclick="jOpen(this)">${it.v}</div>`).join('')+`</div>`).join(''); }
+function jOpen(el){ if(el.classList.contains('done'))return; jActive={el,c:+el.dataset.c,i:+el.dataset.i};
+  const it=JEO[jActive.c].items[jActive.i]; document.getElementById('jq').innerHTML=it.q;
+  const ja=document.getElementById('ja'); ja.textContent=it.a; ja.classList.remove('show');
+  document.getElementById('jmodal').classList.add('open'); }
+function jReveal(){ document.getElementById('ja').classList.add('show'); }
+function jClose(){ if(jActive){ const it=JEO[jActive.c].items[jActive.i]; jActive.el.classList.add('done'); award(it.v); }
+  document.getElementById('jmodal').classList.remove('open'); jActive=null; }
+
+/* ---------- poll ---------- */
+function buildPoll(){ const p=document.getElementById('poll'); if(!p||p.dataset.built)return; p.dataset.built=1;
+  p.innerHTML=POLLROWS.map((r,i)=>`<div class="prow" onclick="pollRow(this,${i})"><div class="ptop"><span>${r.t}</span><span class="mono" id="pp-${i}"></span></div><div class="ptrack"><div class="pfill" id="pf-${i}"></div></div><div class="why">${r.why}</div></div>`).join(''); }
+function pollRow(el,i){ if(el.classList.contains('open'))return; el.classList.add('open');
+  document.getElementById('pf-'+i).style.width=POLLROWS[i].pct+'%'; document.getElementById('pp-'+i).textContent=POLLROWS[i].pct+'%'; }
+
+/* ---------- scoreboard ---------- */
+const LSK='asa_pods_v2'; const PODNAMES=['Pod 1','Pod 2','Pod 3','Pod 4','Pod 5','Pod 6','Pod 7','Pod 8','Pod 9'];
+let teams=[], activeTeam=0;
+function lsGet(k,f){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function loadTeams(){ teams=lsGet(LSK,[{n:'Pod 1',s:0},{n:'Pod 2',s:0},{n:'Pod 3',s:0},{n:'Pod 4',s:0},{n:'Pod 5',s:0},{n:'Pod 6',s:0}]); }
+function renderTeams(){ const box=document.getElementById('teams'); const max=Math.max(...teams.map(t=>t.s),0);
+  box.innerHTML='<div class="activehint">Active pod is highlighted. Click any pod to switch.</div>'+
+    teams.map((t,i)=>`<div class="team ${t.s===max&&max>0?'lead':''} ${i===activeTeam?'active-team':''}" onclick="setActive(${i})">
+      <div class="tt"><input class="nm" value="${t.n.replace(/"/g,'&quot;')}" onchange="renameTeam(${i},this.value)" onclick="event.stopPropagation()"><span class="sc">${t.s}</span></div>
+      <div class="btns"><button onclick="event.stopPropagation();bump(${i},5)">+5</button><button onclick="event.stopPropagation();bump(${i},10)">+10</button><button onclick="event.stopPropagation();bump(${i},-5)">-5</button></div></div>`).join(''); }
+function setActive(i){ activeTeam=i; renderTeams(); }
+function bump(i,d){ teams[i].s=Math.max(0,teams[i].s+d); lsSet(LSK,teams); renderTeams(); }
+function renameTeam(i,v){ teams[i].n=v||(PODNAMES[i]||('Pod '+(i+1))); lsSet(LSK,teams); }
+function addTeam(){ if(teams.length>=8)return; teams.push({n:PODNAMES[teams.length]||('Pod '+(teams.length+1)),s:0}); lsSet(LSK,teams); renderTeams(); }
+function removeTeam(){ if(teams.length<=2)return; teams.pop(); if(activeTeam>=teams.length)activeTeam=teams.length-1; lsSet(LSK,teams); renderTeams(); }
+function resetScores(){ teams.forEach(t=>t.s=0); lsSet(LSK,teams); renderTeams(); }
+function award(n){ /* AUTO-SCORING DISABLED - Hardik awards points manually from the scoreboard (S). Kept as a no-op so every widget call site stays valid. */ }
+function toggleSB(){ document.getElementById('sb').classList.toggle('on'); }
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1500); }
+
+/* ---------- whiteboard ---------- */
+let wbCtx,wbDrawing=false,wbColorV='#14213D',wbSizeV=3,wbErase=false,wbLast=null;
+function initWB(){ const c=document.getElementById('wbc'); wbCtx=c.getContext('2d'); sizeWB();
+  const pos=e=>{ const r=c.getBoundingClientRect(); const p=e.touches?e.touches[0]:e; return {x:p.clientX-r.left,y:p.clientY-r.top}; };
+  const start=e=>{ wbDrawing=true; wbLast=pos(e); e.preventDefault(); };
+  const move=e=>{ if(!wbDrawing)return; const p=pos(e);
+    wbCtx.strokeStyle=wbColorV; wbCtx.lineWidth=wbErase?wbSizeV*6:wbSizeV; wbCtx.lineCap='round'; wbCtx.lineJoin='round';
+    wbCtx.globalCompositeOperation=wbErase?'destination-out':'source-over';
+    wbCtx.beginPath(); wbCtx.moveTo(wbLast.x,wbLast.y); wbCtx.lineTo(p.x,p.y); wbCtx.stroke(); wbLast=p; e.preventDefault(); };
+  c.addEventListener('pointerdown',start); c.addEventListener('pointermove',move); window.addEventListener('pointerup',()=>wbDrawing=false);
+}
+function sizeWB(){ const c=document.getElementById('wbc'); c.width=window.innerWidth; c.height=window.innerHeight; }
+function toggleWB(){ const on=document.getElementById('wb').classList.toggle('on'); document.getElementById('wbbar').classList.toggle('on',on); if(on&&!wbCtx)initWB(); }
+function wbMode(m){ wbErase=(m==='erase'); document.getElementById('wbpen').style.opacity=wbErase?.5:1; document.getElementById('wberase').style.opacity=wbErase?1:.5; }
+function wbColor(el){ wbErase=false; wbColorV=el.dataset.c; wbMode('pen'); [...document.querySelectorAll('.wbbar .sw')].forEach(s=>s.classList.remove('on')); el.classList.add('on'); }
+function wbSize(n){ wbSizeV=n; }
+function wbClear(){ wbCtx&&wbCtx.clearRect(0,0,window.innerWidth,window.innerHeight); }
+window.addEventListener('resize',()=>{ if(wbCtx) sizeWB(); });
+
+/* ---------- timer ---------- */
+let tmTotal=30,tmLeft=30,tmInt=null,tmRun=false;
+function tmFmt(s){ return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+function tmRender(){ document.getElementById('tmdisp').textContent=tmFmt(tmLeft);
+  const el=document.getElementById('tm'); el.classList.toggle('warn',tmLeft<=60&&tmLeft>0); el.classList.toggle('done',tmLeft<=0); }
+function tmToggle(){ tmRun=!tmRun; document.getElementById('tmbtn').textContent=tmRun?'PAUSE':'START';
+  if(tmRun){ tmInt=setInterval(()=>{ if(tmLeft>0){tmLeft--;tmRender();} else {clearInterval(tmInt);tmRun=false;document.getElementById('tmbtn').textContent='START';} },1000); } else clearInterval(tmInt); }
+function tmReset(){ clearInterval(tmInt); tmRun=false; tmLeft=tmTotal; document.getElementById('tmbtn').textContent='START'; tmRender(); }
+function tmSet(m){ tmTotal=m*60; tmLeft=m*60; clearInterval(tmInt); tmRun=false; document.getElementById('tmbtn').textContent='START'; tmRender(); }
+function tmSetSec(s){ tmTotal=s; tmLeft=s; clearInterval(tmInt); tmRun=false; document.getElementById('tmbtn').textContent='START'; tmRender(); }
+function tmAdjust(m){ tmLeft=Math.max(0,tmLeft+m*60); tmTotal=Math.max(0,tmTotal+m*60); tmRender(); }
+function tmAdjustSec(s){ tmLeft=Math.max(0,tmLeft+s); tmTotal=Math.max(0,tmTotal+s); tmRender(); }
+function openWorkTimerSec(s){ const el=document.getElementById('tm'); if(el&&!el.classList.contains('on')) el.classList.add('on'); tmSetSec(s); if(!tmRun) tmToggle(); }
+function toggleTM(){ document.getElementById('tm').classList.toggle('on'); tmRender(); }
+
+/* ---------- break clock (start / stop / reset) ---------- */
+let breakTotal=10*60, breakLeft=10*60, breakInt=null, breakRun=false;
+function breakRender(){ const el=document.getElementById('breakclock'); if(el) el.textContent=tmFmt(breakLeft); }
+function breakAdjust(m){ breakLeft=Math.max(0,breakLeft+m*60); breakTotal=Math.max(0,breakTotal+m*60); const el=document.getElementById('breakclock'); if(el)el.style.color='var(--cobalt)'; breakRender(); }
+function breakToggle(){ const btn=document.getElementById('breakbtn');
+  if(breakRun){ breakRun=false; clearInterval(breakInt); if(btn)btn.textContent='RESUME'; return; }
+  breakRun=true; if(btn)btn.textContent='PAUSE';
+  breakInt=setInterval(()=>{ if(breakLeft>0){breakLeft--;breakRender();} else {clearInterval(breakInt);breakRun=false; if(btn)btn.textContent='START'; const el=document.getElementById('breakclock'); if(el)el.style.color='var(--clay)';} },1000); }
+function breakStop(){ breakRun=false; clearInterval(breakInt); const btn=document.getElementById('breakbtn'); if(btn)btn.textContent='RESUME'; }
+function breakReset(){ breakRun=false; clearInterval(breakInt); breakLeft=breakTotal; breakRender(); const el=document.getElementById('breakclock'); if(el)el.style.color='var(--cobalt)'; const btn=document.getElementById('breakbtn'); if(btn)btn.textContent='START'; }
+
+
+/* ---------- confetti ---------- */
+function fireConfetti(){ const c=document.getElementById('confetti'); c.classList.add('on'); c.width=innerWidth;c.height=innerHeight;
+  const ctx=c.getContext('2d'); const cols=['#1B65F5','#F5A31B','#2E9E7B','#E5533D','#14213D']; let ps=[];
+  for(let i=0;i<160;i++)ps.push({x:Math.random()*c.width,y:-20-Math.random()*c.height,r:4+Math.random()*6,col:cols[i%cols.length],vy:2+Math.random()*4,vx:-2+Math.random()*4,rot:Math.random()*6.28,vr:-.2+Math.random()*.4});
+  let f=0; (function anim(){ ctx.clearRect(0,0,c.width,c.height); f++;
+    ps.forEach(p=>{ p.y+=p.vy;p.x+=p.vx;p.rot+=p.vr; ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.col;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);ctx.restore(); });
+    if(f<240)requestAnimationFrame(anim); else c.classList.remove('on'); })(); }
+
+
+/* ---------- checklist ---------- */
+function chkStat(list){ const items=list.querySelectorAll('.chk'); const done=[...items].filter(i=>i.classList.contains('done')).length; const fill=list.querySelector('.chkfill'); const read=list.querySelector('.chkread'); if(fill)fill.style.width=(done/items.length*100)+'%'; if(read)read.textContent= done===items.length ? 'All checked. You are ready.' : (done+' of '+items.length+' checked'); }
+function chkInit(s){ s.querySelectorAll('.chklist').forEach(chkStat); }
+function chkToggle(el){ el.classList.toggle('done'); chkStat(el.closest('.chklist')); }
+/* ---------- score-it ---------- */
+let scIdx=0;
+function buildScore(){ if(document.getElementById('scoreit')) scRender(); }
+function scRender(){ const box=document.getElementById('scoreit'); if(!box)return; box.dataset.done=''; const it=SCOREITEMS[scIdx];
+  box.innerHTML='<div class="scq">Sample '+(scIdx+1)+' of '+SCOREITEMS.length+' · '+it.line+'</div><div class="scsub">'+it.sub+'</div>'+
+  '<div class="scbtns">'+[0,25,50,75,100].map(v=>'<button class="scbtn" data-tip="'+(typeof BANDTIP!=='undefined'?BANDTIP[v]:'')+'" onclick="scorePick('+v+')">'+v+'</button>').join('')+'</div>'+
+  '<div class="mtwrap"><button class="mtimer" data-secs="15" data-label="15s" onclick="miniTimer(this)">Start 15s</button><span class="mthint">Pods commit to a band before the reveal</span></div>'+
+  '<div class="scfb" id="scfb"></div>'; }
+function scorePick(v){ const box=document.getElementById('scoreit'); if(box.dataset.done)return; box.dataset.done=1; const it=SCOREITEMS[scIdx];
+  document.querySelectorAll('#scoreit .scbtn').forEach(b=>{ if(+b.textContent===it.model)b.classList.add('correct'); });
+  if(Math.abs(v-it.model)<=25) award(10);
+  document.getElementById('scfb').innerHTML='<b>Model score: '+it.model+'.</b> '+it.why+(scIdx<SCOREITEMS.length-1?'<button class="scnext" onclick="scNext()">Next sample</button>':''); }
+function scNext(){ if(scIdx<SCOREITEMS.length-1){ scIdx++; scRender(); } }
+/* ---------- step questionnaire (Kestrel five-step slide) ---------- */
+let sqIdx=0;
+function buildStepQuiz(){ sqIdx=0; if(document.getElementById('stepquiz')) sqRender(); }
+function sqRender(){ const box=document.getElementById('stepquiz'); if(!box)return; box.dataset.done=''; const it=STEPQUIZ[sqIdx];
+  box.innerHTML='<div class="scq">Question '+(sqIdx+1)+' of '+STEPQUIZ.length+'</div>'+
+  '<div class="scsub" style="margin-bottom:14px">'+it.q+'</div>'+
+  '<div class="qopts" style="grid-template-columns:1fr">'+it.opts.map((o,i)=>'<div class="qopt" data-ok="'+o.ok+'" onclick="sqPick(this)"><span class="k">'+String.fromCharCode(65+i)+'</span><span>'+o.t+'</span></div>').join('')+'</div>'+
+  '<div class="qfb" id="sqfb"></div>'; }
+function sqPick(el){ const box=document.getElementById('stepquiz'); if(box.dataset.done)return; box.dataset.done=1;
+  [...el.parentElement.children].forEach(o=>{ if(o.dataset.ok==='true') o.classList.add('correct'); });
+  if(el.dataset.ok!=='true') el.classList.add('wrong'); else award(15);
+  const it=STEPQUIZ[sqIdx];
+  document.getElementById('sqfb').innerHTML=it.fb+(sqIdx<STEPQUIZ.length-1?'<button class="scnext" onclick="sqNext()">Next question</button>':'<div style="margin-top:12px;font-weight:700;color:var(--sage)">That is all three. Nice work.</div>'); }
+function sqNext(){ if(sqIdx<STEPQUIZ.length-1){ sqIdx++; sqRender(); } }
+/* ---------- work-timer nudge ---------- */
+function openWorkTimer(m){ const el=document.getElementById('tm'); if(el&&!el.classList.contains('on')) el.classList.add('on'); tmSet(m); if(!tmRun) tmToggle(); }
+
+/* ---------- boot ---------- */
+loadTeams(); renderTeams(); enter(0,false);
+</script>
+</body>
+</html>
