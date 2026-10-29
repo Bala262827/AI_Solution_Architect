@@ -1,0 +1,7 @@
+I am trying to push this file from a different account like I was mentioning in the class.
+
+If this reaches, it means it worked.
+
+Steps : 
+
+Fork my repo -> Clone -> git clone <repo_name> -> cd solutions (Checkout your branch) -> *.docx -> add, commit, push -> Raise a PR 
