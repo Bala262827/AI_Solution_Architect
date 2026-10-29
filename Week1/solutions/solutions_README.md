@@ -7,4 +7,4 @@ git remote set-url origin https://github.com/hardik-goel/AI_Solution_Architect.g
 
 Steps : 
 
-Fork my repo -> Clone -> git clone <repo_name> -> cd solutions (Checkout your branch) -> *.docx -> add, commit, push -> Raise a PR 
+Fork my repo -> Clone -> git clone <repo_name> -> cd solutions (stay in master branch only)-> *.docx -> add, commit, push 
